@@ -9,8 +9,18 @@ def seconds_to_hms(seconds):
 
 # Convertit HH:MM:SS -> secondes
 def hms_to_seconds(hms_str):
-    h, m, s = map(int, hms_str.split(":"))
-    return h*3600 + m*60 + s
+    if hms_str.find("::"):
+        h,ms=hms_str.split("::")
+        if ms.find(":"):
+            m,s=ms.split(":")
+        else:
+            m,s=ms,0
+    else:
+        if hms_str.find(":"):
+            m,s=hms_str.split(":")
+        else:
+            m,s=ms,0
+    return int(h)*3600+int(m)*60+int(s)
 
 # Normalise un texte : minuscule, strip, sans accents
 def normalize(text):
@@ -54,7 +64,7 @@ def quiz(transcripts, title_map, n=5):
         print(f"\nPhrase : « {phrase} »\n")
 
         # Titre
-        guess_title = input("Titre de la vidéo ? ").strip()
+        guess_title = input("Nom de la vidéo ? ").strip()
         norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
 
@@ -65,12 +75,15 @@ def quiz(transcripts, title_map, n=5):
             print(f"Bien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
         # Timestamp
         score+=1
-        guess_time_str = input("Moment (HH:MM:SS) ? ").strip()
-        try:
-            guess_time = hms_to_seconds(guess_time_str)
-        except:
-            print("Format de temps invalide.")
-            continue
+        inv=True
+        while inv:
+            guess_time_str = input("Moment (HH::MM:SS) ? ").strip()
+            try:
+                guess_time = hms_to_seconds(guess_time_str)
+                inv=False
+            except:
+                print("Format de temps invalide.")
+                continue
         print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}")
 
     print(f"\n🎉 Score final : {score}/{n}")
@@ -100,7 +113,7 @@ manual_aliases = {
         "équipe", "lol","rox tigers","roxtigers","rox","équipes","belle"
     ],
     "22 minutes pour sauver l'univers (ok un peu plus)": [
-        "22 minutes", "outer wilds 1","outer wilds","ow1","ow 1"
+        "22 minutes", "outer wilds 1","outer wilds","ow1","ow 1","ow"
     ],
     "Qu'est-ce que le cinéma a appris au jeu vidéo ?": [
         "jeu vidéo","cinéma jeu vidéo","cinéma vs jeu vidéo"
