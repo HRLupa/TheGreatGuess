@@ -110,7 +110,7 @@ def quiz(transcripts, title_map, n=5):
                 condition=False
         video_title, phrase, start_time, _ = phrases[indphrase]
         print(f"\nPhrase : « {phrase.replace("\n"," ")} »\n")
-        guess_title = input("Nom de la vidéo ? ").strip()
+        guess_title = input("Thème de la vidéo ? ").strip()
         norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
 
@@ -125,9 +125,8 @@ def quiz(transcripts, title_map, n=5):
             print(f"\nContexte : {context}")
             continue
         else:
+            score+=200
             print(f"+ 200 points : {score}\nBien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
-        # Timestamp
-        score+=200
         inv=True
         while inv:
             guess_time_str = input("Moment (HH::MM:SS) ? ").strip()
@@ -147,4 +146,4 @@ def quiz(transcripts, title_map, n=5):
 if __name__ == "__main__":
     transcripts = load_transcripts()
     title_map = build_title_aliases(transcripts, manual_aliases)
-    quiz(transcripts, title_map, n=15)
+    quiz(transcripts, title_map, n=10)
