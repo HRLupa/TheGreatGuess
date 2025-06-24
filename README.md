@@ -13,6 +13,6 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;Click on Code, then on Codespaces, create a new codespace, paste in the terminal in the bottom ```pip install unidecode```, and then ```python "Test connaissances vidéos tgr.py"```
 
-## If you get an error during the execution
+## If you get an error or an unexpected behavior during the execution
 
 Please open an issue by submitting a picture of what happened while adding the most relevants details you think might have activated the error.

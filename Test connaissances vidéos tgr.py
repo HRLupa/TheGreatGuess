@@ -96,7 +96,7 @@ def quiz(transcripts, title_map, n=5):
             if phrases[indphrase][3]>0.5:
                 condition=False
         video_title, phrase, start_time, _ = phrases[indphrase]
-        print(f"\nPhrase : « {phrase} »\n")
+        print(f"\nPhrase : « {phrase.replace("\n"," ")} »\n")
 
         # Titre
         guess_title = input("Nom de la vidéo ? ").strip()
@@ -110,6 +110,7 @@ def quiz(transcripts, title_map, n=5):
             for i in range(len(indcontext)):
                 context+=" "+phrases[indcontext[i]][1]
             context=context.replace("\n"," ")
+            #print(repr(context))
             print(f"\nContexte : {context}")
             continue
         else:
@@ -127,7 +128,7 @@ def quiz(transcripts, title_map, n=5):
                 print("Format de temps invalide.")
                 continue
         if start_time<guess_time:
-            guess_time+=1
+            guess_time+=1 #Don't know why but there's a missing second if I don't add this one
         print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}")
     print(f"\n🎉  Score final : {score}/{n}")
 
