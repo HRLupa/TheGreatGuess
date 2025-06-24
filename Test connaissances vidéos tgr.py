@@ -98,6 +98,7 @@ def quiz(transcripts, title_map, n=5):
             for entry in subs:
                 phrases.append((title, entry["text"], entry["start"],entry["duration"]))
     score = 0
+    rightguess=0
     durations=get_durations()
     for i in range(n):
         if i!=0:
@@ -113,7 +114,6 @@ def quiz(transcripts, title_map, n=5):
         guess_title = input("Thème de la vidéo ? ").strip()
         norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
-
         if expected_title!= video_title:
             print(f"Mauvais titre ! La vidéo était : {video_title} à {seconds_to_hms(start_time)}")
             indcontext=closephrases(phrases,indphrase)
@@ -127,6 +127,7 @@ def quiz(transcripts, title_map, n=5):
         else:
             score+=200
             print(f"+ 200 points : {score}\nBien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
+            rightguess+=1
         inv=True
         while inv:
             guess_time_str = input("Moment (HH::MM:SS) ? ").strip()
@@ -141,7 +142,7 @@ def quiz(transcripts, title_map, n=5):
         score_guess=score_guess_quadratic(guess_time,start_time,durations[francais_anglais[video_title]])
         score+=score_guess
         print(f"+{score_guess} points : {score}\nVous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}.")
-    print(f"\n🎉  Score final : {score}/{400*n}")
+    print(f"\n🎉  Score final : {score}/{400*n}\n🎮  Jeux trouvés : {rightguess}/{n}")
 
 if __name__ == "__main__":
     transcripts = load_transcripts()
