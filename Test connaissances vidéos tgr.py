@@ -123,7 +123,7 @@ def quiz(transcripts, title_map, n=5):
             print(f"\nContexte : {context}")
             continue
         else:
-            print(f"Bien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
+            print(f"Bien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])}) + 200 points")
         # Timestamp
         score+=200
         inv=True
@@ -141,7 +141,7 @@ def quiz(transcripts, title_map, n=5):
         score_guess=score_guess_quadratic(guess_time,start_time,durations[francais_anglais[video_title]])
         score+=score_guess
         print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}. + {score_guess} points")
-    print(f"\n🎉  Score final : {score}/{n}")
+    print(f"\n🎉  Score final : {score}/{400*n}")
 
 if __name__ == "__main__":
     transcripts = load_transcripts()
