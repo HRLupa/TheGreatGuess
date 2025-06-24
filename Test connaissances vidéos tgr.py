@@ -33,7 +33,7 @@ def load_transcripts(filename="transcripts.json")->dict[str,list[dict]]:
     with open(filename, encoding="utf-8") as f:
         return json.load(f)
 def get_durations(filename="videos.json"):
-    with open("videos.json","r",encoding="utf-8") as f:
+    with open(filename,"r",encoding="utf-8") as f:
         data=json.load(f)
     return {videos["title"]:videos["duration"] for videos in data["entries"][0]["entries"]}
 
@@ -79,9 +79,19 @@ def closephrases(phrases:list[tuple[str]],ind,total=2):
                     renvoi.append(ind+(cpt//2)+1)
                 cpt+=1
     return renvoi
-# Le quiz
+def score_guess_quadratic(guess_time, start_time, video_duration):
+    error = abs(guess_time - start_time)
+    max_error = video_duration * 0.35
+    #print(error,max_error)
+    if error >= max_error:
+        return 0
+    error_ratio = error / max_error
+    #print(error_ratio)
+    score = 200 * (1 - error_ratio) ** 1.5
+    #print("score : ",score)
+    return int(round(score))
+
 def quiz(transcripts, title_map, n=5):
-    # Construire une liste de phrases (video_title, text, start)
     phrases = []
     for title, subs in transcripts.items():
         if subs:
@@ -90,7 +100,7 @@ def quiz(transcripts, title_map, n=5):
     score = 0
     durations=get_durations()
     for i in range(n):
-        print(f"\nQuestion {i+1}/{n}")
+        print(f"\n\nQuestion {i+1}/{n}")
         condition=True
         while condition:
             indphrase=random.randint(0,len(phrases)-1)
@@ -98,8 +108,6 @@ def quiz(transcripts, title_map, n=5):
                 condition=False
         video_title, phrase, start_time, _ = phrases[indphrase]
         print(f"\nPhrase : « {phrase.replace("\n"," ")} »\n")
-
-        # Titre
         guess_title = input("Nom de la vidéo ? ").strip()
         norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
@@ -117,7 +125,7 @@ def quiz(transcripts, title_map, n=5):
         else:
             print(f"Bien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
         # Timestamp
-        score+=1
+        score+=200
         inv=True
         while inv:
             guess_time_str = input("Moment (HH::MM:SS) ? ").strip()
@@ -130,7 +138,9 @@ def quiz(transcripts, title_map, n=5):
                 continue
         if start_time<guess_time:
             guess_time+=1 #Don't know why but there's a missing second if I don't add this one
-        print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}")
+        score_guess=score_guess_quadratic(guess_time,start_time,durations[francais_anglais[video_title]])
+        score+=score_guess
+        print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}. + {score_guess} points")
     print(f"\n🎉  Score final : {score}/{n}")
 
 if __name__ == "__main__":
