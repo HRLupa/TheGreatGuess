@@ -133,7 +133,7 @@ manual_aliases = {
         "otzdarva", "dark souls", "run","histoire otzdarva","ds","dark souls 2","ds2","abnh","all bosses no hit"
     ]
 }
-print({list(manual_aliases.keys())[i]:list(get_durations().keys())[i] for i in range(len(manual_aliases))})
+#print({list(manual_aliases.keys())[i]:list(get_durations().keys())[i] for i in range(len(manual_aliases))})
 
 if __name__ == "__main__":
     transcripts = load_transcripts()
