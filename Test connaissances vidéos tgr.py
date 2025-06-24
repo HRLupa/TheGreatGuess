@@ -8,18 +8,19 @@ def seconds_to_hms(seconds):
     return str(timedelta(seconds=int(seconds)))
 
 # Convertit HH:MM:SS -> secondes
-def hms_to_seconds(hms_str):
-    if hms_str.find("::"):
+def hms_to_seconds(hms_str:str):
+    if hms_str.find("::")!=-1:
         h,ms=hms_str.split("::")
-        if ms.find(":"):
+        if ms.find(":")!=-1:
             m,s=ms.split(":")
         else:
             m,s=ms,0
     else:
-        if hms_str.find(":"):
+        h=0
+        if hms_str.find(":")!=-1:
             m,s=hms_str.split(":")
         else:
-            m,s=ms,0
+            m,s=hms_str,0
     return int(h)*3600+int(m)*60+int(s)
 
 # Normalise un texte : minuscule, strip, sans accents
@@ -47,7 +48,36 @@ def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[st
                 title_map[normalize(alias)] = real_title
         title_map[normalize(real_title)]=real_title
     return title_map
-
+def closephrases(phrases:list[tuple[str]],ind,total=2):
+    renvoi=[ind]
+    cpt=0
+    title=phrases[ind][0]
+    bloqueavant=False
+    bloqueapres=False
+    while total>cpt:
+        if ind-((cpt//2)+1)==0 or phrases[ind-((cpt//2)+1)][0]!=title:
+            bloqueavant=True
+        if ind+(cpt//2)+1==len(phrases)-1 or phrases[ind+(cpt//2)+1][0]!=title:
+            bloqueapres=True
+        if bloqueavant:
+            if bloqueapres:
+                raise "C'est quoi ta vidéo frérot"
+            else:
+                renvoi.append(ind+(cpt//2)+1)
+                cpt+=2
+                total+=1 #Trust, ça marche, faut juste que cpt avance de 1 de plus que total
+        else:
+            if bloqueapres:
+                renvoi.insert(0,ind-((cpt//2)+1))
+                cpt+=2
+                total+=1
+            else:
+                if cpt%2==0:
+                    renvoi.insert(0,ind-((cpt//2)+1))
+                else:
+                    renvoi.append(ind+(cpt//2)+1)
+                cpt+=1
+    return renvoi
 # Le quiz
 def quiz(transcripts, title_map, n=5):
     # Construire une liste de phrases (video_title, text, start)
@@ -55,12 +85,14 @@ def quiz(transcripts, title_map, n=5):
     for title, subs in transcripts.items():
         if subs:
             for entry in subs:
-                phrases.append((title, entry["text"], entry["start"]))
+                phrases.append((title, entry["text"], entry["start"],entry["duration"]))
     score = 0
     durations=get_durations()
     for i in range(n):
         print(f"\nQuestion {i+1}/{n}")
-        video_title, phrase, start_time = random.choice(phrases)
+        indphrase=random.randint(0,len(phrases)-1)
+        #if indphrase!=len(phrases)-1 and phrases
+        video_title, phrase, start_time, duration = phrases[indphrase]
         print(f"\nPhrase : « {phrase} »\n")
 
         # Titre
@@ -69,7 +101,13 @@ def quiz(transcripts, title_map, n=5):
         expected_title = title_map.get(norm_guess)
 
         if expected_title!= video_title:
-            print(f"Mauvais titre ! La bonne réponse était : {video_title} à {seconds_to_hms(start_time)}")
+            print(f"Mauvais titre ! La vidéo était : {video_title} à {seconds_to_hms(start_time)}")
+            indcontext=closephrases(phrases,indphrase)
+            context=""
+            for i in range(len(indcontext)):
+                context+=" "+phrases[indcontext[i]][1]
+            context=context.replace("\n"," ")
+            print(f"\nContexte : {context}")
             continue
         else:
             print(f"Bien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
@@ -78,15 +116,17 @@ def quiz(transcripts, title_map, n=5):
         inv=True
         while inv:
             guess_time_str = input("Moment (HH::MM:SS) ? ").strip()
+            guess_time = hms_to_seconds(guess_time_str)
             try:
                 guess_time = hms_to_seconds(guess_time_str)
                 inv=False
             except:
                 print("Format de temps invalide.")
                 continue
+        if start_time<guess_time:
+            guess_time+=1
         print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}")
-
-    print(f"\n🎉 Score final : {score}/{n}")
+    print(f"\n🎉  Score final : {score}/{n}")
 
 # Exemple d'alias personnalisés à ajouter
 francais_anglais={'Mais pourquoi Nintendo porte plainte contre tout le monde ?': 'Mais pourquoi Nintendo porte plainte contre tout le monde ?', 'Quand 500 jeunes ont tenu une montagne contre les nazis': 'The time 500 youngsters held a mountain against the Nazis', 'Le jeu où on plante des sapins': 'Planting trees and feeling happy', "22 minutes de + pour comprendre l'univers": 'Another 22 minutes to understand the universe', 'La légende de Barbe Scintillante': 'The legend of Glitterbeard', "Créer (et détruire) la plus grosse licence d'Occident": 'How to build (and destroy) the largest franchise in the west', 'La plus belle des équipes': 'The most beautiful team there was', "22 minutes pour sauver l'univers (ok un peu plus)": '22 minutes to save the universe (alright, maybe a bit more)', "Qu'est-ce que le cinéma a appris au jeu vidéo ?": 'What video games learnt from cinema', "C'est quoi un bon film ?": 'What\'s a "good" movie ?', 'Tunic : Le jeu qui en cachait un autre': 'The game that was hiding another', 'Le mystère du 8': '88888888', 'Les clubs du futur': 'Gaming teams of the future', 'La géopolitique expliquée avec des pixels': 'Geopolitics explained through pixels', "La plus grande partie de capture de drapeau de l'histoire d'Internet": 'Greatest game of capture the flag ever played', 'Comment Among Us a explosé': 'How Among Us made it', 'La quête du dernier secret': 'The last big Secret', "L'incroyable histoire d'Otzdarva et de la run Dark Souls la plus difficile": 'The incredible story of Otzdarva and the hardest Dark Souls run'}
