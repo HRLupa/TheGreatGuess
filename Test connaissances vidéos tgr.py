@@ -100,7 +100,9 @@ def quiz(transcripts, title_map, n=5):
     score = 0
     durations=get_durations()
     for i in range(n):
-        print(f"\n\nQuestion {i+1}/{n}")
+        if i!=0:
+            print()
+        print(f"\nQuestion {i+1}/{n}")
         condition=True
         while condition:
             indphrase=random.randint(0,len(phrases)-1)
@@ -123,13 +125,12 @@ def quiz(transcripts, title_map, n=5):
             print(f"\nContexte : {context}")
             continue
         else:
-            print(f"Bien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])}) + 200 points")
+            print(f"+ 200 points : {score}\nBien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
         # Timestamp
         score+=200
         inv=True
         while inv:
             guess_time_str = input("Moment (HH::MM:SS) ? ").strip()
-            guess_time = hms_to_seconds(guess_time_str)
             try:
                 guess_time = hms_to_seconds(guess_time_str)
                 inv=False
@@ -140,7 +141,7 @@ def quiz(transcripts, title_map, n=5):
             guess_time+=1 #Don't know why but there's a missing second if I don't add this one
         score_guess=score_guess_quadratic(guess_time,start_time,durations[francais_anglais[video_title]])
         score+=score_guess
-        print(f"Vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}. + {score_guess} points")
+        print(f"+{score_guess} points : {score}\nVous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}.")
     print(f"\n🎉  Score final : {score}/{400*n}")
 
 if __name__ == "__main__":
