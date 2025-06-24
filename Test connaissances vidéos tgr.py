@@ -90,9 +90,12 @@ def quiz(transcripts, title_map, n=5):
     durations=get_durations()
     for i in range(n):
         print(f"\nQuestion {i+1}/{n}")
-        indphrase=random.randint(0,len(phrases)-1)
-        #if indphrase!=len(phrases)-1 and phrases
-        video_title, phrase, start_time, duration = phrases[indphrase]
+        condition=True
+        while condition:
+            indphrase=random.randint(0,len(phrases)-1)
+            if phrases[indphrase][3]>0.5:
+                condition=False
+        video_title, phrase, start_time, _ = phrases[indphrase]
         print(f"\nPhrase : « {phrase} »\n")
 
         # Titre
