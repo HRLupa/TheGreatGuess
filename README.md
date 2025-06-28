@@ -11,7 +11,7 @@
 
 ### If you don't have python downloaded
 
-&nbsp;&nbsp;&nbsp;&nbsp;Click on Code, then on Codespaces, create a new codespace, paste in the terminal in the bottom ```pip install unidecode```, and then ```python "Test connaissances vidéos tgr.py"```
+&nbsp;&nbsp;&nbsp;&nbsp;Click on Code, then on Codespaces, create a new codespace, paste in the terminal in the bottom ```pip install unidecode,msvcrt```, and then ```python "quiz_module.py"```
 
 ## If you get an error or an unexpected behavior during the execution
 

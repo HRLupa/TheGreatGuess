@@ -6,8 +6,12 @@ from statiques import francais_anglais,manual_aliases
 
 # Convertit secondes -> HH:MM:SS
 def seconds_to_hms(seconds):
-    return str(timedelta(seconds=int(seconds)))
-
+    return f"{afftime(int(seconds//3600))}::{afftime(int((seconds//60)%60))}:{afftime(int(seconds%60))}"
+def afftime(time:int):
+    string=str(time)
+    if len(string)==1:
+        string="0"+string
+    return string
 # Convertit HH:MM:SS -> secondes
 def hms_to_seconds(hms_str:str):
     if hms_str.find("::")!=-1:
@@ -87,7 +91,9 @@ def score_guess_quadratic(guess_time, start_time, video_duration):
         return 0
     error_ratio = error / max_error
     #print(error_ratio)
-    score = 200 * (1 - error_ratio) ** 1.5
+    score = 200 * (1.02 - error_ratio) ** 1.4
+    if score>200:
+        score=200
     #print("score : ",score)
     return int(round(score))
 def getphrases(transcripts):
@@ -96,6 +102,7 @@ def getphrases(transcripts):
         if subs:
             for entry in subs:
                 phrases.append((title, entry["text"], entry["start"],entry["duration"]))
+    return phrases
 def getquestion(phrases):
     condition=True
     while condition:
@@ -103,6 +110,25 @@ def getquestion(phrases):
         if phrases[indphrase][3]>0.5: 
             condition=False
     return indphrase
+def waitingtime():
+    import os
+    print("\033[1;30;40mPress any key to continue...\033[0m", end='', flush=True)
+    if os.name == 'nt':  # Windows
+        import msvcrt
+        key = msvcrt.getch().decode()
+        print("\r\033[K",end="")
+        return
+    else:  # macOS/Linux
+        import tty, termios
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            key = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        print("\r\033[K",end="")
+        return key
 def quiz(transcripts, title_map, n=5):
     phrases = getphrases(transcripts)
     score = 0
@@ -110,9 +136,10 @@ def quiz(transcripts, title_map, n=5):
     durations=get_durations()
     for i in range(n):
         if i!=0:
+            waitingtime()
             print()
         print(f"\nQuestion {i+1}/{n}")
-        indquestion=getquestion()
+        indquestion=getquestion(phrases)
         video_title, phrase, start_time, _ = phrases[indquestion]
         print(f"Phrase : « {phrase.replace("\n"," ")} »\n")
         guess_title = input("Thème de la vidéo ? ").strip()
@@ -132,6 +159,7 @@ def quiz(transcripts, title_map, n=5):
             score+=200
             print(f"+ 200 points : {score}\n\nBien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
             rightguess+=1
+            #waitingtime()
         inv=True
         while inv:
             guess_time_str = input("Moment (HH::\033[1mMM\033[0m:SS) ? ").strip()
