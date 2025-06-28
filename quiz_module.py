@@ -142,8 +142,15 @@ def quiz(transcripts, title_map, n=5):
         indquestion=getquestion(phrases)
         video_title, phrase, start_time, _ = phrases[indquestion]
         print(f"Phrase : « {phrase.replace("\n"," ")} »\n")
-        guess_title = input("Thème de la vidéo ? ").strip()
+        guess_title = input("Thème de la vidéo ? (help) ")
         norm_guess = normalize(guess_title)
+        if norm_guess=="help":
+            vids=list(francais_anglais.keys())
+            print()
+            for i in range(len(vids)):
+                print(vids[i])
+            guess_title = input("\nThème de la vidéo ? ")
+            norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
         if expected_title!= video_title:
             print(f"Mauvais titre ! La vidéo était « {video_title} » à {seconds_to_hms(start_time)}")
@@ -173,7 +180,7 @@ def quiz(transcripts, title_map, n=5):
             guess_time+=1 #Don't know why but there's a missing second if I don't add this one
         score_guess=score_guess_quadratic(guess_time,start_time,durations[francais_anglais[video_title]])
         score+=score_guess
-        print(f"\n+{score_guess} points : {score}\nVous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel, c'était à {seconds_to_hms(start_time)}.")
+        print(f"+{score_guess} points : {score}\n\nC'était à {seconds_to_hms(start_time)}, vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel.")
     print(f"\n🎉  Score final : {score}/{400*n}\n🎮  Jeux trouvés : {rightguess}/{n}")
 
 if __name__ == "__main__":
