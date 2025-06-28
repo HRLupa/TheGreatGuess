@@ -90,13 +90,21 @@ def score_guess_quadratic(guess_time, start_time, video_duration):
     score = 200 * (1 - error_ratio) ** 1.5
     #print("score : ",score)
     return int(round(score))
-
-def quiz(transcripts, title_map, n=5):
+def getphrases(transcripts):
     phrases = []
     for title, subs in transcripts.items():
         if subs:
             for entry in subs:
                 phrases.append((title, entry["text"], entry["start"],entry["duration"]))
+def getquestion(phrases):
+    condition=True
+    while condition:
+        indphrase=random.randint(0,len(phrases)-1)
+        if phrases[indphrase][3]>0.5: 
+            condition=False
+    return indphrase
+def quiz(transcripts, title_map, n=5):
+    phrases = getphrases(transcripts)
     score = 0
     rightguess=0
     durations=get_durations()
@@ -104,19 +112,15 @@ def quiz(transcripts, title_map, n=5):
         if i!=0:
             print()
         print(f"\nQuestion {i+1}/{n}")
-        condition=True
-        while condition:
-            indphrase=random.randint(0,len(phrases)-1)
-            if phrases[indphrase][3]>0.5:
-                condition=False
-        video_title, phrase, start_time, _ = phrases[indphrase]
-        print(f"\nPhrase : « {phrase.replace("\n"," ")} »\n")
+        indquestion=getquestion()
+        video_title, phrase, start_time, _ = phrases[indquestion]
+        print(f"Phrase : « {phrase.replace("\n"," ")} »\n")
         guess_title = input("Thème de la vidéo ? ").strip()
         norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
         if expected_title!= video_title:
             print(f"Mauvais titre ! La vidéo était « {video_title} » à {seconds_to_hms(start_time)}")
-            indcontext=closephrases(phrases,indphrase)
+            indcontext=closephrases(phrases,indquestion)
             context=""
             for i in range(len(indcontext)):
                 context+=" "+phrases[indcontext[i]][1]
