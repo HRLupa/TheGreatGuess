@@ -59,7 +59,7 @@ def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
     title=phrases[ind][0]
     bloqueavant=False
     bloqueapres=False
-    curlength=0
+    curlength=len(phrases[ind][1])
     while lengthmin>curlength:
         if ind-((cpt//2)+1)==0 or phrases[ind-((cpt//2)+1)][0]!=title:
             bloqueavant=True
@@ -158,7 +158,7 @@ def quiz(transcripts, title_map, n=5):
             guess_title = input("\nThème de la vidéo ? ")
             norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
-        print(expected_title,video_title)
+        #print(expected_title,video_title)
         if francais_anglais.get(expected_title)!= video_title:
             print(f"Mauvais titre ! La vidéo était « {video_title} » à {seconds_to_hms(start_time)}")
             indcontext=closephrases(phrases,indquestions[len(indquestions)//2])
@@ -193,4 +193,4 @@ def quiz(transcripts, title_map, n=5):
 if __name__ == "__main__":
     transcripts = load_transcripts()
     title_map = build_title_aliases(transcripts, manual_aliases)
-    quiz(transcripts, title_map, n=10)
+    quiz(transcripts, title_map, n=30)
