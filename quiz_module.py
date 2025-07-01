@@ -4,6 +4,8 @@ from datetime import timedelta
 from unidecode import unidecode
 from statiques import francais_anglais,manual_aliases
 
+nbquestions=30
+
 # Convertit secondes -> HH:MM:SS
 def seconds_to_hms(seconds):
     return f"{afftime(int(seconds//3600))}::{afftime(int((seconds//60)%60))}:{afftime(int(seconds%60))}"
@@ -160,7 +162,7 @@ def quiz(transcripts, title_map, n=5):
         expected_title = title_map.get(norm_guess)
         #print(expected_title,video_title)
         if francais_anglais.get(expected_title)!= video_title:
-            print(f"Mauvais titre ! La vidéo était « {video_title} » à {seconds_to_hms(start_time)}")
+            print(f"+ 0 points : {score}\n\nMauvais titre ! La vidéo était « {video_title} » à {seconds_to_hms(start_time)}")
             indcontext=closephrases(phrases,indquestions[len(indquestions)//2])
             context=""
             for i in range(len(indcontext)):
@@ -193,4 +195,4 @@ def quiz(transcripts, title_map, n=5):
 if __name__ == "__main__":
     transcripts = load_transcripts()
     title_map = build_title_aliases(transcripts, manual_aliases)
-    quiz(transcripts, title_map, n=30)
+    quiz(transcripts, title_map, n=nbquestions)
