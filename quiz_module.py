@@ -53,13 +53,14 @@ def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[st
                 title_map[normalize(alias)] = real_title
         title_map[normalize(real_title)]=real_title
     return title_map
-def closephrases(phrases:list[tuple[str]],ind,total=2):
+def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
     renvoi=[ind]
     cpt=0
     title=phrases[ind][0]
     bloqueavant=False
     bloqueapres=False
-    while total>cpt:
+    curlength=0
+    while lengthmin>curlength:
         if ind-((cpt//2)+1)==0 or phrases[ind-((cpt//2)+1)][0]!=title:
             bloqueavant=True
         if ind+(cpt//2)+1==len(phrases)-1 or phrases[ind+(cpt//2)+1][0]!=title:
@@ -70,17 +71,19 @@ def closephrases(phrases:list[tuple[str]],ind,total=2):
             else:
                 renvoi.append(ind+(cpt//2)+1)
                 cpt+=2
-                total+=1 #Trust, ça marche, faut juste que cpt avance de 1 de plus que total
+                curlength+=len(phrases[ind+(cpt//2)+1][1])
         else:
             if bloqueapres:
                 renvoi.insert(0,ind-((cpt//2)+1))
                 cpt+=2
-                total+=1
+                curlength+=len(phrases[ind-((cpt//2)+1)][1])
             else:
                 if cpt%2==0:
                     renvoi.insert(0,ind-((cpt//2)+1))
+                    curlength+=len(phrases[ind-((cpt//2)+1)][1])
                 else:
                     renvoi.append(ind+(cpt//2)+1)
+                    curlength+=len(phrases[ind+(cpt//2)+1][1])
                 cpt+=1
     return renvoi
 def score_guess_quadratic(guess_time, start_time, video_duration):
@@ -109,7 +112,7 @@ def getquestion(phrases):
         indphrase=random.randint(0,len(phrases)-1)
         if phrases[indphrase][3]>0.5: 
             condition=False
-    return indphrase
+    return closephrases(phrases,indphrase,15)
 def waitingtime():
     import os
     print("\033[1;30;40mPress any key to continue...\033[0m", end='', flush=True)
@@ -139,9 +142,12 @@ def quiz(transcripts, title_map, n=5):
             waitingtime()
             print()
         print(f"\nQuestion {i+1}/{n}")
-        indquestion=getquestion(phrases)
-        video_title, phrase, start_time, _ = phrases[indquestion]
-        print(f"Phrase : « {phrase.replace("\n"," ")} »\n")
+        indquestions=getquestion(phrases)
+        video_title, _, start_time, _ = phrases[indquestions[0]]
+        phrase=""
+        for i in range(len(indquestions)):
+            phrase+=phrases[indquestions[i]][1].strip()+"  "
+        print(f"Phrase : « {phrase.replace("\n"," ").strip()} »\n")
         guess_title = input("Thème de la vidéo ? (help) ")
         norm_guess = normalize(guess_title)
         if norm_guess=="help":
@@ -152,9 +158,10 @@ def quiz(transcripts, title_map, n=5):
             guess_title = input("\nThème de la vidéo ? ")
             norm_guess = normalize(guess_title)
         expected_title = title_map.get(norm_guess)
-        if expected_title!= video_title:
+        print(expected_title,video_title)
+        if francais_anglais.get(expected_title)!= video_title:
             print(f"Mauvais titre ! La vidéo était « {video_title} » à {seconds_to_hms(start_time)}")
-            indcontext=closephrases(phrases,indquestion)
+            indcontext=closephrases(phrases,indquestions[len(indquestions)//2])
             context=""
             for i in range(len(indcontext)):
                 context+=" "+phrases[indcontext[i]][1]
@@ -164,7 +171,7 @@ def quiz(transcripts, title_map, n=5):
             continue
         else:
             score+=200
-            print(f"+ 200 points : {score}\n\nBien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[francais_anglais[video_title]])})")
+            print(f"+ 200 points : {score}\n\nBien joué ! Le titre de la vidéo était bien \"{video_title}\" (Durée de {seconds_to_hms(durations[video_title])})")
             rightguess+=1
             #waitingtime()
         inv=True
@@ -178,10 +185,10 @@ def quiz(transcripts, title_map, n=5):
                 continue
         if start_time<guess_time:
             guess_time+=1 #Don't know why but there's a missing second if I don't add this one
-        score_guess=score_guess_quadratic(guess_time,start_time,durations[francais_anglais[video_title]])
+        score_guess=score_guess_quadratic(guess_time,start_time,durations[video_title])
         score+=score_guess
         print(f"+{score_guess} points : {score}\n\nC'était à {seconds_to_hms(start_time)}, vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel.")
-    print(f"\n🎉  Score final : {score}/{400*n}\n🎮  Jeux trouvés : {rightguess}/{n}")
+    print(f"\n\n🎉  Score final : {score}/{400*n}\n🎮  Vidéos trouvées : {rightguess}/{n}")
 
 if __name__ == "__main__":
     transcripts = load_transcripts()
