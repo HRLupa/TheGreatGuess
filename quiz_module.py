@@ -1,9 +1,6 @@
 import json
 import random
-from datetime import timedelta
 from unidecode import unidecode
-from statiques import francais_anglais,manual_aliases
-
 nbquestions=30
 
 # Convertit secondes -> HH:MM:SS
@@ -35,7 +32,7 @@ def normalize(text):
     return unidecode(text.strip().lower())
 
 # Charge les transcriptions
-def load_transcripts(filename="transcripts.json")->dict[str,list[dict]]:
+def load_json(filename="transcripts.json"):
     with open(filename, encoding="utf-8") as f:
         return json.load(f)
 def get_durations(filename="videos.json"):
@@ -192,7 +189,11 @@ def quiz(transcripts, title_map, n=5):
         print(f"+{score_guess} points : {score}\n\nC'était à {seconds_to_hms(start_time)}, vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel.")
     print(f"\n\n🎉  Score final : {score}/{400*n}\n🎮  Vidéos trouvées : {rightguess}/{n}")
 
+
+statiques=load_json("statiques.json")
+francais_anglais,manual_aliases=statiques["francais_anglais"],statiques["manual_aliases"]
 if __name__ == "__main__":
-    transcripts = load_transcripts()
+    transcripts = load_json("transcripts.json")
+    statiques=load_json("statiques.json")
     title_map = build_title_aliases(transcripts, manual_aliases)
     quiz(transcripts, title_map, n=nbquestions)
