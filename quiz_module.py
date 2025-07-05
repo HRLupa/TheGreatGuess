@@ -1,6 +1,7 @@
 import json
 import random
-from unidecode import unidecode
+from unidecode import unidecode # type: ignore
+import sys
 nbquestions=30
 
 # Convertit secondes -> HH:MM:SS
@@ -41,7 +42,7 @@ def get_durations(filename="videos.json"):
     return {videos["title"]:videos["duration"] for videos in data["entries"][0]["entries"]}
 
 # Génère une correspondance souple des titres
-def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[str:list[str]]=None):
+def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[str,list[str]]|None=None):
     title_map = {}
     for title in transcripts.keys():
         title_map[normalize(title)] = title
@@ -50,7 +51,7 @@ def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[st
         for real_title, aliases in manual_aliases.items():
             for alias in aliases:
                 title_map[normalize(alias)] = real_title
-        title_map[normalize(real_title)]=real_title
+            title_map[normalize(real_title)]=real_title
     return title_map
 def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
     renvoi=[ind]
@@ -66,7 +67,7 @@ def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
             bloqueapres=True
         if bloqueavant:
             if bloqueapres:
-                raise "C'est quoi ta vidéo frérot"
+                raise ValueError("C'est quoi ta vidéo frérot")
             else:
                 renvoi.append(ind+(cpt//2)+1)
                 cpt+=2
@@ -107,6 +108,7 @@ def getphrases(transcripts):
     return phrases
 def getquestion(phrases):
     condition=True
+    indphrase=0
     while condition:
         indphrase=random.randint(0,len(phrases)-1)
         if phrases[indphrase][3]>0.5: 
@@ -174,6 +176,7 @@ def quiz(transcripts, title_map, n=5):
             rightguess+=1
             #waitingtime()
         inv=True
+        guess_time=0
         while inv:
             guess_time_str = input("Moment (HH::\033[1mMM\033[0m:SS) ? ").strip()
             try:
