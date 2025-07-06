@@ -32,3 +32,6 @@ In order to personalize the quiz, I have added some variables at the top of the 
 ## If you get an error or an unexpected behavior during the execution
 
 Please open an issue by submitting a picture of what happened while adding the most relevants details you think might have activated the error.
+
+
+# *It is important that you know not to criticize the code format used in this project*

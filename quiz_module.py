@@ -1,6 +1,6 @@
 import json
 import random
-from unidecode import unidecode # type: ignore
+from unidecode import unidecode
 import sys
 nbquestions=30
 
@@ -86,7 +86,7 @@ def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
                     curlength+=len(phrases[ind+(cpt//2)+1][1])
                 cpt+=1
     return renvoi
-def score_guess_quadratic(guess_time, start_time, video_duration):
+def score_guess_quadratic(guess_time:int, start_time:int, video_duration:int):
     error = abs(guess_time - start_time)
     max_error = video_duration * 0.35
     #print(error,max_error)
@@ -192,11 +192,10 @@ def quiz(transcripts, title_map, n=5):
         print(f"+{score_guess} points : {score}\n\nC'était à {seconds_to_hms(start_time)}, vous étiez à {seconds_to_hms(abs(start_time-guess_time))} du temps réel.")
     print(f"\n\n🎉  Score final : {score}/{400*n}\n🎮  Vidéos trouvées : {rightguess}/{n}")
 
-
-statiques=load_json("statiques.json")
-francais_anglais,manual_aliases=statiques["francais_anglais"],statiques["manual_aliases"]
 if __name__ == "__main__":
-    transcripts = load_json("transcripts.json")
     statiques=load_json("statiques.json")
+    francais_anglais,manual_aliases=statiques["francais_anglais"],statiques["manual_aliases"]
+    transcripts = load_json("frontend/myjsontranscripts.json")
+    #statiques=load_json("frontend/myjson/statiques.json")
     title_map = build_title_aliases(transcripts, manual_aliases)
     quiz(transcripts, title_map, n=nbquestions)
