@@ -2,13 +2,19 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link rel="stylesheet" href="/src/style.css" />
+        <link rel="stylesheet" href="src/style.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>The Great Guess</title>
     </head>
-    <body class="p-10 space-y-4">
-        <div class="center">
-            <h1>The Great Guess</h1>
+    <body onload="load_data().then(new_question)">
+        <div class="p-6 max-w-xl mx-auto">
+            <div class="text-xl font-bold mb-4" id="phrase">Phrase ici...</div>
+            <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Titre de la vidéo">
+            <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)">
+            <button onclick="submit_answer()" class="btn btn-primary w-full mb-2">Valider</button>
+            <div id="result" class="text-sm mt-4"></div>
+            <div id="nvpoints" class="text-base font-bold"></div>
+            <button onclick="new_question()" class="btn btn-secondary w-full">Question suivante</button>
         </div>
         <script src="main.js"></script>
     </body>
