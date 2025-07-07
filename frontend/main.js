@@ -1,4 +1,4 @@
-let transcripts,durations,francais_anglais,manual_aliases,title_map,phrases
+let transcripts,durations,francais_anglais,manual_aliases,title_map,phrases,current_question
 
 function normalize(text) {
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()
@@ -34,7 +34,7 @@ async function load_data() {
 
 function seconds_to_hms(seconds) {
     const pad=x=>x.toString().padStart(2,"0")
-    return `${pad(Math.floor(seconds / 3600))}::${pad(Math.floor((seconds / 60)%60))}:${pad(seconds%60)}`
+    return `${pad(Math.floor(seconds / 3600))}::${pad(Math.floor((seconds / 60)%60))}:${pad(Math.round(seconds%60))}`
 }
 
 function hms_to_seconds(hms) {
@@ -58,7 +58,7 @@ function get_phrases(transcripts) {
 }
 
 
-function close_phrases(phrases,ind,lengthMin=100) {
+function close_phrases(ind,lengthMin) {
     let renvoi=[ind]
     let total=phrases[ind][1].length
     let cpt=0
@@ -86,12 +86,12 @@ function close_phrases(phrases,ind,lengthMin=100) {
     return renvoi
 }
 
-function get_question(phrases) {
+function get_question() {
     let ind
     do {
         ind=Math.floor(Math.random() * phrases.length)
     } while (phrases[ind][3] <= 0.5)
-    return close_phrases(phrases,ind,15)
+    return close_phrases(ind,15)
 }
 
 
@@ -109,7 +109,6 @@ function score_guess_quadratic(guessTime,startTime,videoDuration) {
 
 let score=0
 let validated=false
-let current_question
 textes={"video_title":submit_title,"time_input":submit_time}
 for (const [id,func] of Object.entries(textes))
 {
@@ -129,12 +128,17 @@ for (const [id,func] of Object.entries(textes))
 
 
 async function new_question() {
-    const indices=get_question(phrases)
+    const indices=get_question()
     current_question=indices
     const phrase=indices.map(i=>phrases[i][1].trim()).join(" ")
     document.getElementById("phrase").innerText=`« ${phrase.replace("\n"," ")} »`
     document.getElementById("video_title").value=""
     document.getElementById("time_input").value=""
+    document.getElementById("suivant").classList.add("hidden")
+    document.getElementById("button title").classList.remove("hidden")
+    validated=false
+    document.getElementById("result").innerHTML=""
+    document.getElementById("contexte").innerHTML=""
 }
 
 async function submit_title() {
@@ -150,18 +154,24 @@ async function submit_title() {
     if (francais_anglais[guessed_title]===expected_title)
     {
         showPoints("+200")
-        affichage="Bien joué ! Le titre de la vidéo était bien \""+guessed_title+"\" (Durée de "+seconds_to_hms(durations[video_title])+")."
-        document.getElementById("result").innerHTML=affichage
+        affichage="Bien joué ! Le titre de la vidéo était bien \""+guessed_title+"\" (Durée de "+seconds_to_hms(durations[expected_title])+")."
+        
     }
     else
     {
         showPoints("+0")
         affichage="Mauvais titre ! La vidéo était « "+expected_title+" » à "+seconds_to_hms(start_time)
+        contexte=""
+        indcontext=close_phrases(current_question[current_question.length>>1],200)
+        const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")
+        document.getElementById("contexte").innerHTML="Contexte : "+phrase
     }
+    document.getElementById("result").innerHTML=affichage
     document.getElementById("suivant").classList.remove("hidden")
     document.getElementById("button title").classList.add("hidden")
 }
 function showPoints(text) {
+    //Not working currently, needs to be fixed
     //console.log("showPoints called with:", text)
     const popup = document.getElementById("pointsPopup")
     popup.innerText = text
