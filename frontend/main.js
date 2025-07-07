@@ -108,33 +108,72 @@ function score_guess_quadratic(guessTime,startTime,videoDuration) {
 
 
 let score=0
+let validated=false
 let current_question
 textes={"video_title":submit_title,"time_input":submit_time}
-textes.forEach(id => {
+for (const [id,func] of Object.entries(textes))
+{
     document.getElementById(id).addEventListener("keydown",function(event) {
         if (event.key==="Enter"){
-            submit_answer()
+            func()
         }
     })
-})
+} 
+/*textes.forEach((id,func) => {
+    document.getElementById(id).addEventListener("keydown",function(event) {
+        if (event.key==="Enter"){
+            func()
+        }
+    })
+})*/
 
 
 async function new_question() {
     const indices=get_question(phrases)
     current_question=indices
     const phrase=indices.map(i=>phrases[i][1].trim()).join(" ")
-    document.getElementById("phrase").innerText=`« ${phrase} »`
+    document.getElementById("phrase").innerText=`« ${phrase.replace("\n"," ")} »`
+    document.getElementById("video_title").value=""
+    document.getElementById("time_input").value=""
 }
 
-function submit_title() {
+async function submit_title() {
+    if (validated){
+        return
+    }
+    validated=true
     const guessed_title=title_map[normalize(document.getElementById("video_title").value)]
     const expected_title=phrases[current_question[current_question.length>>1]][0]
+    const start_time=phrases[current_question[current_question.length>>1]][2]
     console.log(phrases[current_question[current_question.length>>1]])
     let affichage=""
     if (francais_anglais[guessed_title]===expected_title)
     {
-        affichage=""
+        showPoints("+200")
+        affichage="Bien joué ! Le titre de la vidéo était bien \""+guessed_title+"\" (Durée de "+seconds_to_hms(durations[video_title])+")."
+        document.getElementById("result").innerHTML=affichage
     }
+    else
+    {
+        showPoints("+0")
+        affichage="Mauvais titre ! La vidéo était « "+expected_title+" » à "+seconds_to_hms(start_time)
+    }
+    document.getElementById("suivant").classList.remove("hidden")
+    document.getElementById("button title").classList.add("hidden")
+}
+function showPoints(text) {
+    //console.log("showPoints called with:", text)
+    const popup = document.getElementById("pointsPopup")
+    popup.innerText = text
+
+    popup.classList.remove("opacity-0")
+    popup.classList.add("opacity-100")
+
+    // After 2 seconds, fade out
+    setTimeout(() => {
+        popup.classList.remove("opacity-100")
+        popup.classList.add("opacity-0")
+    }, 2000)
 }
 function submit_time() {
     const guess_time_str=document.getElementById("time_input").value

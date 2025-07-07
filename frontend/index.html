@@ -9,12 +9,14 @@
     <body onload="load_data().then(new_question)">
         <div class="p-6 max-w-xl mx-auto">
             <div class="text-xl font-bold mb-4" id="phrase">Phrase ici...</div>
-            <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Titre de la vidéo">
-            <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)">
-            <button onclick="submit_answer()" class="btn btn-primary w-full mb-2">Valider</button>
+            <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Titre de la vidéo" autocomplete="off">
+            <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)" autocomplete="off">
+            <button id="button title" onclick="submit_title()" class="btn btn-primary w-full mb-2">Valider</button>
+            <button id="button time" onclick="submit_time()" class="btn btn-primary w-full mb-2 hidden">Valider</button>
             <div id="result" class="text-sm mt-4"></div>
-            <div id="nvpoints" class="text-base font-bold"></div>
-            <button onclick="new_question()" class="btn btn-secondary w-full">Question suivante</button>
+            <div id="pointsPopup" class="fixed top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white text-lg font-bold px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-500 pointer-events-none">+200 points!</div>
+
+            <button id="suivant" onclick="new_question()" class="btn btn-secondary w-full hidden">Question suivante</button>
         </div>
         <script src="./main.js"></script>
     </body>
