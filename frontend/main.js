@@ -136,6 +136,7 @@ async function new_question() {
     document.getElementById("time_input").value=""
     document.getElementById("suivant").classList.add("hidden")
     document.getElementById("button title").classList.remove("hidden")
+    document.getElementById("video_title").classList.remove("hidden")
     validated=false
     document.getElementById("result").innerHTML=""
     document.getElementById("contexte").innerHTML=""
@@ -155,7 +156,8 @@ async function submit_title() {
     {
         showPoints("+200")
         affichage="Bien joué ! Le titre de la vidéo était bien \""+guessed_title+"\" (Durée de "+seconds_to_hms(durations[expected_title])+")."
-        
+        document.getElementById("time_input").classList.remove("hidden")
+        document.getElementById("button time").classList.remove("hidden")
     }
     else
     {
@@ -165,10 +167,11 @@ async function submit_title() {
         indcontext=close_phrases(current_question[current_question.length>>1],200)
         const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")
         document.getElementById("contexte").innerHTML="Contexte : "+phrase
+        document.getElementById("suivant").classList.remove("hidden")
     }
-    document.getElementById("result").innerHTML=affichage
-    document.getElementById("suivant").classList.remove("hidden")
+    document.getElementById("video_title").classList.add("hidden")
     document.getElementById("button title").classList.add("hidden")
+    document.getElementById("result").innerHTML=affichage
 }
 function showPoints(text) {
     //Not working currently, needs to be fixed
