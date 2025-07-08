@@ -13,15 +13,19 @@
         <div class="p-6 w-full max-w-xl mx-auto text-xl scale-[1.5]">
             <div id="points_popup" class="fixed top-0 left-1/2 -translate-y-full -translate-x-1/2 text-white text-lg font-bold px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-500 pointer-events-none">+200 points!</div>
             <div class="text-xl font-bold mb-4" id="phrase">Leave A Great Review</div>
-            <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Titre de la vidéo" autocomplete="off">
-            <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)" autocomplete="off">
+            <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Thème de la vidéo" autocomplete="off">
+            <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)" autocomplete="off" inputmode="numeric" pattern="\d*" maxlength="6 ">
             <button id="button title" onclick="submit_title()" class="btn btn-primary w-full mb-2">Valider</button>
             <button id="button time" onclick="submit_time()" class="btn btn-primary w-full mb-2 hidden">Valider</button>
             <div id="result" class="text-sm mt-4"></div>
-            <div id="contexte" class="text-sm mt-4"></div>
-            
-
-            <button id="suivant" onclick="new_question()" class="btn btn-secondary w-full hidden">Question suivante</button>
+            <div class="space-y-20">
+                <div id="contexte" class="text-sm mt-4 h-40"></div>
+                <div class="flex justify-center">
+                    <div id="video_player" class="block mx-auto"></div>
+                </div>
+                <span class="opacity-0 pointer-events-none">Nothing to see here</span>
+                <button id="suivant" onclick="new_question()" class="btn btn-secondary justify-center w-full hidden">Question suivante</button>
+            </div>
         </div>
         <script src="./main.js"></script>
     </body>

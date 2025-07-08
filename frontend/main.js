@@ -1,4 +1,4 @@
-let transcripts,durations,francais_anglais,manual_aliases,title_map,phrases,current_question,urls
+let transcripts,durations,francais_anglais,manual_aliases,title_map,phrases,current_question,ids
 
 function normalize(text) {
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()
@@ -19,11 +19,11 @@ function build_title_aliases(transcripts,manual_aliases) {
 async function load_data() {
     transcripts=await ((await (fetch("myjson/transcripts.json"))).json())
     durations={}
-    urls={}
+    ids={}
     const videosJson=await (await fetch("myjson/videos.json")).json()
     videosJson.entries[0].entries.forEach(v=>{
         durations[v.title]=v.duration
-        urls[v.title]=v.url
+        ids[v.title]=v.id
     })
 
     const statiques=await (await fetch("myjson/statiques.json")).json()
@@ -43,6 +43,10 @@ function hms_to_seconds(hms) {
     let [h,ms]=hms.includes("::") ? hms.split("::") : ["0",hms]
     let [m,s]=ms.includes(":") ? ms.split(":") : [ms,"0"]
     return parseInt(h) * 3600+parseInt(m) * 60+parseInt(s)
+}
+function get_html_yt(id,start) {
+    console.log(id,start)
+    return "<iframe id=\"ytPlayer\" width=\"355\" height=\"188\" src=\"https://www.youtube.com/embed/"+id+"?start="+Math.floor(start)+"\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen> </iframe>"
 }
 
 
@@ -140,6 +144,7 @@ async function new_question() {
     document.getElementById("suivant").classList.add("hidden")
     document.getElementById("button title").classList.remove("hidden")
     document.getElementById("video_title").classList.remove("hidden")
+    document.getElementById("video_player").classList.add("hidden")
     validated=false
     document.getElementById("result").innerHTML=""
     document.getElementById("contexte").innerHTML=""
@@ -149,8 +154,9 @@ function showContexte(time,title)
 {
     contexte=""
     indcontext=close_phrases(current_question[current_question.length>>1],200)
-    const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")+"\n<a href=\""+urls[title]+"&t="+time+"s\">Lien</a>"
-    document.getElementById("contexte").innerHTML="Contexte : "+phrase
+    const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")
+    document.getElementById("video_player").innerHTML=get_html_yt(ids[title],phrases[indcontext[0]][2])
+    document.getElementById("contexte").innerHTML="Contexte : "+phrase+"\n<br>\n<br>"
 }
 function showPoints(amount) {
     //Not working currently, needs to be fixed
@@ -167,7 +173,7 @@ function showPoints(amount) {
     setTimeout(() => {
         popup.classList.remove("opacity-100")
         popup.classList.add("opacity-0")
-    }, 2000)
+    }, 500)
 }
 
 async function submit_title() {
@@ -192,6 +198,7 @@ async function submit_title() {
         showPoints(0)
         affichage="Mauvais titre ! La vidéo était « "+expected_title+" » à "+seconds_to_hms(start_time)
         showContexte(start_time,expected_title)
+        document.getElementById("video_player").classList.remove("hidden")
         document.getElementById("suivant").classList.remove("hidden")
     }
     document.getElementById("video_title").classList.add("hidden")
