@@ -1,4 +1,4 @@
-let transcripts,durations,francais_anglais,manual_aliases,title_map,phrases,current_question
+let transcripts,durations,francais_anglais,manual_aliases,title_map,phrases,current_question,urls
 
 function normalize(text) {
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()
@@ -19,9 +19,11 @@ function build_title_aliases(transcripts,manual_aliases) {
 async function load_data() {
     transcripts=await ((await (fetch("myjson/transcripts.json"))).json())
     durations={}
+    urls={}
     const videosJson=await (await fetch("myjson/videos.json")).json()
     videosJson.entries[0].entries.forEach(v=>{
         durations[v.title]=v.duration
+        urls[v.title]=v.url
     })
 
     const statiques=await (await fetch("myjson/statiques.json")).json()
@@ -142,6 +144,29 @@ async function new_question() {
     document.getElementById("contexte").innerHTML=""
 }
 
+function showContexte(time,title)
+{
+    contexte=""
+    indcontext=close_phrases(current_question[current_question.length>>1],200)
+    const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")+"\n<a href=\""+urls[title]+"&t="+time+"s\">Lien</a>"
+    document.getElementById("contexte").innerHTML="Contexte : "+phrase
+}
+function showPoints(text) {
+    //Not working currently, needs to be fixed
+    //console.log("showPoints called with:", text)
+    const popup = document.getElementById("pointsPopup")
+    popup.innerText = text
+
+    popup.classList.remove("opacity-0")
+    popup.classList.add("opacity-100")
+
+    // After 2 seconds, fade out
+    setTimeout(() => {
+        popup.classList.remove("opacity-100")
+        popup.classList.add("opacity-0")
+    }, 2000)
+}
+
 async function submit_title() {
     if (validated){
         return
@@ -163,37 +188,24 @@ async function submit_title() {
     {
         showPoints("+0")
         affichage="Mauvais titre ! La vidéo était « "+expected_title+" » à "+seconds_to_hms(start_time)
-        contexte=""
-        indcontext=close_phrases(current_question[current_question.length>>1],200)
-        const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")
-        document.getElementById("contexte").innerHTML="Contexte : "+phrase
+        showContexte(start_time,expected_title)
         document.getElementById("suivant").classList.remove("hidden")
     }
     document.getElementById("video_title").classList.add("hidden")
     document.getElementById("button title").classList.add("hidden")
     document.getElementById("result").innerHTML=affichage
 }
-function showPoints(text) {
-    //Not working currently, needs to be fixed
-    //console.log("showPoints called with:", text)
-    const popup = document.getElementById("pointsPopup")
-    popup.innerText = text
-
-    popup.classList.remove("opacity-0")
-    popup.classList.add("opacity-100")
-
-    // After 2 seconds, fade out
-    setTimeout(() => {
-        popup.classList.remove("opacity-100")
-        popup.classList.add("opacity-0")
-    }, 2000)
-}
 function submit_time() {
+    const expected_title=phrases[current_question[current_question.length>>1]][0]
     const guess_time_str=document.getElementById("time_input").value
     const start_time=phrases[current_question[current_question.length>>1]][2]
     const durationvideo=durations[expected_title]
-    const score=score_guess_quadratic(parseInt(guess_time_str))
-    let affichage=""
+    const score=score_guess_quadratic(hms_to_seconds(guess_time_str),start_time,durationvideo)
+    showPoints("+"+score.toString())
+    document.getElementById("result").innerHTML="C'était à "+seconds_to_hms(start_time)+", vous étiez à "+seconds_to_hms(Math.abs(start_time-hms_to_seconds(guess_time_str)))+" du temps réel."
+    document.getElementById("time_input").classList.add("hidden")
+    document.getElementById("button time").classList.add("hidden")
+    document.getElementById("suivant").classList.remove("hidden")
 }
 
 /*function submit_answer() {
