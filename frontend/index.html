@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
     <head>
         <meta charset="UTF-8" />
-        <link rel="stylesheet" href="./dist/style.css" />
+        <link rel="stylesheet" href="./src/style.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>The Great Guess</title>
     </head>
-    <body onload="load_data().then(new_question)">
-        <div class="p-6 max-w-xl mx-auto">
+    <body onload="load_data().then(new_question)" class="h-full scale-[1.5] overflow-hidden flex items-center">
+        <div class="p-6 w-full max-w-xl mx-auto text-xl m-14">
             <div class="text-xl font-bold mb-4" id="phrase">Phrase ici...</div>
             <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Titre de la vidéo" autocomplete="off">
             <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)" autocomplete="off">

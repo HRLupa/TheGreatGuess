@@ -121,7 +121,7 @@ def waitingtime():
         import msvcrt
         key = msvcrt.getch().decode()
         print("\r\033[K",end="")
-        return
+        return  
     else:  # macOS/Linux
         import tty, termios
         fd = sys.stdin.fileno()
@@ -137,7 +137,7 @@ def quiz(transcripts, title_map, n=5):
     phrases = getphrases(transcripts)
     score = 0
     rightguess=0
-    durations=get_durations()
+    durations=get_durations("./frontend/myjson/videos.json")
     for i in range(n):
         if i!=0:
             waitingtime()
@@ -193,9 +193,9 @@ def quiz(transcripts, title_map, n=5):
     print(f"\n\n🎉  Score final : {score}/{400*n}\n🎮  Vidéos trouvées : {rightguess}/{n}")
 
 if __name__ == "__main__":
-    statiques=load_json("statiques.json")
+    statiques=load_json("./frontend/myjson/statiques.json")
     francais_anglais,manual_aliases=statiques["francais_anglais"],statiques["manual_aliases"]
-    transcripts = load_json("frontend/myjsontranscripts.json")
+    transcripts = load_json("./frontend/myjson/transcripts.json")
     #statiques=load_json("frontend/myjson/statiques.json")
     title_map = build_title_aliases(transcripts, manual_aliases)
     quiz(transcripts, title_map, n=nbquestions)
