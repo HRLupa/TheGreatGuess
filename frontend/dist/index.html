@@ -1,25 +1,21 @@
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link rel="stylesheet" href="./dist/style.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>The Great Guess</title>
+      <link rel="stylesheet" crossorigin href="/assets/index-pZ-6wPLK.css">
     </head>
-    <body onload="load_data().then(new_question)" class="relative h-full overflow-hidden flex items-center">
-        <div id="points_display" class="absolute top-8 right-8 text-lg font-semibold px-4 py-2 origin-top-right">
-            Points: 0
-        </div>
-        <div class="p-6 w-full max-w-xl mx-auto text-xl scale-[1.5]">
-            <div id="points_popup" class="fixed top-0 left-1/2 -translate-y-full -translate-x-1/2 text-white text-lg font-bold px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-500 pointer-events-none">+200 points!</div>
-            <div class="text-xl font-bold mb-4" id="phrase">Leave A Great Review</div>
+    <body onload="load_data().then(new_question)" class="scale-[1.45] bg-red-400">
+        <div class="p-6 w-full max-w-xl mx-auto text-xl">
+            <div class="text-xl font-bold mb-4" id="phrase">Phrase ici...</div>
             <input id="video_title" class="input input-bordered w-full mb-2" placeholder="Titre de la vidéo" autocomplete="off">
             <input id="time_input" class="input input-bordered w-full mb-2 hidden" placeholder="Moment (HH::MM:SS)" autocomplete="off">
             <button id="button title" onclick="submit_title()" class="btn btn-primary w-full mb-2">Valider</button>
             <button id="button time" onclick="submit_time()" class="btn btn-primary w-full mb-2 hidden">Valider</button>
             <div id="result" class="text-sm mt-4"></div>
             <div id="contexte" class="text-sm mt-4"></div>
-            
+            <div id="pointsPopup" class="fixed top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white text-lg font-bold px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-500 pointer-events-none">+200 points!</div>
 
             <button id="suivant" onclick="new_question()" class="btn btn-secondary w-full hidden">Question suivante</button>
         </div>
