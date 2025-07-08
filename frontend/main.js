@@ -158,14 +158,9 @@ function showContexte(time,title)
     document.getElementById("video_player").innerHTML=get_html_yt(ids[title],phrases[indcontext[0]][2])
     document.getElementById("contexte").innerHTML="Contexte : "+phrase+"\n<br>\n<br>"
 }
-function showPoints(amount) {
-    //Not working currently, needs to be fixed
-    //console.log("showPoints called with:", text)
-    totalpoints+=amount
-    document.getElementById("points_display").innerHTML="Points : "+totalpoints.toString()
-    const popup = document.getElementById("points_popup")
-    popup.innerHTML = "+ "+amount.toString()
-
+function printpopup(text) {
+    popup=document.getElementById("points_popup")
+    popup.innerHTML=text
     popup.classList.remove("opacity-0")
     popup.classList.add("opacity-100")
 
@@ -174,6 +169,24 @@ function showPoints(amount) {
         popup.classList.remove("opacity-100")
         popup.classList.add("opacity-0")
     }, 500)
+}
+function showPoints(amount) {
+    //Not working currently, needs to be fixed
+    //console.log("showPoints called with:", text)
+    totalpoints+=amount
+    document.getElementById("points_display").innerHTML="Points : "+totalpoints.toString()
+    const popup = document.getElementById("points_popup")
+    printpopup("+ "+amount.toString())
+    /*popup.innerHTML = "+ "+amount.toString()
+
+    popup.classList.remove("opacity-0")
+    popup.classList.add("opacity-100")
+
+    // After 2 seconds, fade out
+    setTimeout(() => {
+        popup.classList.remove("opacity-100")
+        popup.classList.add("opacity-0")
+    }, 500)*/
 }
 
 async function submit_title() {
@@ -208,6 +221,13 @@ async function submit_title() {
 function submit_time() {
     const expected_title=phrases[current_question[current_question.length>>1]][0]
     const guess_time_str=document.getElementById("time_input").value
+    if (isNaN(hms_to_seconds(guess_time_str)))
+    {
+        console.log("NaN")
+        printpopup("Invalid time input")
+        document.getElementById("time_input").value=""
+        return 
+    }
     const start_time=phrases[current_question[current_question.length>>1]][2]
     const durationvideo=durations[expected_title]
     const score=score_guess_quadratic(hms_to_seconds(guess_time_str),start_time,durationvideo)
