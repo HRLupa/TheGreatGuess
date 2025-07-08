@@ -93,7 +93,7 @@ function get_question() {
     do {
         ind=Math.floor(Math.random() * phrases.length)
     } while (phrases[ind][3] <= 0.5)
-    return close_phrases(ind,15)
+    return close_phrases(ind,50)
 }
 
 
@@ -111,6 +111,7 @@ function score_guess_quadratic(guessTime,startTime,videoDuration) {
 
 let score=0
 let validated=false
+let totalpoints=0
 textes={"video_title":submit_title,"time_input":submit_time}
 for (const [id,func] of Object.entries(textes))
 {
@@ -151,11 +152,13 @@ function showContexte(time,title)
     const phrase=indcontext.map(i=>phrases[i][1].trim()).join(" ")+"\n<a href=\""+urls[title]+"&t="+time+"s\">Lien</a>"
     document.getElementById("contexte").innerHTML="Contexte : "+phrase
 }
-function showPoints(text) {
+function showPoints(amount) {
     //Not working currently, needs to be fixed
     //console.log("showPoints called with:", text)
-    const popup = document.getElementById("pointsPopup")
-    popup.innerText = text
+    totalpoints+=amount
+    document.getElementById("points_display").innerHTML="Points : "+totalpoints.toString()
+    const popup = document.getElementById("points_popup")
+    popup.innerHTML = "+ "+amount.toString()
 
     popup.classList.remove("opacity-0")
     popup.classList.add("opacity-100")
@@ -179,14 +182,14 @@ async function submit_title() {
     let affichage=""
     if (francais_anglais[guessed_title]===expected_title)
     {
-        showPoints("+200")
+        showPoints(200)
         affichage="Bien joué ! Le titre de la vidéo était bien \""+guessed_title+"\" (Durée de "+seconds_to_hms(durations[expected_title])+")."
         document.getElementById("time_input").classList.remove("hidden")
         document.getElementById("button time").classList.remove("hidden")
     }
     else
     {
-        showPoints("+0")
+        showPoints(0)
         affichage="Mauvais titre ! La vidéo était « "+expected_title+" » à "+seconds_to_hms(start_time)
         showContexte(start_time,expected_title)
         document.getElementById("suivant").classList.remove("hidden")
@@ -201,7 +204,7 @@ function submit_time() {
     const start_time=phrases[current_question[current_question.length>>1]][2]
     const durationvideo=durations[expected_title]
     const score=score_guess_quadratic(hms_to_seconds(guess_time_str),start_time,durationvideo)
-    showPoints("+"+score.toString())
+    showPoints(score)
     document.getElementById("result").innerHTML="C'était à "+seconds_to_hms(start_time)+", vous étiez à "+seconds_to_hms(Math.abs(start_time-hms_to_seconds(guess_time_str)))+" du temps réel."
     document.getElementById("time_input").classList.add("hidden")
     document.getElementById("button time").classList.add("hidden")
