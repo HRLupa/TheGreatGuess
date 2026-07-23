@@ -14,6 +14,10 @@ I provided a format that you can adapt from, the rule is that the number you ent
 
 ## How to try the quiz
 
+### Website
+
+Access this website : https://hrlupa.github.io/quiz_subtitles/frontend **Warning : The website is less advanced and more likely to have bugs than the Python program**
+
 ### Preparation
 
 In order to personalize the quiz, I have added some variables at the top of the file quiz_module that you'll need to run. You are invited to take a look at them in order to get what the kind of quiz that mosts suits what you want to do.
