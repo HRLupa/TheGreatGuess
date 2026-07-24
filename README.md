@@ -10,7 +10,7 @@ The answer is expected in French, and allows some flexibility : Most of the acce
 
 ### The moment in time when the subtitle appeared
 
-I provided a format that you can adapt from, the rule is that the number you enter primarily will be interpreted as a minute number, if you add a :: mark, then the figure before will be considered as a number of hours and after it will be considered as a number of minutes, and if you add a : mark, the figure before will be considered as a number of minutes and after it will be considered as a number of seconds (You can combined hours, minutes and seconds).
+I provided a format that you can adapt from, the rule is that the number you enter primarily will be interpreted as a minute number, if you add a `h` mark, then the figure before will be considered as a number of hours and after it will be considered as a number of minutes, and if you add a `m` mark, the figure before will be considered as a number of minutes and after it will be considered as a number of seconds (You can combined hours, minutes and seconds).
 
 ## How to try the quiz
 
