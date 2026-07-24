@@ -1,12 +1,18 @@
 import json
 import random
 from unidecode import unidecode
+from typing import cast
 import sys
+import os
+
+mainpath=os.path.dirname(__file__)
 nbquestions=30
+hourseparator="h "
+minuteseparator="m "
 
 # Convertit secondes -> HH:MM:SS
-def seconds_to_hms(seconds):
-    return f"{afftime(int(seconds//3600))}::{afftime(int((seconds//60)%60))}:{afftime(int(seconds%60))}"
+def seconds_to_hms(seconds:float|int):
+    return f"{afftime(int(seconds//3600))}{hourseparator}{afftime(int((seconds//60)%60))}{minuteseparator}{afftime(int(seconds%60))}"
 def afftime(time:int):
     string=str(time)
     if len(string)==1:
@@ -14,36 +20,36 @@ def afftime(time:int):
     return string
 # Convertit HH:MM:SS -> secondes
 def hms_to_seconds(hms_str:str):
-    if hms_str.find("::")!=-1:
-        h,ms=hms_str.split("::")
-        if ms.find(":")!=-1:
-            m,s=ms.split(":")
+    if hms_str.find(hourseparator)!=-1:
+        h,ms=hms_str.split(hourseparator)
+        if ms.find(minuteseparator)!=-1:
+            m,s=ms.split(minuteseparator)
         else:
             m,s=ms,0
     else:
         h=0
-        if hms_str.find(":")!=-1:
-            m,s=hms_str.split(":")
+        if hms_str.find(minuteseparator)!=-1:
+            m,s=hms_str.split(minuteseparator)
         else:
             m,s=hms_str,0
     return int(h)*3600+int(m)*60+int(s)
 
 # Normalise un texte : minuscule, strip, sans accents
-def normalize(text):
+def normalize(text:str):
     return unidecode(text.strip().lower())
 
 # Charge les transcriptions
-def load_json(filename="transcripts.json"):
+def load_json(filename:str="transcripts.json"):
     with open(filename, encoding="utf-8") as f:
         return json.load(f)
-def get_durations(filename="videos.json"):
+def get_durations(filename:str="videos.json"):
     with open(filename,"r",encoding="utf-8") as f:
         data=json.load(f)
     return {videos["title"]:videos["duration"] for videos in data["entries"][0]["entries"]}
 
 # Génère une correspondance souple des titres
-def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[str,list[str]]|None=None):
-    title_map = {}
+def build_title_aliases(transcripts:dict[str,list[dict[str,str|float]]], manual_aliases:dict[str,list[str]]|None=None):
+    title_map:dict[str, str]= {}
     for title in transcripts.keys():
         title_map[normalize(title)] = title
 
@@ -53,7 +59,7 @@ def build_title_aliases(transcripts:dict[str,list[dict]], manual_aliases:dict[st
                 title_map[normalize(alias)] = real_title
             title_map[normalize(real_title)]=real_title
     return title_map
-def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
+def closephrases(phrases:list[tuple[str, str, float, float]], ind:int, lengthmin:int=100):
     renvoi=[ind]
     cpt=0
     title=phrases[ind][0]
@@ -86,7 +92,7 @@ def closephrases(phrases:list[tuple[str]],ind,lengthmin=100):
                     curlength+=len(phrases[ind+(cpt//2)+1][1])
                 cpt+=1
     return renvoi
-def score_guess_quadratic(guess_time:int, start_time:int, video_duration:int):
+def score_guess_quadratic(guess_time:float, start_time:float, video_duration:float):
     error = abs(guess_time - start_time)
     max_error = video_duration * 0.35
     #print(error,max_error)
@@ -99,14 +105,14 @@ def score_guess_quadratic(guess_time:int, start_time:int, video_duration:int):
         score=200
     #print("score : ",score)
     return int(round(score))
-def getphrases(transcripts):
-    phrases = []
+def getphrases(transcripts:dict[str,list[dict[str,str|float]]]):
+    phrases:list[tuple[str, str, float, float]]= []
     for title, subs in transcripts.items():
         if subs:
             for entry in subs:
-                phrases.append((title, entry["text"], entry["start"],entry["duration"]))
+                phrases.append((title, cast(str, entry["text"]), cast(float, entry["start"]), cast(float, entry["duration"])))
     return phrases
-def getquestion(phrases):
+def getquestion(phrases:list[tuple[str, str, float, float]]):
     condition=True
     indphrase=0
     while condition:
@@ -133,11 +139,11 @@ def waitingtime():
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         print("\r\033[K",end="")
         return key
-def quiz(transcripts, title_map, n=5):
+def quiz(transcripts:dict[str,list[dict[str,str|float]]], title_map:dict[str,str], n:int=5):
     phrases = getphrases(transcripts)
     score = 0
     rightguess=0
-    durations=get_durations("./frontend/myjson/videos.json")
+    durations=get_durations(f"{mainpath}/frontend/myjson/videos.json")
     for i in range(n):
         if i!=0:
             waitingtime()
@@ -178,7 +184,7 @@ def quiz(transcripts, title_map, n=5):
         inv=True
         guess_time=0
         while inv:
-            guess_time_str = input("Moment (HH::\033[1mMM\033[0m:SS) ? ").strip()
+            guess_time_str = input(f"Moment (00{hourseparator}\033[1m00\033[0m{minuteseparator}00) ? ").replace(" ", "")
             try:
                 guess_time = hms_to_seconds(guess_time_str)
                 inv=False
@@ -193,9 +199,9 @@ def quiz(transcripts, title_map, n=5):
     print(f"\n\n🎉  Score final : {score}/{400*n}\n🎮  Vidéos trouvées : {rightguess}/{n}")
 
 if __name__ == "__main__":
-    statiques=load_json("./frontend/myjson/statiques.json")
+    statiques=load_json(f"{mainpath}/frontend/myjson/statiques.json")
     francais_anglais,manual_aliases=statiques["francais_anglais"],statiques["manual_aliases"]
-    transcripts = load_json("./frontend/myjson/transcripts.json")
+    transcripts = load_json(f"{mainpath}/frontend/myjson/transcripts.json")
     #statiques=load_json("frontend/myjson/statiques.json")
     title_map = build_title_aliases(transcripts, manual_aliases)
     quiz(transcripts, title_map, n=nbquestions)
