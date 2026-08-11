@@ -4,11 +4,43 @@ let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
 
+// Paramètres de partie
+let max_rounds = 15 // 0 = Infini
+let current_round = 1
+let is_game_over = false
+let is_game_started = false
+
 function normalize(text) {
     return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : ""
 }
 
-/* --- FORMATTAGE & PARSEUR HMS (PAR DÉFAUT : MINUTES) --- */
+/* --- GESTION DES HIGH SCORES (LOCAL STORAGE) --- */
+
+function get_highscore_key(rounds) {
+    return `great_guess_highscore_${rounds}`
+}
+
+function get_highscore(rounds) {
+    return parseInt(localStorage.getItem(get_highscore_key(rounds)) || "0", 10)
+}
+
+function save_highscore(rounds, score) {
+    const current = get_highscore(rounds)
+    if (score > current) {
+        localStorage.setItem(get_highscore_key(rounds), score)
+        return true
+    }
+    return false
+}
+
+function update_highscore_display() {
+    const highscoreEl = document.getElementById("highscore_display")
+    if (highscoreEl) {
+        highscoreEl.innerText = get_highscore(max_rounds)
+    }
+}
+
+/* --- FORMATTAGE & PARSEUR HMS --- */
 
 function seconds_to_hms(seconds) {
     if (isNaN(seconds) || seconds < 0) return "00:00"
@@ -24,25 +56,114 @@ function hms_to_seconds(input) {
     if (!input) return NaN
     let str = input.trim().toLowerCase().replace(",", ".")
 
-    // Format style: 1h20m30s / 5m12s / 45s
     if (str.includes("h") || str.includes("m") || str.includes("s")) {
-        const h = parseInt(str.match(/(\d+)\s*h/)?.[1] || 0)
-        const m = parseInt(str.match(/(\d+)\s*m/)?.[1] || 0)
-        const s = parseInt(str.match(/(\d+)\s*s/)?.[1] || 0)
+        const hMatch = str.match(/(\d+)\s*h/)
+        const mMatch = str.match(/(\d+)\s*m/)
+        const sMatch = str.match(/(\d+)\s*s/)
+
+        const h = hMatch ? parseInt(hMatch[1], 10) : 0
+        let m = mMatch ? parseInt(mMatch[1], 10) : 0
+        const s = sMatch ? parseInt(sMatch[1], 10) : 0
+
+        // Si aucun 'm' n'est présent mais qu'il y a des chiffres après le 'h' (ex: "1h15")
+        if (!mMatch && hMatch) {
+            const afterH = str.split("h")[1]
+            const trailingDigits = afterH ? afterH.match(/^\s*(\d+)/) : null
+            if (trailingDigits && !afterH.includes("s")) {
+                m = parseInt(trailingDigits[1], 10)
+            }
+        }
+
         return h * 3600 + m * 60 + s
     }
 
-    // Format avec deux points: HH:MM:SS ou MM:SS
     if (str.includes(":")) {
         const parts = str.split(":").map(p => parseInt(p, 10))
-        if (parts.some(isNaN)) return NaN
+        if (parts.some(isNaN)) return NaN;
         if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
         if (parts.length === 2) return parts[0] * 60 + parts[1]
     }
 
-    // Nombre brut : minutes par défaut
     const num = parseFloat(str)
     return isNaN(num) ? NaN : Math.round(num * 60)
+}
+
+/* --- GESTION DES MANCHES ET DU SCORE --- */
+
+function update_round_display() {
+    const roundEl = document.getElementById("round_display")
+    if (!roundEl) return
+    if (max_rounds === 0) {
+        roundEl.innerText = `${current_round} / ∞`
+    } else {
+        roundEl.innerText = `${current_round} / ${max_rounds}`
+    }
+}
+
+function change_max_rounds(val) {
+    max_rounds = parseInt(val, 10)
+    update_highscore_display()
+    reset_game()
+}
+
+function reset_game() {
+    totalpoints = 0
+    current_round = 1
+    is_game_over = false
+    is_game_started = false
+
+    const roundSelect = document.getElementById("round_select")
+    if (roundSelect) roundSelect.disabled = false
+
+    const display = document.getElementById("points_display")
+    if (display) display.innerText = "Points : 0"
+
+    update_round_display()
+    update_highscore_display()
+
+    document.getElementById("quiz_content").classList.remove("hidden")
+    document.getElementById("game_over_screen").classList.add("hidden")
+
+    new_question()
+}
+
+function next_round() {
+    if (max_rounds > 0 && current_round >= max_rounds) {
+        show_game_over()
+    } else {
+        current_round++
+        update_round_display()
+        new_question()
+    }
+}
+
+function show_game_over() {
+    is_game_over = true
+    document.getElementById("quiz_content").classList.add("hidden")
+
+    const isNewRecord = save_highscore(max_rounds, totalpoints)
+    
+    const gameOverScreen = document.getElementById("game_over_screen")
+    const finalScoreEl = document.getElementById("final_score")
+    const maxPossibleEl = document.getElementById("max_possible_score")
+    const recordBadge = document.getElementById("new_record_badge")
+    const bestScoreText = document.getElementById("end_best_score")
+
+    const maxPossible = max_rounds * 400
+    if (finalScoreEl) finalScoreEl.innerText = totalpoints
+    if (maxPossibleEl) maxPossibleEl.innerText = maxPossible
+    if (bestScoreText) bestScoreText.innerText = get_highscore(max_rounds)
+
+    if (recordBadge) {
+        if (isNewRecord) {
+            recordBadge.classList.remove("hidden")
+        } else {
+            recordBadge.classList.add("hidden")
+        }
+    }
+
+    update_highscore_display()
+    gameOverScreen.classList.remove("hidden")
 }
 
 /* --- ANIMATION DES POINTS --- */
@@ -69,7 +190,9 @@ function animate_points(addedPoints) {
     }
 
     requestAnimationFrame(step)
-    printpopup(`+ ${addedPoints} points!`)
+    if (addedPoints > 0) {
+        printpopup(`+ ${addedPoints} points!`)
+    }
 }
 
 /* --- CHARGEMENT DES DONNÉES --- */
@@ -150,7 +273,7 @@ async function load_data() {
         searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
 
         render_video_sidebar(availableVideos)
-        new_question()
+        reset_game()
     } catch (err) {
         console.error("Erreur de chargement :", err)
         const phraseEl = document.getElementById("phrase")
@@ -350,6 +473,14 @@ function new_question() {
     
     hide_suggestions()
     document.getElementById("suivant").classList.add("hidden")
+    
+    const nextBtn = document.getElementById("suivant")
+    if (max_rounds > 0 && current_round >= max_rounds) {
+        nextBtn.innerText = "Voir les résultats"
+    } else {
+        nextBtn.innerText = "Question suivante"
+    }
+
     document.getElementById("button_title").classList.remove("hidden")
     titleInput.classList.remove("hidden")
     timeInput.classList.add("hidden")
@@ -384,6 +515,12 @@ async function submit_title() {
     if (validated) return
     validated = true
 
+    if (!is_game_started) {
+        is_game_started = true
+        const roundSelect = document.getElementById("round_select")
+        if (roundSelect) roundSelect.disabled = true
+    }
+
     hide_suggestions()
     const rawInput = document.getElementById("video_title").value
     const guessed_title = title_map[normalize(rawInput)]
@@ -396,7 +533,12 @@ async function submit_title() {
     let affichage = ""
     if (guessed_title && francais_anglais[guessed_title] === expected_title) {
         animate_points(200)
-        affichage = `Bien joué ! C'est la vidéo <strong class="text-success">"${guessed_title}"</strong>.`
+        affichage = `
+            <div class="space-y-1">
+                <p class="text-xl font-bold text-success">Bon titre ! (+200 pts)</p>
+                <p class="text-base text-base-content/80">Vidéo : <strong>"${guessed_title}"</strong></p>
+            </div>
+        `
         
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
@@ -419,13 +561,21 @@ async function submit_title() {
         setTimeout(() => timeInput.focus(), 100)
     } else {
         animate_points(0)
-        affichage = `Mauvais titre ! La vidéo était « <strong>${expected_title}</strong> » à <strong>${seconds_to_hms(extended_start_time)}</strong>.`
+        affichage = `
+            <div class="space-y-1">
+                <p class="text-xl font-bold text-error">Mauvais titre ! (+0 pt)</p>
+                <p class="text-base text-base-content/80">La vidéo était « <strong>${expected_title}</strong> » à <strong>${seconds_to_hms(extended_start_time)}</strong>.</p>
+            </div>
+        `
         
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
         document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
         document.getElementById("video_player").classList.remove("hidden")
         document.getElementById("suivant").classList.remove("hidden")
+        
+        // Permet de passer directement avec Entrée si on souhaite passer la relecture vidéo
+        setTimeout(() => document.getElementById("suivant").focus(), 100)
     }
 
     document.getElementById("video_title").classList.add("hidden")
@@ -454,14 +604,31 @@ function submit_time() {
     const score = score_guess_quadratic(secondsGuessed, extended_start_time, durationvideo)
 
     animate_points(score)
-    document.getElementById("result").innerHTML = `C'était à <strong>${seconds_to_hms(extended_start_time)}</strong> (estimation: <strong>${seconds_to_hms(secondsGuessed)}</strong> — écart: <strong>${seconds_to_hms(Math.abs(extended_start_time - secondsGuessed))}</strong>).`
+
+    // Affichage enrichi des points d'estimation sur l'écran du lecteur vidéo
+    const resultHtml = `
+        <div class="space-y-2 bg-base-200/50 p-4 rounded-xl border border-base-300">
+            <div class="text-2xl font-black ${score > 0 ? 'text-success' : 'text-warning'}">
+                + ${score} points <span class="text-sm font-normal text-base-content/70">(estimation)</span>
+            </div>
+            <div class="text-sm md:text-base text-base-content/90">
+                Moment exact : <strong>${seconds_to_hms(extended_start_time)}</strong> 
+                <span class="mx-1">•</span> Votre estimation : <strong>${seconds_to_hms(secondsGuessed)}</strong> 
+                <span class="mx-1">•</span> Écart : <strong>${seconds_to_hms(Math.abs(extended_start_time - secondsGuessed))}</strong>
+            </div>
+        </div>
+    `
+    document.getElementById("result").innerHTML = resultHtml
 
     document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
     document.getElementById("video_player").classList.remove("hidden")
 
     timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
-    document.getElementById("suivant").classList.remove("hidden")
+    
+    const nextBtn = document.getElementById("suivant")
+    nextBtn.classList.remove("hidden")
+    setTimeout(() => nextBtn.focus(), 100)
 }
 
 /* --- GESTION DE LA BARRE LATÉRALE --- */
@@ -498,6 +665,22 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 
+    // Raccourci Touche Entrée global pour passer à la manche suivante si le bouton est actif
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const suivantBtn = document.getElementById("suivant")
+            const isSuivantVisible = suivantBtn && !suivantBtn.classList.contains("hidden")
+            
+            if (isSuivantVisible) {
+                // Si l'utilisateur n'est pas en train d'interagir avec les inputs
+                if (document.activeElement !== titleInput && document.activeElement !== timeInput) {
+                    e.preventDefault()
+                    next_round()
+                }
+            }
+        }
+    })
+
     document.addEventListener("click", (e) => {
         if (!e.target.closest("#video_title") && !e.target.closest("#suggestions")) {
             hide_suggestions()
@@ -505,4 +688,4 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     load_data()
-})  
+})

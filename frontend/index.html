@@ -33,11 +33,11 @@
                     </svg>
                     <span>Vidéos (<span id="video_count">0</span>)</span>
                 </h2>
-                <button onclick="toggle_sidebar()" type="button" class="p-2 rounded-xl bg-base-200 hover:bg-base-300 text-primary border border-base-300 transition-colors flex items-center justify-center shrink-0" title="Réduire/Déplier la barre">
-    <svg id="sidebar_toggle_icon" class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 19l-7-7 7-7" />
-    </svg>
-</button>
+                <button onclick="toggle_sidebar()" type="button" class="p-2 rounded-xl bg-base-200 hover:bg-base-300 text-primary border border-base-300 transition-colors flex items-center justify-center shrink-0" title="Masquer / Afficher la liste">
+                    <svg id="sidebar_toggle_icon" class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
             </div>
             
             <div id="video_list" class="sidebar-content flex-1 overflow-y-auto space-y-2 pr-1">
@@ -48,9 +48,28 @@
         <!-- Zone Principale -->
         <main class="flex-1 flex flex-col items-center p-4 md:p-8 overflow-y-auto">
             
-            <!-- Barre supérieure alignée avec la carte -->
-            <div class="w-full max-w-3xl flex justify-end items-center mb-3 min-h-[44px]">
-                <div class="text-lg md:text-xl font-black bg-base-100 border border-base-300 px-5 py-2 rounded-2xl shadow-md">
+            <!-- Barre supérieure (Paramètres & High Score) -->
+            <div class="w-full max-w-3xl flex justify-between items-center mb-3 min-h-[44px]">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60">
+                        <option value="5">5 Manches</option>
+                        <option value="15" selected>15 Manches</option>
+                        <option value="30">30 Manches</option>
+                        <option value="0">Mode Infini</option>
+                    </select>
+
+                    <div class="badge badge-primary badge-outline font-bold py-3 px-3 text-sm">
+                        Manche : <span id="round_display" class="ml-1">1 / 15</span>
+                    </div>
+
+                    <!-- Meilleur Score actuel -->
+                    <div class="hidden sm:flex items-center gap-1.5 text-xs font-semibold bg-base-100 border border-base-300 px-3 py-1.5 rounded-lg shadow-sm">
+                        <span>Record :</span>
+                        <span id="highscore_display" class="font-bold text-primary">0</span>
+                    </div>
+                </div>
+
+                <div class="text-lg md:text-xl font-black bg-base-100 border border-base-300 px-5 py-1.5 rounded-2xl shadow-md">
                     <span id="points_display">Points : 0</span>
                 </div>
             </div>
@@ -60,34 +79,73 @@
                 +200 points!
             </div>
 
-            <!-- Carte Quiz -->
-            <div class="card w-full max-w-3xl bg-base-100 shadow-2xl p-6 md:p-10 space-y-6 border border-base-300/50 mb-8">
+            <!-- Conteneur Carte Quiz -->
+            <div class="w-full max-w-3xl mb-8">
                 
-                <!-- Phrase principale -->
-                <div class="text-xl md:text-2xl font-bold text-center italic text-primary min-h-[4rem] flex items-center justify-center leading-relaxed" id="phrase">
-                    Chargement de la question...
+                <!-- Écran de jeu -->
+                <div id="quiz_content" class="card w-full bg-base-100 shadow-2xl p-6 md:p-10 space-y-6 border border-base-300/50">
+                    
+                    <!-- Phrase principale -->
+                    <div class="text-xl md:text-2xl font-bold text-center italic text-primary min-h-[4rem] flex items-center justify-center leading-relaxed" id="phrase">
+                        Leave a Great Review
+                    </div>
+
+                    <!-- Badge durée totale -->
+                    <div id="video_info_hint" class="flex justify-center hidden"></div>
+
+                    <div class="relative space-y-4">
+                        <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
+                        
+                        <!-- Menu autocomplétion -->
+                        <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-72 overflow-y-auto hidden border border-base-300 top-16"></div>
+
+                        <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg hidden shadow-sm transition-all" placeholder="Moment" autocomplete="off" />
+                        
+                        <button id="button_title" onclick="submit_title()" class="btn btn-primary btn-lg w-full text-lg font-bold shadow-md">Valider le titre</button>
+                        <button id="button_time" onclick="submit_time()" class="btn btn-secondary btn-lg w-full text-lg font-bold shadow-md hidden">Valider le temps</button>
+                    </div>
+
+                    <div id="result" class="text-center"></div>
+
+                    <div id="video_player" class="flex justify-center hidden w-full"></div>
+
+                    <button id="suivant" onclick="next_round()" class="btn btn-accent btn-lg w-full text-lg font-bold shadow-md hidden">Question suivante</button>
                 </div>
 
-                <!-- Badge durée totale -->
-                <div id="video_info_hint" class="flex justify-center hidden"></div>
-
-                <div class="relative space-y-4">
-                    <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
+                <!-- Écran Fin de Partie (Game Over) -->
+                <div id="game_over_screen" class="card w-full bg-base-100 shadow-2xl p-8 md:p-12 text-center space-y-6 border border-base-300/50 hidden">
                     
-                    <!-- Menu autocomplétion -->
-                    <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-72 overflow-y-auto hidden border border-base-300 top-16"></div>
-
-                    <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg hidden shadow-sm transition-all" placeholder="Moment (ex: 12 = 12min, 12:30 ou 1h15)" autocomplete="off" />
+                    <!-- Icône Couronne Minimaliste Épurée -->
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z" />
+                            </svg>
+                        </div>
+                        
+                        <div id="new_record_badge" class="badge badge-warning font-black tracking-wide p-3 text-xs hidden uppercase animate-bounce">
+                            Nouveau Record !
+                        </div>
+                    </div>
                     
-                    <button id="button_title" onclick="submit_title()" class="btn btn-primary btn-lg w-full text-lg font-bold shadow-md">Valider le titre</button>
-                    <button id="button_time" onclick="submit_time()" class="btn btn-secondary btn-lg w-full text-lg font-bold shadow-md hidden">Valider le temps</button>
+                    <h2 class="text-3xl font-black">Partie terminée !</h2>
+                    
+                    <div class="bg-base-200 p-6 rounded-2xl border border-base-300 space-y-3 inline-block max-w-md mx-auto w-full">
+                        <div>
+                            <p class="text-xs font-semibold opacity-70 uppercase tracking-wider">Score final</p>
+                            <p class="text-4xl font-black text-primary mt-1"><span id="final_score">0</span> <span class="text-xl font-medium text-base-content/60">/ <span id="max_possible_score">4000</span> pts</span></p>
+                        </div>
+                        <div class="pt-2 border-t border-base-300 flex justify-between items-center text-xs text-base-content/70 px-2 font-medium">
+                            <span>Meilleur score de ce mode :</span>
+                            <span class="font-bold text-base-content text-sm" id="end_best_score">0</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button onclick="reset_game()" class="btn btn-primary btn-lg px-8 font-bold shadow-lg">Nouvelle partie</button>
+                    </div>
                 </div>
 
-                <div id="result" class="text-center text-xl"></div>
-
-                <div id="video_player" class="flex justify-center hidden w-full"></div>
-
-                <button id="suivant" onclick="new_question()" class="btn btn-accent btn-lg w-full text-lg font-bold shadow-md hidden">Question suivante</button>
             </div>
 
         </main>
