@@ -1,4 +1,6 @@
 let transcripts, durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
+let searchCandidates = []
+let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
 
@@ -22,6 +24,25 @@ function build_title_aliases(transcripts, manual_aliases) {
         map[normalize(real_title)] = real_title
     }
     return map
+}
+
+function build_search_candidates(availableVideos, manual_aliases, anglais_francais) {
+    let candidates = []
+    availableVideos.forEach(v => {
+        const titleEN = v.title
+        const titleFR = anglais_francais[titleEN] || titleEN
+
+        // Rassemblement de tous les termes associables à cette vidéo
+        let searchTerms = [titleFR, titleEN]
+        if (manual_aliases[titleFR]) searchTerms.push(...manual_aliases[titleFR])
+        if (manual_aliases[titleEN]) searchTerms.push(...manual_aliases[titleEN])
+
+        candidates.push({
+            display: titleFR,
+            searchTerms: searchTerms.map(term => normalize(term))
+        })
+    })
+    return candidates
 }
 
 async function load_data() {
@@ -48,7 +69,6 @@ async function load_data() {
         francais_anglais = statiques.francais_anglais || {}
         manual_aliases = statiques.manual_aliases || {}
 
-        // Table inverse pour afficher les titres FR dans la barre latérale
         anglais_francais = {}
         for (const [fr, en] of Object.entries(francais_anglais)) {
             anglais_francais[en] = fr
@@ -57,11 +77,13 @@ async function load_data() {
         title_map = build_title_aliases(transcripts, manual_aliases)
         phrases = get_phrases(transcripts)
 
-        // FILTRAGE : Garder uniquement les vidéos avec des sous-titres existants et non vides
+        // Garde uniquement les vidéos avec sous-titres
         const availableVideos = rawVideos.filter(v => {
             const subs = transcripts[v.title]
             return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
         })
+
+        searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
 
         render_video_sidebar(availableVideos)
         new_question()
@@ -74,6 +96,101 @@ async function load_data() {
     }
 }
 
+/* --- SUGGESTIONS & AUTOCOMPLÉTION --- */
+
+function update_suggestions(query) {
+    const suggestionsEl = document.getElementById("suggestions")
+    if (!suggestionsEl) return
+
+    const normQuery = normalize(query)
+    if (normQuery.length === 0) {
+        hide_suggestions()
+        return
+    }
+
+    // Filtrage des vidéos correspondant au terme saisi ou à ses alias
+    let matches = []
+    searchCandidates.forEach(candidate => {
+        const isMatch = candidate.searchTerms.some(term => term.includes(normQuery))
+        if (isMatch) {
+            matches.push(candidate.display)
+        }
+    })
+
+    // Suppression des doublons et limitation à 6 résultats
+    matches = [...new Set(matches)].slice(0, 6)
+
+    if (matches.length === 0) {
+        hide_suggestions()
+        return
+    }
+
+    activeSuggestionIndex = -1
+    suggestionsEl.innerHTML = matches.map((title, index) => `
+        <div class="suggestion-item p-3.5 hover:bg-primary/20 cursor-pointer font-medium text-base transition-colors border-b border-base-200 last:border-none flex items-center justify-between" 
+             data-index="${index}" 
+             onclick="select_suggestion('${title.replace(/'/g, "\\'")}')">
+            <span>${title}</span>
+            <span class="text-xs text-base-content/40 italic">Suggestion</span>
+        </div>
+    `).join('')
+
+    suggestionsEl.classList.remove("hidden")
+}
+
+function select_suggestion(title) {
+    const input = document.getElementById("video_title")
+    if (input) {
+        input.value = title
+    }
+    hide_suggestions()
+}
+
+function hide_suggestions() {
+    const suggestionsEl = document.getElementById("suggestions")
+    if (suggestionsEl) suggestionsEl.classList.add("hidden")
+    activeSuggestionIndex = -1
+}
+
+function update_active_suggestion(items) {
+    items.forEach((item, idx) => {
+        if (idx === activeSuggestionIndex) {
+            item.classList.add("bg-primary", "text-primary-content")
+            item.scrollIntoView({ block: "nearest" })
+        } else {
+            item.classList.remove("bg-primary", "text-primary-content")
+        }
+    })
+}
+
+function handle_title_keydown(e) {
+    const suggestionsEl = document.getElementById("suggestions")
+    const isVisible = suggestionsEl && !suggestionsEl.classList.contains("hidden")
+    const items = suggestionsEl ? suggestionsEl.querySelectorAll(".suggestion-item") : []
+
+    if (e.key === "ArrowDown" && isVisible && items.length > 0) {
+        e.preventDefault()
+        activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length
+        update_active_suggestion(items)
+    } else if (e.key === "ArrowUp" && isVisible && items.length > 0) {
+        e.preventDefault()
+        activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length
+        update_active_suggestion(items)
+    } else if (e.key === "Enter") {
+        if (isVisible && activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+            e.preventDefault()
+            items[activeSuggestionIndex].click()
+        } else {
+            hide_suggestions()
+            submit_title()
+        }
+    } else if (e.key === "Escape") {
+        hide_suggestions()
+    }
+}
+
+/* --- LOGIQUE DU JEU & AFFICHAGE --- */
+
 function render_video_sidebar(videos) {
     const listContainer = document.getElementById("video_list")
     const countContainer = document.getElementById("video_count")
@@ -81,10 +198,9 @@ function render_video_sidebar(videos) {
     if (countContainer) countContainer.innerText = videos.length
     if (listContainer) {
         listContainer.innerHTML = videos.map(v => {
-            // Traduction FR si disponible, sinon titre d'origine
             const titleFR = anglais_francais[v.title] || v.title
             return `
-                <div class="flex items-center gap-3 p-2.5 hover:bg-base-200 rounded-xl transition-colors cursor-pointer">
+                <div class="flex items-center gap-3 p-2.5 hover:bg-base-200 rounded-xl transition-colors cursor-pointer" onclick="select_suggestion('${titleFR.replace(/'/g, "\\'")}')">
                     <img src="https://img.youtube.com/vi/${v.id}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow" alt="${titleFR}" />
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-base truncate text-base-content" title="${titleFR}">${titleFR}</p>
@@ -174,6 +290,7 @@ function new_question() {
     document.getElementById("video_title").value = ""
     document.getElementById("time_input").value = ""
     
+    hide_suggestions()
     document.getElementById("suivant").classList.add("hidden")
     document.getElementById("button_title").classList.remove("hidden")
     document.getElementById("video_title").classList.remove("hidden")
@@ -215,6 +332,7 @@ async function submit_title() {
     if (validated) return
     validated = true
 
+    hide_suggestions()
     const rawInput = document.getElementById("video_title").value
     const guessed_title = title_map[normalize(rawInput)]
     const expected_title = phrases[current_question[current_question.length >> 1]][0]
@@ -263,17 +381,24 @@ function submit_time() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const inputs = [
-        { id: "video_title", func: submit_title },
-        { id: "time_input", func: submit_time }
-    ]
+    const titleInput = document.getElementById("video_title")
+    const timeInput = document.getElementById("time_input")
 
-    inputs.forEach(({ id, func }) => {
-        const el = document.getElementById(id)
-        if (el) {
-            el.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") func()
-            })
+    if (titleInput) {
+        titleInput.addEventListener("input", (e) => update_suggestions(e.target.value))
+        titleInput.addEventListener("keydown", handle_title_keydown)
+    }
+
+    if (timeInput) {
+        timeInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") submit_time()
+        })
+    }
+
+    // Fermeture du menu déroulant au clic extérieur
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest("#video_title") && !e.target.closest("#suggestions")) {
+            hide_suggestions()
         }
     })
 
