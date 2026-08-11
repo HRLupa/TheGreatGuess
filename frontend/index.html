@@ -7,54 +7,83 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="./dist/style.css" />
+        <style>
+            #sidebar {
+                transition: width 0.3s ease, padding 0.3s ease;
+            }
+            #sidebar.collapsed .sidebar-content {
+                display: none;
+            }
+            #sidebar.collapsed {
+                padding: 1rem 0.5rem;
+            }
+            #sidebar_toggle_icon {
+                transition: transform 0.3s ease;
+            }
+        </style>
     </head>
     <body class="h-full flex flex-col md:flex-row overflow-hidden bg-base-200 text-base-content">
 
-        <!-- Barre latérale élargie (w-80 -> w-96) -->
-        <aside class="w-full md:w-96 bg-base-100 border-r border-base-300 flex flex-col h-56 md:h-full p-5 shadow-md">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <span>🎬</span> Vidéos disponibles (<span id="video_count">0</span>)
-            </h2>
-            <div id="video_list" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                <!-- Chargé dynamiquement -->
+        <!-- Barre latérale repliable -->
+        <aside id="sidebar" class="w-full md:w-96 bg-base-100 border-r border-base-300 flex flex-col h-56 md:h-full p-5 shadow-md relative shrink-0">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="sidebar-content text-xl font-bold flex items-center gap-2 truncate">
+                    <svg class="w-6 h-6 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>Vidéos (<span id="video_count">0</span>)</span>
+                </h2>
+                <button onclick="toggle_sidebar()" type="button" class="p-2 rounded-xl bg-base-200 hover:bg-base-300 text-primary border border-base-300 transition-colors flex items-center justify-center shrink-0" title="Réduire/Déplier la barre">
+    <svg id="sidebar_toggle_icon" class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 19l-7-7 7-7" />
+    </svg>
+</button>
+            </div>
+            
+            <div id="video_list" class="sidebar-content flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Contenu dynamique -->
             </div>
         </aside>
 
-        <!-- Zone Principale (Cartes et contrôles agrandis) -->
-        <main class="flex-1 relative flex flex-col items-center justify-center p-6 md:p-10 overflow-y-auto">
+        <!-- Zone Principale -->
+        <main class="flex-1 flex flex-col items-center p-4 md:p-8 overflow-y-auto">
             
-            <!-- Badge Points plus grand -->
-            <div class="absolute top-6 right-8 text-xl md:text-2xl font-black bg-base-100 border border-base-300 px-6 py-3 rounded-2xl shadow-md">
-                <span id="points_display">Points : 0</span>
+            <!-- Barre supérieure alignée avec la carte -->
+            <div class="w-full max-w-3xl flex justify-end items-center mb-3 min-h-[44px]">
+                <div class="text-lg md:text-xl font-black bg-base-100 border border-base-300 px-5 py-2 rounded-2xl shadow-md">
+                    <span id="points_display">Points : 0</span>
+                </div>
             </div>
 
-            <!-- Pop-up d'incrément -->
-            <div id="points_popup" class="fixed top-16 left-1/2 -translate-x-1/2 bg-success text-success-content text-lg font-bold px-8 py-3 rounded-full shadow-2xl opacity-0 transition-all duration-500 pointer-events-none z-50">
+            <!-- Pop-up incrément d'animation -->
+            <div id="points_popup" class="fixed top-12 left-1/2 -translate-x-1/2 bg-success text-success-content text-lg font-bold px-8 py-3 rounded-full shadow-2xl opacity-0 transition-all duration-500 pointer-events-none z-50">
                 +200 points!
             </div>
 
-            <!-- Carte de Quiz agrandie (max-w-xl -> max-w-3xl) -->
-            <div class="card w-full max-w-3xl bg-base-100 shadow-2xl p-8 md:p-12 my-auto space-y-8 border border-base-300/50">
+            <!-- Carte Quiz -->
+            <div class="card w-full max-w-3xl bg-base-100 shadow-2xl p-6 md:p-10 space-y-6 border border-base-300/50 mb-8">
                 
-                <div class="text-2xl md:text-3xl font-bold text-center italic text-primary min-h-[4rem] flex items-center justify-center leading-relaxed" id="phrase">
+                <!-- Phrase principale -->
+                <div class="text-xl md:text-2xl font-bold text-center italic text-primary min-h-[4rem] flex items-center justify-center leading-relaxed" id="phrase">
                     Chargement de la question...
                 </div>
 
+                <!-- Badge durée totale -->
+                <div id="video_info_hint" class="flex justify-center hidden"></div>
+
                 <div class="relative space-y-4">
-                    <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm" placeholder="Thème de la vidéo (titre)..." autocomplete="off" />
+                    <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
                     
                     <!-- Menu autocomplétion -->
                     <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-72 overflow-y-auto hidden border border-base-300 top-16"></div>
 
-                    <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg hidden shadow-sm" placeholder="Moment (HH::MM:SS)" autocomplete="off" inputmode="numeric" />
+                    <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg hidden shadow-sm transition-all" placeholder="Moment (ex: 12 = 12min, 12:30 ou 1h15)" autocomplete="off" />
                     
                     <button id="button_title" onclick="submit_title()" class="btn btn-primary btn-lg w-full text-lg font-bold shadow-md">Valider le titre</button>
                     <button id="button_time" onclick="submit_time()" class="btn btn-secondary btn-lg w-full text-lg font-bold shadow-md hidden">Valider le temps</button>
                 </div>
 
-                <div id="result" class="text-center font-bold text-xl"></div>
-
-                <div id="contexte" class="text-base italic text-base-content/80 text-center leading-relaxed"></div>
+                <div id="result" class="text-center text-xl"></div>
 
                 <div id="video_player" class="flex justify-center hidden w-full"></div>
 

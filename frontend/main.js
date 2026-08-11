@@ -8,6 +8,72 @@ function normalize(text) {
     return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : ""
 }
 
+/* --- FORMATTAGE & PARSEUR HMS (PAR DÉFAUT : MINUTES) --- */
+
+function seconds_to_hms(seconds) {
+    if (isNaN(seconds) || seconds < 0) return "00:00"
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = Math.round(seconds % 60)
+    const pad = x => x.toString().padStart(2, "0")
+    
+    return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`
+}
+
+function hms_to_seconds(input) {
+    if (!input) return NaN
+    let str = input.trim().toLowerCase().replace(",", ".")
+
+    // Format style: 1h20m30s / 5m12s / 45s
+    if (str.includes("h") || str.includes("m") || str.includes("s")) {
+        const h = parseInt(str.match(/(\d+)\s*h/)?.[1] || 0)
+        const m = parseInt(str.match(/(\d+)\s*m/)?.[1] || 0)
+        const s = parseInt(str.match(/(\d+)\s*s/)?.[1] || 0)
+        return h * 3600 + m * 60 + s
+    }
+
+    // Format avec deux points: HH:MM:SS ou MM:SS
+    if (str.includes(":")) {
+        const parts = str.split(":").map(p => parseInt(p, 10))
+        if (parts.some(isNaN)) return NaN
+        if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        if (parts.length === 2) return parts[0] * 60 + parts[1]
+    }
+
+    // Nombre brut : minutes par défaut
+    const num = parseFloat(str)
+    return isNaN(num) ? NaN : Math.round(num * 60)
+}
+
+/* --- ANIMATION DES POINTS --- */
+
+function animate_points(addedPoints) {
+    const targetPoints = totalpoints + addedPoints
+    const startPoints = totalpoints
+    totalpoints = targetPoints
+
+    const display = document.getElementById("points_display")
+    const duration = 1000
+    const startTime = performance.now()
+
+    function step(now) {
+        const elapsed = now - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        const current = Math.round(startPoints + (targetPoints - startPoints) * (1 - (1 - progress) * (1 - progress)))
+        
+        if (display) display.innerText = `Points : ${current}`
+
+        if (progress < 1) {
+            requestAnimationFrame(step)
+        }
+    }
+
+    requestAnimationFrame(step)
+    printpopup(`+ ${addedPoints} points!`)
+}
+
+/* --- CHARGEMENT DES DONNÉES --- */
+
 function build_title_aliases(transcripts, manual_aliases) {
     let map = {}
     for (const title in transcripts) {
@@ -32,7 +98,6 @@ function build_search_candidates(availableVideos, manual_aliases, anglais_franca
         const titleEN = v.title
         const titleFR = anglais_francais[titleEN] || titleEN
 
-        // Rassemblement de tous les termes associables à cette vidéo
         let searchTerms = [titleFR, titleEN]
         if (manual_aliases[titleFR]) searchTerms.push(...manual_aliases[titleFR])
         if (manual_aliases[titleEN]) searchTerms.push(...manual_aliases[titleEN])
@@ -77,7 +142,6 @@ async function load_data() {
         title_map = build_title_aliases(transcripts, manual_aliases)
         phrases = get_phrases(transcripts)
 
-        // Garde uniquement les vidéos avec sous-titres
         const availableVideos = rawVideos.filter(v => {
             const subs = transcripts[v.title]
             return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
@@ -88,15 +152,13 @@ async function load_data() {
         render_video_sidebar(availableVideos)
         new_question()
     } catch (err) {
-        console.error("Erreur lors du chargement des données :", err)
+        console.error("Erreur de chargement :", err)
         const phraseEl = document.getElementById("phrase")
-        if (phraseEl) {
-            phraseEl.innerText = "Erreur de chargement (vérifiez la console et le serveur local)"
-        }
+        if (phraseEl) phraseEl.innerText = "Erreur de chargement des fichiers JSON"
     }
 }
 
-/* --- SUGGESTIONS & AUTOCOMPLÉTION --- */
+/* --- SUGGESTIONS --- */
 
 function update_suggestions(query) {
     const suggestionsEl = document.getElementById("suggestions")
@@ -108,16 +170,12 @@ function update_suggestions(query) {
         return
     }
 
-    // Filtrage des vidéos correspondant au terme saisi ou à ses alias
     let matches = []
     searchCandidates.forEach(candidate => {
         const isMatch = candidate.searchTerms.some(term => term.includes(normQuery))
-        if (isMatch) {
-            matches.push(candidate.display)
-        }
+        if (isMatch) matches.push(candidate.display)
     })
 
-    // Suppression des doublons et limitation à 6 résultats
     matches = [...new Set(matches)].slice(0, 6)
 
     if (matches.length === 0) {
@@ -131,7 +189,10 @@ function update_suggestions(query) {
              data-index="${index}" 
              onclick="select_suggestion('${title.replace(/'/g, "\\'")}')">
             <span>${title}</span>
-            <span class="text-xs text-base-content/40 italic">Suggestion</span>
+            <span class="text-xs text-base-content/40 italic flex items-center gap-1">
+                <svg class="w-3 h-3 text-base-content/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                Suggestion
+            </span>
         </div>
     `).join('')
 
@@ -140,15 +201,14 @@ function update_suggestions(query) {
 
 function select_suggestion(title) {
     const input = document.getElementById("video_title")
-    if (input) {
-        input.value = title
-    }
+    if (input) input.value = title
     hide_suggestions()
 }
 
 function hide_suggestions() {
     const suggestionsEl = document.getElementById("suggestions")
-    if (suggestionsEl) suggestionsEl.classList.add("hidden")
+    if (!suggestionsEl) return
+    suggestionsEl.classList.add("hidden")
     activeSuggestionIndex = -1
 }
 
@@ -189,7 +249,7 @@ function handle_title_keydown(e) {
     }
 }
 
-/* --- LOGIQUE DU JEU & AFFICHAGE --- */
+/* --- LOGIQUE DU GAMEPLAY --- */
 
 function render_video_sidebar(videos) {
     const listContainer = document.getElementById("video_list")
@@ -201,26 +261,20 @@ function render_video_sidebar(videos) {
             const titleFR = anglais_francais[v.title] || v.title
             return `
                 <div class="flex items-center gap-3 p-2.5 hover:bg-base-200 rounded-xl transition-colors cursor-pointer" onclick="select_suggestion('${titleFR.replace(/'/g, "\\'")}')">
-                    <img src="https://img.youtube.com/vi/${v.id}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow" alt="${titleFR}" />
+                    <img src="https://img.youtube.com/vi/${v.id}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow shrink-0" alt="${titleFR}" />
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-base truncate text-base-content" title="${titleFR}">${titleFR}</p>
-                        <p class="text-xs text-base-content/60 font-mono">${seconds_to_hms(v.duration)}</p>
+                        <p class="text-xs text-base-content/60 font-mono flex items-center gap-1 mt-0.5">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>${seconds_to_hms(v.duration)}</span>
+                        </p>
                     </div>
                 </div>
             `
         }).join('')
     }
-}
-
-function seconds_to_hms(seconds) {
-    const pad = x => x.toString().padStart(2, "0")
-    return `${pad(Math.floor(seconds / 3600))}::${pad(Math.floor((seconds / 60) % 60))}:${pad(Math.round(seconds % 60))}`
-}
-
-function hms_to_seconds(hms) {
-    let [h, ms] = hms.includes("::") ? hms.split("::") : ["0", hms]
-    let [m, s] = ms.includes(":") ? ms.split(":") : [ms, "0"]
-    return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s)
 }
 
 function get_html_yt(id, start) {
@@ -287,27 +341,31 @@ function new_question() {
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
     
     document.getElementById("phrase").innerText = `« ${phrase.replace("\n", " ")} »`
-    document.getElementById("video_title").value = ""
-    document.getElementById("time_input").value = ""
+    
+    const titleInput = document.getElementById("video_title")
+    const timeInput = document.getElementById("time_input")
+    titleInput.value = ""
+    timeInput.value = ""
+    timeInput.classList.remove("input-error")
     
     hide_suggestions()
     document.getElementById("suivant").classList.add("hidden")
     document.getElementById("button_title").classList.remove("hidden")
-    document.getElementById("video_title").classList.remove("hidden")
-    document.getElementById("time_input").classList.add("hidden")
+    titleInput.classList.remove("hidden")
+    timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
     document.getElementById("video_player").classList.add("hidden")
     
+    const hintBox = document.getElementById("video_info_hint")
+    if (hintBox) {
+        hintBox.innerHTML = ""
+        hintBox.classList.add("hidden")
+    }
+
     validated = false
     document.getElementById("result").innerHTML = ""
-    document.getElementById("contexte").innerHTML = ""
-}
 
-function showContexte(time, title) {
-    const indcontext = close_phrases(current_question[current_question.length >> 1], 200)
-    const phrase = indcontext.map(i => phrases[i][1].trim()).join(" ")
-    document.getElementById("video_player").innerHTML = get_html_yt(ids[title], phrases[indcontext[0]][2])
-    document.getElementById("contexte").innerHTML = "Contexte : " + phrase
+    setTimeout(() => titleInput.focus(), 100)
 }
 
 function printpopup(text) {
@@ -322,12 +380,6 @@ function printpopup(text) {
     }, 1500)
 }
 
-function showPoints(amount) {
-    totalpoints += amount
-    document.getElementById("points_display").innerHTML = "Points : " + totalpoints
-    printpopup("+ " + amount + " points!")
-}
-
 async function submit_title() {
     if (validated) return
     validated = true
@@ -336,18 +388,42 @@ async function submit_title() {
     const rawInput = document.getElementById("video_title").value
     const guessed_title = title_map[normalize(rawInput)]
     const expected_title = phrases[current_question[current_question.length >> 1]][0]
-    const start_time = phrases[current_question[current_question.length >> 1]][2]
+
+    const indcontext = close_phrases(current_question[current_question.length >> 1], 180)
+    const expandedPhrase = indcontext.map(i => phrases[i][1].trim()).join(" ")
+    const extended_start_time = phrases[indcontext[0]][2]
 
     let affichage = ""
     if (guessed_title && francais_anglais[guessed_title] === expected_title) {
-        showPoints(200)
-        affichage = "Bien joué ! Le titre de la vidéo était bien \"" + guessed_title + "\"."
-        document.getElementById("time_input").classList.remove("hidden")
+        animate_points(200)
+        affichage = `Bien joué ! C'est la vidéo <strong class="text-success">"${guessed_title}"</strong>.`
+        
+        document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
+
+        const totalDuration = durations[expected_title]
+        const hintBox = document.getElementById("video_info_hint")
+        if (hintBox) {
+            hintBox.innerHTML = `
+                <div class="inline-flex items-center gap-2 bg-base-200 text-primary px-4 py-1.5 rounded-full border border-base-300 text-sm font-semibold">
+                    <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>Durée totale :</span>
+                    <span class="font-mono text-base-content">${seconds_to_hms(totalDuration)}</span>
+                </div>
+            `
+            hintBox.classList.remove("hidden")
+        }
+
+        const timeInput = document.getElementById("time_input")
+        timeInput.classList.remove("hidden")
         document.getElementById("button_time").classList.remove("hidden")
+        setTimeout(() => timeInput.focus(), 100)
     } else {
-        showPoints(0)
-        affichage = "Mauvais titre ! La vidéo était « " + expected_title + " » à " + seconds_to_hms(start_time)
-        showContexte(start_time, expected_title)
+        animate_points(0)
+        affichage = `Mauvais titre ! La vidéo était « <strong>${expected_title}</strong> » à <strong>${seconds_to_hms(extended_start_time)}</strong>.`
+        
+        document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
+
+        document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
         document.getElementById("video_player").classList.remove("hidden")
         document.getElementById("suivant").classList.remove("hidden")
     }
@@ -361,23 +437,50 @@ function submit_time() {
     const expected_title = phrases[current_question[current_question.length >> 1]][0]
     const guess_time_str = document.getElementById("time_input").value
     const secondsGuessed = hms_to_seconds(guess_time_str)
+    const timeInput = document.getElementById("time_input")
 
     if (isNaN(secondsGuessed)) {
-        printpopup("Format invalide")
-        document.getElementById("time_input").value = ""
+        timeInput.classList.add("input-error")
+        printpopup("Format invalide (ex: 12 = 12min, 12:30 ou 1h15)")
         return
     }
 
-    const start_time = phrases[current_question[current_question.length >> 1]][2]
+    timeInput.classList.remove("input-error")
+    
+    const indcontext = close_phrases(current_question[current_question.length >> 1], 180)
+    const extended_start_time = phrases[indcontext[0]][2]
+    
     const durationvideo = durations[expected_title]
-    const score = score_guess_quadratic(secondsGuessed, start_time, durationvideo)
+    const score = score_guess_quadratic(secondsGuessed, extended_start_time, durationvideo)
 
-    showPoints(score)
-    document.getElementById("result").innerHTML = "C'était à " + seconds_to_hms(start_time) + ", vous étiez à " + seconds_to_hms(Math.abs(start_time - secondsGuessed)) + " du temps réel."
+    animate_points(score)
+    document.getElementById("result").innerHTML = `C'était à <strong>${seconds_to_hms(extended_start_time)}</strong> (estimation: <strong>${seconds_to_hms(secondsGuessed)}</strong> — écart: <strong>${seconds_to_hms(Math.abs(extended_start_time - secondsGuessed))}</strong>).`
 
-    document.getElementById("time_input").classList.add("hidden")
+    document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
+    document.getElementById("video_player").classList.remove("hidden")
+
+    timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
     document.getElementById("suivant").classList.remove("hidden")
+}
+
+/* --- GESTION DE LA BARRE LATÉRALE --- */
+
+function toggle_sidebar() {
+    const sidebar = document.getElementById("sidebar")
+    const toggleBtnIcon = document.getElementById("sidebar_toggle_icon")
+    if (!sidebar) return
+
+    const isCollapsed = sidebar.classList.contains("collapsed")
+    if (isCollapsed) {
+        sidebar.classList.remove("collapsed", "w-16")
+        sidebar.classList.add("w-full", "md:w-96")
+        if (toggleBtnIcon) toggleBtnIcon.style.transform = "rotate(0deg)"
+    } else {
+        sidebar.classList.add("collapsed", "w-16")
+        sidebar.classList.remove("w-full", "md:w-96")
+        if (toggleBtnIcon) toggleBtnIcon.style.transform = "rotate(180deg)"
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -395,7 +498,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 
-    // Fermeture du menu déroulant au clic extérieur
     document.addEventListener("click", (e) => {
         if (!e.target.closest("#video_title") && !e.target.closest("#suggestions")) {
             hide_suggestions()
@@ -403,4 +505,4 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     load_data()
-})
+})  
