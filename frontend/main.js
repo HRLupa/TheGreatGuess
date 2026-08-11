@@ -190,9 +190,6 @@ function animate_points(addedPoints) {
     }
 
     requestAnimationFrame(step)
-    if (addedPoints > 0) {
-        printpopup(`+ ${addedPoints} points!`)
-    }
 }
 
 /* --- CHARGEMENT DES DONNÉES --- */
@@ -308,11 +305,11 @@ function update_suggestions(query) {
 
     activeSuggestionIndex = -1
     suggestionsEl.innerHTML = matches.map((title, index) => `
-        <div class="suggestion-item p-3.5 hover:bg-primary/20 cursor-pointer font-medium text-base transition-colors border-b border-base-200 last:border-none flex items-center justify-between" 
-             data-index="${index}" 
-             onclick="select_suggestion('${title.replace(/'/g, "\\'")}')">
-            <span>${title}</span>
-            <span class="text-xs text-base-content/40 italic flex items-center gap-1">
+        <div class="suggestion-item p-2 sm:p-2.5 hover:bg-primary/20 cursor-pointer font-medium text-xs sm:text-sm transition-colors border-b border-base-200 last:border-none flex items-center justify-between" 
+            data-index="${index}" 
+            onclick="select_suggestion('${title.replace(/'/g, "\\'")}')">
+            <span class="truncate mr-2">${title}</span>
+            <span class="text-[10px] sm:text-xs text-base-content/40 italic flex items-center gap-1 shrink-0">
                 <svg class="w-3 h-3 text-base-content/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 Suggestion
             </span>
@@ -499,17 +496,6 @@ function new_question() {
     setTimeout(() => titleInput.focus(), 100)
 }
 
-function printpopup(text) {
-    const popup = document.getElementById("points_popup")
-    if (!popup) return
-    popup.innerHTML = text
-    popup.classList.remove("opacity-0")
-    popup.classList.add("opacity-100")
-    setTimeout(() => {
-        popup.classList.remove("opacity-100")
-        popup.classList.add("opacity-0")
-    }, 1500)
-}
 
 async function submit_title() {
     if (validated) return
@@ -591,7 +577,6 @@ function submit_time() {
 
     if (isNaN(secondsGuessed)) {
         timeInput.classList.add("input-error")
-        printpopup("Format invalide (ex: 12 = 12min, 12:30 ou 1h15)")
         return
     }
 
@@ -609,7 +594,7 @@ function submit_time() {
     const resultHtml = `
         <div class="space-y-2 bg-base-200/50 p-4 rounded-xl border border-base-300">
             <div class="text-2xl font-black ${score > 0 ? 'text-success' : 'text-warning'}">
-                + ${score} points <span class="text-sm font-normal text-base-content/70">(estimation)</span>
+                + ${score} points
             </div>
             <div class="text-sm md:text-base text-base-content/90">
                 Moment exact : <strong>${seconds_to_hms(extended_start_time)}</strong> 
@@ -635,19 +620,8 @@ function submit_time() {
 
 function toggle_sidebar() {
     const sidebar = document.getElementById("sidebar")
-    const toggleBtnIcon = document.getElementById("sidebar_toggle_icon")
     if (!sidebar) return
-
-    const isCollapsed = sidebar.classList.contains("collapsed")
-    if (isCollapsed) {
-        sidebar.classList.remove("collapsed", "w-16")
-        sidebar.classList.add("w-full", "md:w-96")
-        if (toggleBtnIcon) toggleBtnIcon.style.transform = "rotate(0deg)"
-    } else {
-        sidebar.classList.add("collapsed", "w-16")
-        sidebar.classList.remove("w-full", "md:w-96")
-        if (toggleBtnIcon) toggleBtnIcon.style.transform = "rotate(180deg)"
-    }
+    sidebar.classList.toggle("collapsed")
 }
 
 document.addEventListener("DOMContentLoaded", () => {

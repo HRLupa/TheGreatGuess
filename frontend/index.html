@@ -9,16 +9,48 @@
         <link rel="stylesheet" href="./dist/style.css" />
         <style>
             #sidebar {
-                transition: width 0.3s ease, padding 0.3s ease;
+                transition: height 0.3s ease, width 0.3s ease, padding 0.3s ease;
             }
+
             #sidebar.collapsed .sidebar-content {
-                display: none;
+                display: none !important;
             }
-            #sidebar.collapsed {
-                padding: 1rem 0.5rem;
+
+            /* --- MOBILE (< 768px) : Repliement vers le HAUT --- */
+            @media (max-width: 767px) {
+                #sidebar {
+                    width: 100% !important;
+                    height: 14rem; /* Hauteur quand déplié */
+                }
+                #sidebar.collapsed {
+                    height: 3.5rem !important; /* Hauteur replié (seul le header reste visible) */
+                    padding-top: 0.5rem;
+                    padding-bottom: 0.5rem;
+                }
+                #sidebar_toggle_icon {
+                    transform: rotate(-90deg); /* Flèche vers le haut (déplié) */
+                }
+                #sidebar.collapsed #sidebar_toggle_icon {
+                    transform: rotate(90deg); /* Flèche vers le bas (replié) */
+                }
             }
-            #sidebar_toggle_icon {
-                transition: transform 0.3s ease;
+
+            /* --- DESKTOP (>= 768px) : Repliement vers la GAUCHE --- */
+            @media (min-width: 768px) {
+                #sidebar {
+                    height: 100% !important;
+                    width: 24rem; /* w-96 */
+                }
+                #sidebar.collapsed {
+                    width: 4rem !important; /* w-16 */
+                    padding: 1rem 0.5rem;
+                }
+                #sidebar_toggle_icon {
+                    transform: rotate(0deg);
+                }
+                #sidebar.collapsed #sidebar_toggle_icon {
+                    transform: rotate(180deg);
+                }
             }
         </style>
     </head>
@@ -46,37 +78,32 @@
         </aside>
 
         <!-- Zone Principale -->
-        <main class="flex-1 flex flex-col items-center p-4 md:p-8 overflow-y-auto">
+        <main class="flex-1 flex flex-col items-center p-2.5 sm:p-4 md:p-8 overflow-y-auto">
             
             <!-- Barre supérieure (Paramètres & High Score) -->
-            <div class="w-full max-w-3xl flex justify-between items-center mb-3 min-h-[44px]">
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60">
+            <div class="w-full max-w-3xl flex justify-between items-center gap-1 sm:gap-3 mb-3 min-h-[36px] sm:min-h-[44px]">
+                <div class="flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
+                    <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
                         <option value="5">5 Manches</option>
                         <option value="15" selected>15 Manches</option>
                         <option value="30">30 Manches</option>
-                        <option value="0">Mode Infini</option>
+                        <option value="0">Infini</option>
                     </select>
 
-                    <div class="badge badge-primary badge-outline font-bold py-3 px-3 text-sm">
-                        Manche : <span id="round_display" class="ml-1">1 / 15</span>
+                    <div class="badge badge-primary badge-outline font-bold h-8 min-h-8 px-1.5 sm:px-3 text-[11px] sm:text-xs whitespace-nowrap shrink-0">
+                        <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 10</span>
                     </div>
 
-                    <!-- Meilleur Score actuel -->
-                    <div class="hidden sm:flex items-center gap-1.5 text-xs font-semibold bg-base-100 border border-base-300 px-3 py-1.5 rounded-lg shadow-sm">
+                    <!-- Meilleur Score actuel (Tablette / Desktop) -->
+                    <div class="hidden md:flex items-center gap-1.5 text-xs font-semibold bg-base-100 border border-base-300 px-3 py-1.5 rounded-lg shadow-sm h-8">
                         <span>Record :</span>
                         <span id="highscore_display" class="font-bold text-primary">0</span>
                     </div>
                 </div>
 
-                <div class="text-lg md:text-xl font-black bg-base-100 border border-base-300 px-5 py-1.5 rounded-2xl shadow-md">
+                <div class="text-xs sm:text-base md:text-xl font-black bg-base-100 border border-base-300 px-2 sm:px-4 py-1.5 h-8 min-h-8 flex items-center rounded-xl sm:rounded-2xl shadow-md whitespace-nowrap shrink-0">
                     <span id="points_display">Points : 0</span>
                 </div>
-            </div>
-
-            <!-- Pop-up incrément d'animation -->
-            <div id="points_popup" class="fixed top-12 left-1/2 -translate-x-1/2 bg-success text-success-content text-lg font-bold px-8 py-3 rounded-full shadow-2xl opacity-0 transition-all duration-500 pointer-events-none z-50">
-                +200 points!
             </div>
 
             <!-- Conteneur Carte Quiz -->
@@ -97,7 +124,7 @@
                         <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
                         
                         <!-- Menu autocomplétion -->
-                        <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-72 overflow-y-auto hidden border border-base-300 top-16"></div>
+                        <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-48 sm:max-h-60 overflow-y-auto hidden border border-base-300 top-14 sm:top-16"></div>
 
                         <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg hidden shadow-sm transition-all" placeholder="Moment" autocomplete="off" />
                         
