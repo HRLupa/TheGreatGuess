@@ -1,14 +1,112 @@
-let transcripts, durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
+let transcripts_en = {}, transcripts_fr = {}, transcripts, durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
+let current_lang = "fr" // Langue par défaut
 let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
 
 // Paramètres de partie
-let max_rounds = 15 // 0 = Infini
+let max_rounds = 10
 let current_round = 1
 let is_game_over = false
 let is_game_started = false
+
+/* --- GESTION DU THÈME (CLAIR / SOMBRE) --- */
+
+function init_theme() {
+    const savedTheme = localStorage.getItem("great_guess_theme") || "dark"
+    apply_theme(savedTheme)
+}
+
+function apply_theme(theme) {
+    document.documentElement.setAttribute("data-theme", theme)
+    localStorage.setItem("great_guess_theme", theme)
+    
+    const sunIcon = document.getElementById("theme_icon_sun")
+    const moonIcon = document.getElementById("theme_icon_moon")
+
+    if (theme === "dark") {
+        if (sunIcon) sunIcon.classList.remove("hidden")
+        if (moonIcon) moonIcon.classList.add("hidden")
+    } else {
+        if (sunIcon) sunIcon.classList.add("hidden")
+        if (moonIcon) moonIcon.classList.remove("hidden")
+    }
+}
+
+function toggle_theme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark"
+    const newTheme = currentTheme === "dark" ? "light" : "dark"
+    apply_theme(newTheme)
+}
+
+/* --- GESTION DE LA LANGUE --- */
+
+function change_language(lang) {
+    current_lang = lang
+    const langSelect = document.getElementById("lang_select")
+    if (langSelect) langSelect.value = lang
+
+    transcripts = current_lang === "fr" ? transcripts_fr : transcripts_en
+    phrases = get_phrases(transcripts)
+    reset_game()
+}
+
+/* --- CHARGEMENT DES DONNÉES --- */
+
+async function load_data() {
+    try {
+        const [transcriptsEnRes, transcriptsFrRes, videosRes, statiquesRes] = await Promise.all([
+            fetch("myjson/transcripts.json"),
+            fetch("myjson/transcriptsfr.json"),
+            fetch("myjson/videos.json"),
+            fetch("myjson/statiques.json")
+        ])
+
+        transcripts_en = await transcriptsEnRes.json()
+        transcripts_fr = await transcriptsFrRes.json()
+        
+        // Sélection initiale selon la langue choisie
+        transcripts = current_lang === "fr" ? transcripts_fr : transcripts_en
+
+        const videosJson = await videosRes.json()
+        const statiques = await statiquesRes.json()
+
+        durations = {}
+        ids = {}
+        const rawVideos = videosJson.entries[0].entries
+
+        rawVideos.forEach(v => {
+            durations[v.title] = v.duration
+            ids[v.title] = v.id
+        })
+
+        francais_anglais = statiques.francais_anglais || {}
+        manual_aliases = statiques.manual_aliases || {}
+
+        anglais_francais = {}
+        for (const [fr, en] of Object.entries(francais_anglais)) {
+            anglais_francais[en] = fr
+        }
+
+        title_map = build_title_aliases(transcripts, manual_aliases)
+        phrases = get_phrases(transcripts)
+
+        const availableVideos = rawVideos.filter(v => {
+            const subs = transcripts[v.title]
+            return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
+        })
+
+        searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
+
+        render_video_sidebar(availableVideos)
+        reset_game()
+    } catch (err) {
+        console.error("Erreur de chargement :", err)
+        const phraseEl = document.getElementById("phrase")
+        if (phraseEl) phraseEl.innerText = "Erreur de chargement des fichiers JSON"
+    }
+}
 
 function normalize(text) {
     return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : ""
@@ -148,11 +246,21 @@ function show_game_over() {
     const maxPossibleEl = document.getElementById("max_possible_score")
     const recordBadge = document.getElementById("new_record_badge")
     const bestScoreText = document.getElementById("end_best_score")
+    const progressBar = document.getElementById("score_progress_bar")
 
     const maxPossible = max_rounds * 400
     if (finalScoreEl) finalScoreEl.innerText = totalpoints
     if (maxPossibleEl) maxPossibleEl.innerText = maxPossible
     if (bestScoreText) bestScoreText.innerText = get_highscore(max_rounds)
+
+    // Animation de la barre de progression
+    if (progressBar) {
+        const percentage = maxPossible > 0 ? Math.min(100, Math.round((totalpoints / maxPossible) * 100)) : 100
+        // Léger timeout pour laisser l'écran s'afficher avant de déclencher la transition CSS
+        setTimeout(() => {
+            progressBar.style.width = `${percentage}%`
+        }, 100)
+    }
 
     if (recordBadge) {
         if (isNewRecord) {
@@ -228,54 +336,6 @@ function build_search_candidates(availableVideos, manual_aliases, anglais_franca
         })
     })
     return candidates
-}
-
-async function load_data() {
-    try {
-        const [transcriptsRes, videosRes, statiquesRes] = await Promise.all([
-            fetch("myjson/transcripts.json"),
-            fetch("myjson/videos.json"),
-            fetch("myjson/statiques.json")
-        ])
-
-        transcripts = await transcriptsRes.json()
-        const videosJson = await videosRes.json()
-        const statiques = await statiquesRes.json()
-
-        durations = {}
-        ids = {}
-        const rawVideos = videosJson.entries[0].entries
-
-        rawVideos.forEach(v => {
-            durations[v.title] = v.duration
-            ids[v.title] = v.id
-        })
-
-        francais_anglais = statiques.francais_anglais || {}
-        manual_aliases = statiques.manual_aliases || {}
-
-        anglais_francais = {}
-        for (const [fr, en] of Object.entries(francais_anglais)) {
-            anglais_francais[en] = fr
-        }
-
-        title_map = build_title_aliases(transcripts, manual_aliases)
-        phrases = get_phrases(transcripts)
-
-        const availableVideos = rawVideos.filter(v => {
-            const subs = transcripts[v.title]
-            return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
-        })
-
-        searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
-
-        render_video_sidebar(availableVideos)
-        reset_game()
-    } catch (err) {
-        console.error("Erreur de chargement :", err)
-        const phraseEl = document.getElementById("phrase")
-        if (phraseEl) phraseEl.innerText = "Erreur de chargement des fichiers JSON"
-    }
 }
 
 /* --- SUGGESTIONS --- */
@@ -625,6 +685,7 @@ function toggle_sidebar() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    init_theme()
     const titleInput = document.getElementById("video_title")
     const timeInput = document.getElementById("time_input")
 

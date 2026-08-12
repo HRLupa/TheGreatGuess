@@ -81,15 +81,29 @@
         <!-- Zone Principale -->
         <main class="flex-1 flex flex-col items-center p-2.5 sm:p-4 md:p-8 overflow-y-auto">
             
-            <!-- Barre supérieure (Paramètres & High Score) -->
+            <!-- Barre supérieure (Paramètres, Thème & High Score) -->
             <div class="w-full max-w-3xl flex justify-between items-center gap-1 sm:gap-3 mb-3 min-h-[36px] sm:min-h-[44px]">
                 <div class="flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
+                    <!-- Sélection des manches -->
                     <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
                         <option value="5">5 Manches</option>
-                        <option value="15" selected>15 Manches</option>
-                        <option value="30">30 Manches</option>
+                        <option value="10" selected>10 Manches</option>
+                        <option value="15">15 Manches</option>
+                        <option value="20">20 Manches</option>
                         <option value="0">Infini</option>
                     </select>
+
+                    <!-- Sélecteur de langue des sous-titres -->
+                    <select id="lang_select" onchange="change_language(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-2 h-8 min-h-8">
+                        <option value="fr" selected>🇫🇷 FR</option>
+                        <option value="en">🇬🇧 EN</option>
+                    </select>
+
+                    <!-- Bouton Changement de thème (Clair / Sombre) -->
+                    <button onclick="toggle_theme()" type="button" class="btn btn-ghost btn-xs sm:btn-sm h-8 min-h-8 px-2 border border-base-300 bg-base-100 hover:bg-base-200" title="Changer de thème">
+                        <svg id="theme_icon_sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg id="theme_icon_moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
 
                     <div class="badge badge-primary badge-outline font-bold h-8 min-h-8 px-1.5 sm:px-3 text-[11px] sm:text-xs whitespace-nowrap shrink-0">
                         <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 10</span>
@@ -158,11 +172,17 @@
                     
                     <h2 class="text-3xl font-black">Partie terminée !</h2>
                     
-                    <div class="bg-base-200 p-6 rounded-2xl border border-base-300 space-y-3 inline-block max-w-md mx-auto w-full">
+                    <div class="bg-base-200 p-6 rounded-2xl border border-base-300 space-y-4 inline-block max-w-md mx-auto w-full">
                         <div>
                             <p class="text-xs font-semibold opacity-70 uppercase tracking-wider">Score final</p>
                             <p class="text-4xl font-black text-primary mt-1"><span id="final_score">0</span> <span class="text-xl font-medium text-base-content/60">/ <span id="max_possible_score">4000</span> pts</span></p>
                         </div>
+
+                        <!-- Jauge de progression animée -->
+                        <div class="w-full bg-base-300/80 rounded-full h-3.5 overflow-hidden p-0.5 border border-base-300">
+                            <div id="score_progress_bar" class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+
                         <div class="pt-2 border-t border-base-300 flex justify-between items-center text-xs text-base-content/70 px-2 font-medium">
                             <span>Meilleur score de ce mode :</span>
                             <span class="font-bold text-base-content text-sm" id="end_best_score">0</span>
