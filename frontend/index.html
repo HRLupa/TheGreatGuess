@@ -87,14 +87,13 @@
                     <!-- Sélection des manches -->
                     <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
                         <option value="5">5 Manches</option>
-                        <option value="10" selected>10 Manches</option>
-                        <option value="15">15 Manches</option>
-                        <option value="20">20 Manches</option>
+                        <option value="15" selected>15 Manches</option>
+                        <option value="30">30 Manches</option>
                         <option value="0">Infini</option>
                     </select>
 
-                    <!-- Sélecteur de langue des sous-titres -->
-                    <select id="lang_select" onchange="change_language(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-2 h-8 min-h-8">
+                    <!-- Sélecteur de langue -->
+                    <select id="lang_select" onchange="change_language(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
                         <option value="fr" selected>🇫🇷 FR</option>
                         <option value="en">🇬🇧 EN</option>
                     </select>

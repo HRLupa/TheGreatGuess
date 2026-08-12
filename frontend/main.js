@@ -1,5 +1,6 @@
-let transcripts_en = {}, transcripts_fr = {}, transcripts, durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
-let current_lang = "fr" // Langue par défaut
+let transcripts, transcriptsEN, transcriptsFR, durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
+let rawVideos = []
+let current_lang = "fr"
 let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
@@ -42,13 +43,27 @@ function toggle_theme() {
 
 /* --- GESTION DE LA LANGUE --- */
 
-function change_language(lang) {
-    current_lang = lang
-    const langSelect = document.getElementById("lang_select")
-    if (langSelect) langSelect.value = lang
+function change_language(newLang) {
+    current_lang = newLang
 
-    transcripts = current_lang === "fr" ? transcripts_fr : transcripts_en
+    // 1. Définir les sous-titres actifs selon la langue
+    transcripts = (current_lang === "fr") ? transcriptsFR : transcriptsEN
+
+    // 2. Reconstruire la table des titres et la liste des répliques disponibles
+    title_map = build_title_aliases(transcripts, manual_aliases)
     phrases = get_phrases(transcripts)
+
+    // 3. Filtrer uniquement les vidéos qui possèdent des sous-titres dans cette langue
+    const availableVideos = rawVideos.filter(v => {
+        const subs = transcripts[v.title]
+        return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
+    })
+
+    // 4. Mettre à jour l'autocomplétion et la barre latérale
+    searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
+    render_video_sidebar(availableVideos)
+
+    // 5. Relancer une nouvelle partie avec la nouvelle langue
     reset_game()
 }
 
@@ -56,25 +71,22 @@ function change_language(lang) {
 
 async function load_data() {
     try {
-        const [transcriptsEnRes, transcriptsFrRes, videosRes, statiquesRes] = await Promise.all([
+        // Chargement simultané des deux fichiers de sous-titres + vidéos et statiques
+        const [transcriptsENRes, transcriptsFRRes, videosRes, statiquesRes] = await Promise.all([
             fetch("myjson/transcripts.json"),
             fetch("myjson/transcriptsfr.json"),
             fetch("myjson/videos.json"),
             fetch("myjson/statiques.json")
         ])
 
-        transcripts_en = await transcriptsEnRes.json()
-        transcripts_fr = await transcriptsFrRes.json()
-        
-        // Sélection initiale selon la langue choisie
-        transcripts = current_lang === "fr" ? transcripts_fr : transcripts_en
-
+        transcriptsEN = await transcriptsENRes.json()
+        transcriptsFR = await transcriptsFRRes.json()
         const videosJson = await videosRes.json()
         const statiques = await statiquesRes.json()
 
         durations = {}
         ids = {}
-        const rawVideos = videosJson.entries[0].entries
+        rawVideos = videosJson.entries[0].entries
 
         rawVideos.forEach(v => {
             durations[v.title] = v.duration
@@ -89,18 +101,9 @@ async function load_data() {
             anglais_francais[en] = fr
         }
 
-        title_map = build_title_aliases(transcripts, manual_aliases)
-        phrases = get_phrases(transcripts)
+        // Initialisation dans la langue par défaut (FR)
+        change_language("fr")
 
-        const availableVideos = rawVideos.filter(v => {
-            const subs = transcripts[v.title]
-            return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
-        })
-
-        searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
-
-        render_video_sidebar(availableVideos)
-        reset_game()
     } catch (err) {
         console.error("Erreur de chargement :", err)
         const phraseEl = document.getElementById("phrase")
