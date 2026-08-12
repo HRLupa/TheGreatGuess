@@ -1,4 +1,4 @@
-[![Banner](./frontend/images/banner.jpg)](https://docs.google.com/spreadsheets/d/1EDEnH4NBZ_jRTlUTTp8WNjOYX3n9T7GdECEzr0Nr1aQ/edit?usp=sharing)
+[Banner](./frontend/images/banner.jpg)
 
 # TheGreatGuess
 
