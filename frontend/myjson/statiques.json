@@ -1,5 +1,18 @@
 {
     "francais_anglais": {
+        "Un noob sur csgo": "Un noob sur csgo",
+        "Dark souls : comment utiliser la verticalité pour construire une carte": "Dark souls : comment utiliser la verticalité pour construire une carte",
+        "Haikyuu! Quand le volley, c'est vraiment toute ta vie.": "Haikyuu! Quand le volley, c'est vraiment toute ta vie.",
+        "Made in abyss : Review": "Made in abyss : Review",
+        "HITMAN": "HITMAN",
+        "L'ère des cristaux - Review": "The Age of Crystals - Review",
+        "Frostpunk : il fait beau demain ?": "Frostpunk : il fait beau demain ?",
+        "Pourquoi Ghost Recon fait péter un plomb ?": "Why Ghost Recon makes me lose my mind",
+        "Fallen Order manque d'ambition": "Fallen Order manque d'ambition",
+        "Tous les boss de Dark Souls 3 d'affilée sans mourir": "Tous les boss de Dark Souls 3 d'affilée sans mourir",
+        "Subnautica": "Subnautica",
+        "Dead By Daylight et la dissonance ludonarrative.": "Dead By Daylight et la dissonance ludonarrative.",
+        "Leçon de mise en scène avec Doom Eternal": "Leçon de mise en scène avec Doom Eternal",
         "L'incroyable histoire d'Otzdarva et de la run Dark Souls la plus difficile": "The incredible story of Otzdarva and the hardest Dark Souls run",
         "La quête du dernier secret": "The last big Secret",
         "Comment Among Us a explosé": "How Among Us made it",
@@ -17,9 +30,110 @@
         "22 minutes de + pour comprendre l'univers": "Another 22 minutes to understand the universe",
         "Le jeu où on plante des sapins": "Planting trees and feeling happy",
         "Quand 500 jeunes ont tenu une montagne contre les nazis": "The time 500 youngsters held a mountain against the Nazis",
-        "Mais pourquoi Nintendo porte plainte contre tout le monde ?": "Mais pourquoi Nintendo porte plainte contre tout le monde ?"
+        "Mais pourquoi Nintendo porte plainte contre tout le monde ?": "Mais pourquoi Nintendo porte plainte contre tout le monde ?",
+        "\"Ce n'est pas de l'esport, c'est la FGC\"": "\"Ce n'est pas de l'esport, c'est la FGC\"",
+        "Bloqués 5 heures sur Age of Empires": "Bloqués 5 heures sur Age of Empires"
     },
     "manual_aliases": {
+        "Un noob sur csgo": [
+            "counter-strike",
+            "counterstrike",
+            "csgo",
+            "cs:go",
+            "noob",
+            "Un noob sur csgo"
+        ],
+        "Dark souls : comment utiliser la verticalité pour construire une carte": [
+            "Dark souls : comment utiliser la verticalité pour construire une carte",
+            "dark souls",
+            "ds",
+            "verticalité",
+            "carte",
+            "map"
+        ],
+        "Haikyuu! Quand le volley, c'est vraiment toute ta vie.": [
+            "Haikyuu! Quand le volley, c'est vraiment toute ta vie.",
+            "haikyuu",
+            "haikyu",
+            "volley"
+        ],
+        "Made in abyss : Review": [
+            "Made in abyss : Review",
+            "Abyss",
+            "enfants",
+            "trou"
+        ],
+        "HITMAN": [
+            "HITMAN",
+            "marteau",
+            "mangouste"
+        ],
+        "L'ère des cristaux - Review": [
+            "The Age of Crystals - Review",
+            "L'ère des cristaux",
+            "the age of crystals",
+            "3D anime",
+            "anime 3D",
+            "cristaux"
+        ],
+        "Frostpunk : il fait beau demain ?": [
+            "Frostpunk",
+            "londoniens",
+            "froid",
+            "beau",
+            "roleplay",
+            "ordre",
+            "religion"
+        ],
+        "Pourquoi Ghost Recon fait péter un plomb ?": [
+            "Why Ghost Recon makes me lose my mind",
+            "Ghost Recon",
+            "Breakpoint",
+            "Ghost Recon Breakpoint",
+            "fou"
+        ],
+        "Fallen Order manque d'ambition": [
+            "Fallen Order manque d'ambition",
+            "Star wars",
+            "Jedi",
+            "Fallen order",
+            "Jedi fallen order",
+            "ambition",
+            "guerre des étoiles"
+        ],
+        "Tous les boss de Dark Souls 3 d'affilée sans mourir": [
+            "Tous les boss de Dark Souls 3 d'affilée sans mourir",
+            "dark souls 3",
+            "dark souls",
+            "boss",
+            "deathless",
+            "sans mourir",
+            "ds3"
+        ],
+        "Subnautica": [
+            "Subnautica",
+            "eau",
+            "océan",
+            "cyclope",
+            "welcome aboard",
+            "welcome aboard captain",
+            "captain"
+        ],
+        "Dead By Daylight et la dissonance ludonarrative.": [
+            "Dead By Daylight et la dissonance ludonarrative.",
+            "Dead by Daylight",
+            "dbd",
+            "dissonance",
+            "dissonance ludonarrative",
+            "dissonnance",
+            "dissonnance ludonarrative"
+        ],
+        "Leçon de mise en scène avec Doom Eternal": [
+            "Leçon de mise en scène avec Doom Eternal",
+            "Doom",
+            "Doom Eternal",
+            "mise en scène"
+        ],
         "L'incroyable histoire d'Otzdarva et de la run Dark Souls la plus difficile": [
             "otzdarva",
             "dark souls",
@@ -212,6 +326,36 @@
             "nintendo",
             "plaintes",
             "Atari"
-        ]        
+        ],
+        "\"Ce n'est pas de l'esport, c'est la FGC\"": [
+            "\"Ce n'est pas de l'esport, c'est la FGC\"",
+            "fgc",
+            "jeux de combat",
+            "jeu de combat",
+            "fighting game community",
+            "Tekken",
+            "Street fighter",
+            "Capcom",
+            "Pakistan"
+        ],
+        "Bloqués 5 heures sur Age of Empires": [
+            "Bloqués 5 heures sur Age of Empires",
+            "Age of Empires",
+            "Age of Empires 2",
+            "aoe2",
+            "aoe",
+            "ile",
+            "continent",
+            "fou",
+            "fous",
+            "5h",
+            "5 heures",
+            "bloqués",
+            "Hope",
+            "Matze",
+            "Matse",
+            "mur de Chine",
+            "Chine"
+        ]
     }
 }
