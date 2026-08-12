@@ -1,4 +1,4 @@
-# quiz_subtitles
+# TheGreatGuess
 
 ## Indications on the quiz functionment
 
