@@ -4,7 +4,7 @@
 
 [English](#english)
 
-[Français](#site-web)
+[Français](#français)
 
 ## English
 
