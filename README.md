@@ -1,6 +1,6 @@
-[![Banner](./frontend/images/banner.jpg)](https://docs.google.com/spreadsheets/d/1EDEnH4NBZ_jRTlUTTp8WNjOYX3n9T7GdECEzr0Nr1aQ/edit?usp=sharing)
-
 # TheGreatGuess
+
+[![Banner](./frontend/images/banner.jpg)](https://docs.google.com/spreadsheets/d/1EDEnH4NBZ_jRTlUTTp8WNjOYX3n9T7GdECEzr0Nr1aQ/edit?usp=sharing)
 
 [English](#english)
 
@@ -21,7 +21,9 @@ A phrase will appear on the screen: this will be either a transcription of a cli
 If you find the correct video, you will get a bit more context and be asked to *guess* at what point in the video the clip was spoken.
 You can enter the time in formats such as XX:XX:XX or XXhXXmXXs. By default, the input corresponds to minutes, then hours, and then seconds (for example, `1:2` corresponds to 1 hour and 2 minutes, and `25` corresponds to 25 minutes). The input is insensitive to case, spaces, and accents.
 
-After making your guess, you will be awarded a score based on how close you were to the exact time. You can earn up to 200 points by finding the exact time. As a guide, you can score points within a range covering about 50% of the video's total duration (the duration will be displayed), and the calculation follows a quadratic curve (a one-minute difference results in a larger point variation when you're close to the target). 
+After making your guess, you will be awarded a score based on how close you were to the exact time. You can earn up to 200 points by finding the exact time. As a guide, you can score points within a range covering about 50% of the video's total duration (the duration will be displayed), and the calculation follows a quadratic curve (a one-minute difference results in a larger point variation when you're close to the target).
+
+![Guessing scores evaluation](./frontend/images/scores_en.png)
 
 ### Incorrect Guess
 
@@ -48,9 +50,11 @@ Vous pouvez saisir l'heure sous les formats XX:XX:XX ou XXhXXmXXs. Par défaut, 
 
 Après avoir fait votre *guess*, un score vous sera attribué en fonction de votre proximité au temps exact. Vous pourrez gagner jusqu'à 200 points en trouvant le moment précis. À titre indicatif, il est possible de marquer des points sur environ 50 % de la durée totale de la vidéo (la durée vous sera indiquée), et le calcul suit une augmentation quadratique (un écart d'une minute entraîne une variation de points plus importante lorsque vous êtes proche de la cible).
 
+![Évaluation des scores de devinettes](./frontend/images/scores_fr.png)
+
 ### Mauvaise réponse
 
-Si vous avez *guess* la mauvaise vidéo, la séquence vidéo qui était à trouver vous sera présentée à partir du moment correspondant au texte affiché, afin que vous puissiez vous souvenir de la scène. 
+Si vous avez *guess* la mauvaise vidéo, la séquence vidéo qui était à trouver vous sera présentée à partir du moment correspondant au texte affiché, afin que vous puissiez vous souvenir de la scène.
 
 ### Avancé
 
