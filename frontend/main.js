@@ -7,7 +7,7 @@ let totalpoints = 0
 let validated = false
 
 // Paramètres de partie
-let max_rounds = 10
+let max_rounds = 15
 let current_round = 1
 let is_game_over = false
 let is_game_started = false
