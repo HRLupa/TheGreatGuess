@@ -33,4 +33,4 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     print(exp)"""
     return
 
-test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0.8)
+#test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0.8)

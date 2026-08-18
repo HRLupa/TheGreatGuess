@@ -1,16 +1,26 @@
-let transcripts, transcriptsEN, transcriptsFR, durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
+// --- CONFIGURATION DES SOUS-TITRES ET LANGUES ---
+const LANG_CONFIG = {
+    fr: {
+        label: "Français",
+        folders: ["AutoFrench"]
+    },
+    en: {
+        label: "English",
+        folders: ["ManuEnglish"]
+    }
+}
+
+
+let transcriptsByLang = {}
+let transcripts = {}
 let rawVideos = []
 let current_lang = "fr"
+let max_rounds=15
+let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
 let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
-
-// Paramètres de partie
-let max_rounds = 10
-let current_round = 1
-let is_game_over = false
-let is_game_started = false
 
 /* --- GESTION DU THÈME (CLAIR / SOMBRE) --- */
 
@@ -46,41 +56,85 @@ function toggle_theme() {
 function change_language(newLang) {
     current_lang = newLang
 
-    // 1. Définir les sous-titres actifs selon la langue
-    transcripts = (current_lang === "fr") ? transcriptsFR : transcriptsEN
+    // 1. Récupération des sous-titres fusionnés pour la langue choisie
+    transcripts = transcriptsByLang[current_lang] || {}
 
-    // 2. Reconstruire la table des titres et la liste des répliques disponibles
+    // 2. Génération des alias et des répliques
     title_map = build_title_aliases(transcripts, manual_aliases)
     phrases = get_phrases(transcripts)
 
-    // 3. Filtrer uniquement les vidéos qui possèdent des sous-titres dans cette langue
+    // 3. Filtrer uniquement les vidéos présentes dans ce set de sous-titres
     const availableVideos = rawVideos.filter(v => {
         const subs = transcripts[v.title]
         return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
     })
 
-    // 4. Mettre à jour l'autocomplétion et la barre latérale
+    // 4. Mise à jour de la recherche et de la sidebar
     searchCandidates = build_search_candidates(availableVideos, manual_aliases, anglais_francais)
     render_video_sidebar(availableVideos)
 
-    // 5. Relancer une nouvelle partie avec la nouvelle langue
+    // 5. Réinitialisation de la partie
     reset_game()
 }
 
 /* --- CHARGEMENT DES DONNÉES --- */
 
+async function load_language_transcripts(langKey) {
+    const config = LANG_CONFIG[langKey]
+    if (!config || !config.folders) return {}
+
+    let mergedTranscripts = {}
+
+    for (const folder of config.folders) {
+        try {
+            const indexRes = await fetch(`myjson/transcripts/${folder}/index.json`)
+            if (!indexRes.ok) continue
+
+            const fileList = await indexRes.json()
+
+            const fetchPromises = fileList.map(filename =>
+                fetch(`myjson/transcripts/${folder}/${filename}`)
+                    .then(res => res.ok ? res.json() : null)
+                    .catch(() => null)
+            )
+
+            const results = await Promise.all(fetchPromises)
+
+            results.forEach(data => {
+                if (data && typeof data === "object" && !Array.isArray(data)) {
+                    for (const [titleKey, subs] of Object.entries(data)) {
+                        if (!Array.isArray(subs)) continue
+
+                        // Convertit la clé vers le titre canonique (EN) si la clé était en FR
+                        const canonicalTitle = francais_anglais[titleKey] || titleKey
+
+                        // Sécurise la structure de chaque sous-titre
+                        const cleanedSubs = subs.map(sub => ({
+                            text: sub.text || sub.content || "",
+                            start: parseFloat(sub.start ?? sub.start_time ?? 0),
+                            duration: parseFloat(sub.duration ?? sub.dur ?? 2.0)
+                        })).filter(sub => sub.text.trim().length > 0)
+
+                        mergedTranscripts[canonicalTitle] = cleanedSubs
+                    }
+                }
+            })
+        } catch (err) {
+            console.warn(`Impossible de charger le dossier : ${folder}`, err)
+        }
+    }
+
+    return mergedTranscripts
+}
+
 async function load_data() {
     try {
-        // Chargement simultané des deux fichiers de sous-titres + vidéos et statiques
-        const [transcriptsENRes, transcriptsFRRes, videosRes, statiquesRes] = await Promise.all([
-            fetch("myjson/transcripts.json"),
-            fetch("myjson/transcriptsfr.json"),
+        // 1. Chargement des données globales
+        const [videosRes, statiquesRes] = await Promise.all([
             fetch("myjson/videos.json"),
             fetch("myjson/statiques.json")
         ])
 
-        transcriptsEN = await transcriptsENRes.json()
-        transcriptsFR = await transcriptsFRRes.json()
         const videosJson = await videosRes.json()
         const statiques = await statiquesRes.json()
 
@@ -101,11 +155,17 @@ async function load_data() {
             anglais_francais[en] = fr
         }
 
-        // Initialisation dans la langue par défaut (FR)
-        change_language("fr")
+        // 2. Chargement dynamique de tous les dossiers de sous-titres configurés
+        const langKeys = Object.keys(LANG_CONFIG)
+        for (const lang of langKeys) {
+            transcriptsByLang[lang] = await load_language_transcripts(lang)
+        }
+
+        // 3. Initialisation de la langue active
+        change_language(current_lang)
 
     } catch (err) {
-        console.error("Erreur de chargement :", err)
+        console.error("Erreur de chargement des données :", err)
         const phraseEl = document.getElementById("phrase")
         if (phraseEl) phraseEl.innerText = "Erreur de chargement des fichiers JSON"
     }
