@@ -14,9 +14,8 @@ const LANG_CONFIG = {
 let transcriptsByLang = {}
 let transcripts = {}
 let rawVideos = []
-let current_lang = "fr"
 let max_rounds=15
-let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids
+let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang
 let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
@@ -55,6 +54,7 @@ function toggle_theme() {
 
 function change_language(newLang) {
     current_lang = newLang
+    localStorage.setItem("great_guess_language", newLang)
 
     // 1. Récupération des sous-titres fusionnés pour la langue choisie
     transcripts = transcriptsByLang[current_lang] || {}
@@ -748,6 +748,8 @@ function toggle_sidebar() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    current_lang = localStorage.getItem("great_guess_language") || "fr"
+    document.getElementById("lang_select").value=current_lang
     init_theme()
     const titleInput = document.getElementById("video_title")
     const timeInput = document.getElementById("time_input")
