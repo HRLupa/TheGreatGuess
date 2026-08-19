@@ -15,6 +15,7 @@ let transcriptsByLang = {}
 let transcripts = {}
 let rawVideos = []
 let max_rounds=15
+let correct_titles_count = 0
 let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang
 let searchCandidates = []
 let activeSuggestionIndex = -1
@@ -269,6 +270,7 @@ function change_max_rounds(val) {
 
 function reset_game() {
     totalpoints = 0
+    correct_titles_count = 0
     current_round = 1
     is_game_over = false
     is_game_started = false
@@ -309,12 +311,16 @@ function show_game_over() {
     const maxPossibleEl = document.getElementById("max_possible_score")
     const recordBadge = document.getElementById("new_record_badge")
     const bestScoreText = document.getElementById("end_best_score")
+    const correctVideosEl = document.getElementById("correct_videos_count")
+    const totalVideosEl = document.getElementById("total_videos_played")
     const progressBar = document.getElementById("score_progress_bar")
 
     const maxPossible = max_rounds * 400
     if (finalScoreEl) finalScoreEl.innerText = totalpoints
     if (maxPossibleEl) maxPossibleEl.innerText = maxPossible
     if (bestScoreText) bestScoreText.innerText = get_highscore(max_rounds)
+    if (correctVideosEl) correctVideosEl.innerText = correct_titles_count
+    if (totalVideosEl) totalVideosEl.innerText = max_rounds
 
     // Animation de la barre de progression
     if (progressBar) {
@@ -641,6 +647,7 @@ async function submit_title() {
 
     let affichage = ""
     if (guessed_title && francais_anglais[guessed_title] === expected_title) {
+        correct_titles_count++
         animate_points(200)
         affichage = `
             <div class="space-y-1">

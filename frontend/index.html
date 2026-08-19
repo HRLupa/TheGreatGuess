@@ -105,7 +105,7 @@
                     </button>
 
                     <div class="badge badge-primary badge-outline font-bold h-8 min-h-8 px-1.5 sm:px-3 text-[11px] sm:text-xs whitespace-nowrap shrink-0">
-                        <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 10</span>
+                        <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 15</span>
                     </div>
 
                     <!-- Meilleur Score actuel (Tablette / Desktop) -->
@@ -176,12 +176,14 @@
                             <p class="text-xs font-semibold opacity-70 uppercase tracking-wider">Score final</p>
                             <p class="text-4xl font-black text-primary mt-1"><span id="final_score">0</span> <span class="text-xl font-medium text-base-content/60">/ <span id="max_possible_score">4000</span> pts</span></p>
                         </div>
-
                         <!-- Jauge de progression animée -->
                         <div class="w-full bg-base-300/80 rounded-full h-3.5 overflow-hidden p-0.5 border border-base-300">
                             <div id="score_progress_bar" class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
                         </div>
-
+                        <div class="pt-2 border-t border-base-300 flex justify-between items-center text-xs text-base-content/70 px-2 font-medium">
+                            <span>Vidéos trouvées :</span>
+                            <span class="font-bold text-base-content text-sm"><span id="correct_videos_count">0</span> / <span id="total_videos_played">0</span></span>
+                        </div>
                         <div class="pt-2 border-t border-base-300 flex justify-between items-center text-xs text-base-content/70 px-2 font-medium">
                             <span>Meilleur score de ce mode :</span>
                             <span class="font-bold text-base-content text-sm" id="end_best_score">0</span>
@@ -194,7 +196,14 @@
                 </div>
 
             </div>
-
+            <footer class="mt-auto pt-4 text-center text-xs text-base-content/60">
+                <a href="https://discord.com/users/545300661302984714" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 hover:text-primary transition-colors font-medium">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.87,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                    </svg>
+                    <span>Mon Discord</span>
+                </a>
+            </footer>
         </main>
 
         <script src="./main.js"></script>
