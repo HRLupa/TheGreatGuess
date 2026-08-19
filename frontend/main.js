@@ -430,7 +430,7 @@ function update_suggestions(query) {
     suggestionsEl.innerHTML = matches.map((title, index) => `
         <div class="suggestion-item p-2 sm:p-2.5 hover:bg-primary/20 cursor-pointer font-medium text-xs sm:text-sm transition-colors border-b border-base-200 last:border-none flex items-center justify-between" 
             data-index="${index}" 
-            onclick="select_suggestion('${title.replace(/'/g, "\\'")}')">
+            onclick='select_suggestion(${JSON.stringify(title).replaceAll("'", "&#39;")})'>
             <span class="truncate mr-2">${title}</span>
             <span class="text-[10px] sm:text-xs text-base-content/40 italic flex items-center gap-1 shrink-0">
                 <svg class="w-3 h-3 text-base-content/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -503,7 +503,7 @@ function render_video_sidebar(videos) {
         listContainer.innerHTML = videos.map(v => {
             const titleFR = anglais_francais[v.title] || v.title
             return `
-                <div class="flex items-center gap-3 p-2.5 hover:bg-base-200 rounded-xl transition-colors cursor-pointer" onclick="select_suggestion('${titleFR.replace(/'/g, "\\'")}')">
+                <div class="flex items-center gap-3 p-2.5 hover:bg-base-200 rounded-xl transition-colors cursor-pointer" onclick='select_suggestion(${JSON.stringify(titleFR).replaceAll("'", "&#39;")})'>
                     <img src="https://img.youtube.com/vi/${v.id}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow shrink-0" alt="${titleFR}" />
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-base truncate text-base-content" title="${titleFR}">${titleFR}</p>
