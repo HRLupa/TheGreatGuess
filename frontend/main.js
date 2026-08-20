@@ -78,6 +78,23 @@ function change_language(newLang) {
     reset_game()
 }
 
+function confirm_language_change(newLang) {
+    // Si la partie est commencée et non terminée, on demande confirmation
+    if (is_game_started && !is_game_over) {
+        const confirmChange = confirm(
+            "Changer de langue réinitialiserait vos points, êtes-vous sûr•e de vouloir continuer ?"
+        )
+        if (!confirmChange) {
+            // L'utilisateur annule : on remet le sélecteur sur la langue actuelle
+            document.getElementById("lang_select").value = current_lang
+            return
+        }
+    }
+    
+    // Si pas de partie en cours ou si l'utilisateur a confirmé :
+    change_language(newLang)
+}
+
 /* --- CHARGEMENT DES DONNÉES --- */
 
 async function load_language_transcripts(langKey) {
