@@ -16,6 +16,7 @@ let transcripts = {}
 let rawVideos = []
 let max_rounds=15
 let correct_titles_count = 0
+let disabledVideos = new Set()
 let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang
 let searchCandidates = []
 let activeSuggestionIndex = -1
@@ -54,6 +55,7 @@ function toggle_theme() {
 /* --- GESTION DE LA LANGUE --- */
 
 function change_language(newLang) {
+    disabledVideos.clear()
     current_lang = newLang
     localStorage.setItem("great_guess_language", newLang)
 
@@ -77,21 +79,26 @@ function change_language(newLang) {
     // 5. Réinitialisation de la partie
     reset_game()
 }
-
 function confirm_language_change(newLang) {
-    // Si la partie est commencée et non terminée, on demande confirmation
+    const selectEl = document.getElementById("lang_select")
+
     if (is_game_started && !is_game_over) {
         const confirmChange = confirm(
-            "Changer de langue réinitialiserait vos points, êtes-vous sûr•e de vouloir continuer ?"
+            "Attention : Changer de langue réinitialisera votre partie en cours et vos points accumulés. Voulez-vous continuer ?"
         )
         if (!confirmChange) {
-            // L'utilisateur annule : on remet le sélecteur sur la langue actuelle
-            document.getElementById("lang_select").value = current_lang
+            if (selectEl) {
+                selectEl.value = current_lang
+                // Force le navigateur à détruire et réinitialiser le composant natif
+                selectEl.disabled = true
+                setTimeout(() => {
+                    selectEl.disabled = false
+                }, 50)
+            }
             return
         }
     }
-    
-    // Si pas de partie en cours ou si l'utilisateur a confirmé :
+
     change_language(newLang)
 }
 
@@ -191,6 +198,52 @@ async function load_data() {
 
 function normalize(text) {
     return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : ""
+}
+
+/* --- LOGIQUE DE BASCULEMENT --- */
+
+function toggle_video_status(videoTitle) {
+    const availableVideos = rawVideos.filter(v => {
+        const subs = transcripts[v.title]
+        return subs && Array.isArray(subs) && subs.length > 0
+    })
+
+    const activeCount = availableVideos.length - disabledVideos.size
+
+    if (!disabledVideos.has(videoTitle)) {
+        // Tentative de désactivation : vérifier la contrainte d'au moins 1 vidéo active
+        if (activeCount <= 1) {
+            alert("Il doit y avoir au moins une vidéo active pour jouer.")
+            return
+        }
+        disabledVideos.add(videoTitle)
+    } else {
+        // Réintégration
+        disabledVideos.delete(videoTitle)
+    }
+
+    // Ré-actualisation des répliques, de la recherche et de la sidebar
+    refresh_active_pool()
+}
+
+function refresh_active_pool() {
+    const availableVideos = rawVideos.filter(v => {
+        const subs = transcripts[v.title]
+        return subs && Array.isArray(subs) && subs.length > 0
+    })
+
+    // 1. Filtrer les vidéos actives pour les suggestions de recherche
+    const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
+    searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
+
+    // 2. Mettre à jour les répliques tirables
+    phrases = get_phrases(transcripts)
+
+    // 3. Redessiner la sidebar
+    render_video_sidebar(availableVideos)
+
+    // 4. Réinitialiser la question posée
+    new_question()
 }
 
 /* --- GESTION DES HIGH SCORES (LOCAL STORAGE) --- */
@@ -426,6 +479,10 @@ function build_search_candidates(availableVideos, manual_aliases, anglais_franca
 
 /* --- SUGGESTIONS --- */
 
+function escape_title(str) {
+    return str ? str.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") : ""
+}
+
 function update_suggestions(query) {
     const suggestionsEl = document.getElementById("suggestions")
     if (!suggestionsEl) return
@@ -453,7 +510,7 @@ function update_suggestions(query) {
     suggestionsEl.innerHTML = matches.map((title, index) => `
         <div class="suggestion-item p-2 sm:p-2.5 hover:bg-primary/20 cursor-pointer font-medium text-xs sm:text-sm transition-colors border-b border-base-200 last:border-none flex items-center justify-between" 
             data-index="${index}" 
-            onclick='select_suggestion(${JSON.stringify(title).replaceAll("'", "&#39;")})'>
+            onclick="select_suggestion('${escape_title(title)}')">
             <span class="truncate mr-2">${title}</span>
             <span class="text-[10px] sm:text-xs text-base-content/40 italic flex items-center gap-1 shrink-0">
                 <svg class="w-3 h-3 text-base-content/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -521,26 +578,81 @@ function render_video_sidebar(videos) {
     const listContainer = document.getElementById("video_list")
     const countContainer = document.getElementById("video_count")
 
-    if (countContainer) countContainer.innerText = videos.length
-    if (listContainer) {
-        listContainer.innerHTML = videos.map(v => {
-            const titleFR = anglais_francais[v.title] || v.title
-            return `
-                <div class="flex items-center gap-3 p-2.5 hover:bg-base-200 rounded-xl transition-colors cursor-pointer" onclick='select_suggestion(${JSON.stringify(titleFR).replaceAll("'", "&#39;")})'>
-                    <img src="https://img.youtube.com/vi/${v.id}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow shrink-0" alt="${titleFR}" />
-                    <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-base truncate text-base-content" title="${titleFR}">${titleFR}</p>
-                        <p class="text-xs text-base-content/60 font-mono flex items-center gap-1 mt-0.5">
-                            <svg class="w-3.5 h-3.5 shrink-0 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>${seconds_to_hms(v.duration)}</span>
-                        </p>
-                    </div>
-                </div>
-            `
-        }).join('')
+    const activeVideos = videos.filter(v => !disabledVideos.has(v.title))
+    const inactiveVideos = videos.filter(v => disabledVideos.has(v.title))
+
+    if (countContainer) {
+        countContainer.innerText = `${activeVideos.length}/${videos.length}`
     }
+
+    if (!listContainer) return
+
+    const renderCard = (v, isDisabled) => {
+        const titleFR = anglais_francais[v.title] || v.title
+        const safeTitle = escape_title(v.title)
+        const safeTitleFR = escape_title(titleFR)
+
+        return `
+            <div class="group relative flex items-center gap-3 p-2.5 rounded-xl transition-all ${
+                isDisabled 
+                    ? "bg-base-200/40 opacity-50 grayscale hover:opacity-80" 
+                    : "hover:bg-base-200"
+            }">
+                <img src="https://img.youtube.com/vi/${v.id}/default.jpg" 
+                    class="w-16 h-11 object-cover rounded-md shadow shrink-0 cursor-pointer" 
+                    alt="${titleFR}"
+                    onclick="${isDisabled ? '' : `select_suggestion('${safeTitleFR}')`}" />
+                
+                <div class="flex-1 min-w-0 cursor-pointer" onclick="${isDisabled ? '' : `select_suggestion('${safeTitleFR}')`}">
+                    <p class="font-semibold text-sm truncate text-base-content" title="${titleFR}">${titleFR}</p>
+                    <p class="text-xs text-base-content/60 font-mono flex items-center gap-1 mt-0.5">
+                        <svg class="w-3.5 h-3.5 shrink-0 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>${seconds_to_hms(v.duration)}</span>
+                    </p>
+                </div>
+
+                <!-- Bouton Cercle - / Cercle + -->
+                <button onclick="toggle_video_status('${safeTitle}')" 
+                        class="p-1 rounded-full transition-all shrink-0 ${
+                            isDisabled 
+                                ? "text-success hover:bg-success/20" 
+                                : "text-base-content/60 hover:text-error hover:bg-error/20"
+                        }" 
+                        title="${isDisabled ? 'Réintégrer cette vidéo' : 'Retirer cette vidéo'}">
+                    ${isDisabled ? `
+                        <!-- Cercle avec un + -->
+                        <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8"/>
+                        </svg>
+                    ` : `
+                        <!-- Cercle avec un - -->
+                        <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8"/>
+                        </svg>
+                    `}
+                </button>
+            </div>
+        `
+    }
+
+    let html = activeVideos.map(v => renderCard(v, false)).join('')
+
+    if (inactiveVideos.length > 0) {
+        html += `
+            <div class="pt-3 mt-3 border-t border-base-300">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-base-content/40 mb-2 px-1">
+                    Vidéos masquées (${inactiveVideos.length})
+                </p>
+                ${inactiveVideos.map(v => renderCard(v, true)).join('')}
+            </div>
+        `
+    }
+
+    listContainer.innerHTML = html
 }
 
 function get_html_yt(id, start) {
@@ -550,6 +662,9 @@ function get_html_yt(id, start) {
 function get_phrases(transcripts) {
     let out = []
     for (const [title, subs] of Object.entries(transcripts)) {
+        // On ignore les vidéos masquées par l'utilisateur
+        if (disabledVideos.has(title)) continue
+
         if (subs !== null && subs !== undefined && Array.isArray(subs)) {
             for (const sub of subs) {
                 out.push([title, sub.text, sub.start, sub.duration])
