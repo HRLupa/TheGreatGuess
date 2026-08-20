@@ -16,6 +16,8 @@ let transcripts = {}
 let rawVideos = []
 let max_rounds=15
 let correct_titles_count = 0
+let is_game_over=false
+let is_game_started=false
 let disabledVideos = new Set()
 let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang
 let searchCandidates = []
@@ -203,6 +205,7 @@ function normalize(text) {
 /* --- LOGIQUE DE BASCULEMENT --- */
 
 function toggle_video_status(videoTitle) {
+    if (is_game_started) return
     const availableVideos = rawVideos.filter(v => {
         const subs = transcripts[v.title]
         return subs && Array.isArray(subs) && subs.length > 0
@@ -356,7 +359,7 @@ function reset_game() {
 
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
-
+    refresh_active_pool()
     new_question()
 }
 
@@ -613,28 +616,28 @@ function render_video_sidebar(videos) {
                     </p>
                 </div>
 
-                <!-- Bouton Cercle - / Cercle + -->
-                <button onclick="toggle_video_status('${safeTitle}')" 
-                        class="p-1 rounded-full transition-all shrink-0 ${
-                            isDisabled 
-                                ? "text-success hover:bg-success/20" 
-                                : "text-base-content/60 hover:text-error hover:bg-error/20"
-                        }" 
-                        title="${isDisabled ? 'Réintégrer cette vidéo' : 'Retirer cette vidéo'}">
-                    ${isDisabled ? `
-                        <!-- Cercle avec un + -->
-                        <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="9"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8"/>
-                        </svg>
-                    ` : `
-                        <!-- Cercle avec un - -->
-                        <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="9"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8"/>
-                        </svg>
-                    `}
-                </button>
+                <!-- Afficher les boutons uniquement si la partie n'a PAS commencé -->
+                ${!is_game_started ? `
+                    <button onclick="toggle_video_status('${safeTitle}')" 
+                            class="p-1 rounded-full transition-all shrink-0 ${
+                                isDisabled 
+                                    ? "text-success hover:bg-success/20" 
+                                    : "text-base-content/60 hover:text-error hover:bg-error/20"
+                            }" 
+                            title="${isDisabled ? 'Réintégrer cette vidéo' : 'Retirer cette vidéo'}">
+                        ${isDisabled ? `
+                            <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8"/>
+                            </svg>
+                        ` : `
+                            <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8"/>
+                            </svg>
+                        `}
+                    </button>
+                ` : ''}
             </div>
         `
     }
@@ -766,6 +769,11 @@ async function submit_title() {
         is_game_started = true
         const roundSelect = document.getElementById("round_select")
         if (roundSelect) roundSelect.disabled = true
+        const availableVideos = rawVideos.filter(v => {
+            const subs = transcripts[v.title]
+            return subs && Array.isArray(subs) && subs.length > 0
+        })
+        render_video_sidebar(availableVideos)
     }
 
     hide_suggestions()
