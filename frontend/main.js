@@ -246,7 +246,7 @@ function refresh_active_pool() {
     render_video_sidebar(availableVideos)
 
     // 4. Réinitialiser la question posée
-    new_question()
+    new_question(false)
 }
 
 /* --- GESTION DES HIGH SCORES (LOCAL STORAGE) --- */
@@ -360,7 +360,6 @@ function reset_game() {
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
     refresh_active_pool()
-    new_question()
 }
 
 function next_round() {
@@ -718,7 +717,7 @@ function score_guess_quadratic(guessTime, startTime, videoDuration) {
     return Math.round(Math.min(score, 200))
 }
 
-function new_question() {
+function new_question(focusInput = true) {
     if (!phrases || phrases.length === 0) return
     const indices = get_question()
     current_question = indices
@@ -757,7 +756,10 @@ function new_question() {
     validated = false
     document.getElementById("result").innerHTML = ""
 
-    setTimeout(() => titleInput.focus(), 100)
+    if (focusInput) {
+        console.log("Focusing on title input...")
+        setTimeout(() => titleInput.focus(), 100)
+    }
 }
 
 
