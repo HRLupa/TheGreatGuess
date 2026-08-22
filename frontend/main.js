@@ -952,7 +952,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     document.addEventListener("click", (e) => {
-        if (!e.target.closest("#video_title") && !e.target.closest("#suggestions")) {
+        if (!e.target.closest("#video_title") && !e.target.closest("#suggestions") && !e.target.closest("time_help_box")) {
             hide_suggestions()
         }
         const helpBox = document.getElementById("time_help_box")
