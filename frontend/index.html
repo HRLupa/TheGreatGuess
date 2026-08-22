@@ -135,13 +135,40 @@
                     <div id="video_info_hint" class="flex justify-center hidden"></div>
 
                     <div class="relative space-y-4">
+                        <!-- Champ Titre & Autocomplétion -->
                         <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
-                        
-                        <!-- Menu autocomplétion -->
                         <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-48 sm:max-h-60 overflow-y-auto hidden border border-base-300 top-14 sm:top-16"></div>
 
-                        <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg hidden shadow-sm transition-all" placeholder="Moment" autocomplete="off" />
-                        
+                        <!-- CONTENEUR DU CHRONO (Contient l'input + le bouton ? + l'infobulle) -->
+                        <div id="time_wrapper" class="relative hidden">
+                            <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg pr-12 shadow-sm transition-all" placeholder="Moment" autocomplete="off" />
+                            
+                            <!-- Bouton ? centré verticalement -->
+                            <button type="button" 
+                                    onclick="toggle_time_help(event)" 
+                                    class="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border border-base-content/30 text-base-content/60 hover:text-base-content hover:border-base-content text-xs font-bold flex items-center justify-center transition-colors bg-base-100 select-none z-10">
+                                ?
+                            </button>
+
+                            <!-- Overlay d'aide (ne se ferme pas au clic dans l'input) -->
+                            <div id="time_help_box" 
+                                onclick="event.stopPropagation()"
+                                class="hidden absolute right-0 bottom-full mb-2 w-64 p-3 bg-base-100 border border-base-300 rounded-xl shadow-xl z-50 text-xs text-base-content space-y-2">
+                                <div class="flex justify-between items-center pb-1 border-b border-base-200">
+                                    <span class="font-bold text-xs">Exemples de formats</span>
+                                    <button type="button" onclick="toggle_time_help(event)" class="text-base-content/40 hover:text-base-content text-xs font-bold">✕</button>
+                                </div>
+                                <ul class="space-y-1 font-mono text-[11px] opacity-90">
+                                    <li><b class="text-secondary">1:30</b> → 1h 30m</li>
+                                    <li><b class="text-secondary">1:20:05</b> → 1h 20m 5s</li>
+                                    <li><b class="text-secondary">1h20</b> ou <b class="text-secondary">1h20m</b> → 1h 20m</li>
+                                    <li><b class="text-secondary">90s</b> ou <b class="text-secondary">1m30s</b> → 1m 30s</li>
+                                    <li><b class="text-secondary">1.5</b> → 1m 30s</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Boutons de validation -->
                         <button id="button_title" onclick="submit_title()" class="btn btn-primary btn-lg w-full text-lg font-bold shadow-md">Valider le titre</button>
                         <button id="button_time" onclick="submit_time()" class="btn btn-secondary btn-lg w-full text-lg font-bold shadow-md hidden">Valider le temps</button>
                     </div>

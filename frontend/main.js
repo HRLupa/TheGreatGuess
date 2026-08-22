@@ -101,7 +101,6 @@ function new_question(focusInput = true) {
     titleInput.value = ""
     timeInput.value = ""
     timeInput.classList.remove("input-error")
-    
     hide_suggestions()
     document.getElementById("suivant").classList.add("hidden")
     
@@ -117,6 +116,8 @@ function new_question(focusInput = true) {
     timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
     document.getElementById("video_player").classList.add("hidden")
+    document.getElementById("time_wrapper").classList.add("hidden")
+    document.getElementById("time_help_box").classList.add("hidden")
     
     const hintBox = document.getElementById("video_info_hint")
     if (hintBox) {
@@ -181,6 +182,7 @@ async function submit_title() {
             `
             hintBox.classList.remove("hidden")
         }
+        document.getElementById("time_wrapper").classList.remove("hidden")
 
         const timeInput = document.getElementById("time_input")
         timeInput.classList.remove("hidden")
@@ -248,7 +250,8 @@ function submit_time() {
 
     document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
     document.getElementById("video_player").classList.remove("hidden")
-
+    document.getElementById("time_wrapper").classList.add("hidden")
+    document.getElementById("time_help_box").classList.add("hidden")
     timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
     
@@ -445,7 +448,7 @@ function hms_to_seconds(input) {
         const parts = str.split(":").map(p => parseInt(p, 10))
         if (parts.some(isNaN)) return NaN;
         if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
-        if (parts.length === 2) return parts[0] * 60 + parts[1]
+        if (parts.length === 2) return parts[0] * 3600 + parts[1] *60
     }
 
     const num = parseFloat(str)
@@ -825,7 +828,13 @@ function render_video_sidebar(videos) {
     listContainer.innerHTML = html
 }
 
+/* --- GESTION DE L'AIDE POUR LE TEMPS --- */
 
+function toggle_time_help(event) {
+    if (event) event.stopPropagation()
+    const box = document.getElementById("time_help_box")
+    if (box) box.classList.toggle("hidden")
+}
 
 /* --- GESTION DE LA LANGUE --- */
 
