@@ -820,7 +820,9 @@ function render_video_sidebar(videos) {
                 <p class="text-[11px] font-bold uppercase tracking-wider text-base-content/40 mb-2 px-1">
                     Vidéos masquées (${inactiveVideos.length})
                 </p>
-                ${inactiveVideos.map(v => renderCard(v, true)).join('')}
+                <div class="space-y-2">
+                    ${inactiveVideos.map(v => renderCard(v, true)).join('')}
+                </div>
             </div>
         `
     }
