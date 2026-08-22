@@ -918,7 +918,7 @@ function toggle_theme() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    current_lang = localStorage.getItem("great_guess_language") || "fr"
+    current_lang = localStorage.getItem("great_guess_language") || "en"
     document.getElementById("lang_select").value=current_lang
     init_theme()
     const titleInput = document.getElementById("video_title")
