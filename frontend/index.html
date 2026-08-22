@@ -85,7 +85,7 @@
             <div class="w-full max-w-3xl flex justify-between items-center gap-1 sm:gap-3 mb-3 min-h-[36px] sm:min-h-[44px]">
                 <div class="flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
                     <!-- Sélection des manches -->
-                    <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
+                    <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-xs appearance-none bg-none sm:select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
                         <option value="5">5 Manches</option>
                         <option value="15" selected>15 Manches</option>
                         <option value="30">30 Manches</option>
@@ -93,7 +93,7 @@
                     </select>
 
                     <!-- Sélecteur de langue -->
-                    <select id="lang_select" onchange="confirm_language_change(this.value)" class="select select-bordered select-xs sm:select-sm font-bold bg-base-100 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
+                    <select id="lang_select" onchange="confirm_language_change(this.value)" class="select select-bordered select-xs appearance-none bg-none sm:select-sm font-bold bg-base-100 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
                         <option value="fr">🇫🇷 FR</option>
                         <option value="en" selected>🇬🇧 EN</option>
                     </select>
