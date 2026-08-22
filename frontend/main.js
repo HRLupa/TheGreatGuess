@@ -953,6 +953,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!e.target.closest("#video_title") && !e.target.closest("#suggestions")) {
             hide_suggestions()
         }
+        const helpBox = document.getElementById("time_help_box")
+        if (helpBox && !helpBox.classList.contains("hidden")) {
+            if (!e.target.closest("#time_help_box") && !e.target.closest("button[onclick*='toggle_time_help']")) {
+                helpBox.classList.add("hidden")
+            }
+        }
     })
 
     load_data()
