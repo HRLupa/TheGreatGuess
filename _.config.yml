@@ -1,5 +1,0 @@
-relative_links:
-    enabled: true
-    collections: true
-include:
-    README.md
