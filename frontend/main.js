@@ -773,11 +773,11 @@ function render_video_sidebar(videos) {
             }">
                 <img src="https://img.youtube.com/vi/${v.id}/default.jpg" 
                     class="w-16 h-11 object-cover rounded-md shadow shrink-0 cursor-pointer" 
-                    alt="${titleFR}"
+                    alt="${safeTitleFR}"
                     onclick="${isDisabled ? '' : `select_suggestion('${safeTitleFR}')`}" />
                 
                 <div class="flex-1 min-w-0 cursor-pointer" onclick="${isDisabled ? '' : `select_suggestion('${safeTitleFR}')`}">
-                    <p class="font-semibold text-sm truncate text-base-content" title="${titleFR}">${titleFR}</p>
+                    <p class="font-semibold text-sm truncate text-base-content" title="${safeTitleFR}">${safeTitleFR}</p>
                     <p class="text-xs text-base-content/60 font-mono flex items-center gap-1 mt-0.5">
                         <svg class="w-3.5 h-3.5 shrink-0 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
