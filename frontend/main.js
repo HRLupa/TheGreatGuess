@@ -266,53 +266,59 @@ async function load_language_transcripts(langKey) {
     const config = LANG_CONFIG[langKey]
     if (!config || !config.folders) return {}
 
-    let mergedTranscripts = {}
+    try {
+        // 1. Récupération simultanée de tous les fichiers index.json des dossiers de la langue
+        const indexPromises = config.folders.map(folder =>
+            fetch(`myjson/transcripts/${folder}/index.json`)
+                .then(res => res.ok ? res.json().then(fileList => ({ folder, fileList })) : null)
+                .catch(() => null)
+        )
 
-    for (const folder of config.folders) {
-        try {
-            const indexRes = await fetch(`myjson/transcripts/${folder}/index.json`)
-            if (!indexRes.ok) continue
+        const folderIndices = (await Promise.all(indexPromises)).filter(Boolean)
 
-            const fileList = await indexRes.json()
-
-            const fetchPromises = fileList.map(filename =>
-                fetch(`myjson/transcripts/${folder}/${filename}`)
-                    .then(res => res.ok ? res.json() : null)
-                    .catch(() => null)
-            )
-
-            const results = await Promise.all(fetchPromises)
-
-            results.forEach(data => {
-                if (data && typeof data === "object" && !Array.isArray(data)) {
-                    for (const [titleKey, subs] of Object.entries(data)) {
-                        if (!Array.isArray(subs)) continue
-
-                        // Convertit la clé vers le titre canonique (EN) si la clé était en FR
-                        const canonicalTitle = francais_anglais[titleKey] || titleKey
-
-                        // Sécurise la structure de chaque sous-titre
-                        const cleanedSubs = subs.map(sub => ({
-                            text: sub.text || sub.content || "",
-                            start: parseFloat(sub.start ?? sub.start_time ?? 0),
-                            duration: parseFloat(sub.duration ?? sub.dur ?? 2.0)
-                        })).filter(sub => sub.text.trim().length > 0)
-
-                        mergedTranscripts[canonicalTitle] = cleanedSubs
-                    }
-                }
+        // 2. Création d'une liste unique contenant TOUTES les requêtes de sous-titres
+        const filePromises = []
+        folderIndices.forEach(({ folder, fileList }) => {
+            fileList.forEach(filename => {
+                filePromises.push(
+                    fetch(`myjson/transcripts/${folder}/${filename}`)
+                        .then(res => res.ok ? res.json() : null)
+                        .catch(() => null)
+                )
             })
-        } catch (err) {
-            console.warn(`Impossible de charger le dossier : ${folder}`, err)
-        }
-    }
+        })
 
-    return mergedTranscripts
+        // 3. Téléchargement simultané de TOUS les fichiers JSON de sous-titres
+        const results = await Promise.all(filePromises)
+
+        let mergedTranscripts = {}
+        results.forEach(data => {
+            if (data && typeof data === "object" && !Array.isArray(data)) {
+                for (const [titleKey, subs] of Object.entries(data)) {
+                    if (!Array.isArray(subs)) continue
+
+                    const canonicalTitle = francais_anglais[titleKey] || titleKey
+                    const cleanedSubs = subs.map(sub => ({
+                        text: sub.text || sub.content || "",
+                        start: parseFloat(sub.start ?? sub.start_time ?? 0),
+                        duration: parseFloat(sub.duration ?? sub.dur ?? 2.0)
+                    })).filter(sub => sub.text.trim().length > 0)
+
+                    mergedTranscripts[canonicalTitle] = cleanedSubs
+                }
+            }
+        })
+
+        return mergedTranscripts
+    } catch (err) {
+        console.warn(`Erreur lors du chargement de la langue : ${langKey}`, err)
+        return {}
+    }
 }
 
 async function load_data() {
     try {
-        // 1. Chargement des données globales
+        // 1. Chargement simultané des fichiers de base
         const [videosRes, statiquesRes] = await Promise.all([
             fetch("myjson/videos.json"),
             fetch("myjson/statiques.json")
@@ -338,11 +344,16 @@ async function load_data() {
             anglais_francais[en] = fr
         }
 
-        // 2. Chargement dynamique de tous les dossiers de sous-titres configurés
+        // 2. Chargement simultané de TOUTES les langues en parallèle
         const langKeys = Object.keys(LANG_CONFIG)
-        for (const lang of langKeys) {
-            transcriptsByLang[lang] = await load_language_transcripts(lang)
-        }
+        const langPromises = langKeys.map(lang => 
+            load_language_transcripts(lang).then(transcripts => ({ lang, transcripts }))
+        )
+
+        const langResults = await Promise.all(langPromises)
+        langResults.forEach(({ lang, transcripts }) => {
+            transcriptsByLang[lang] = transcripts
+        })
 
         // 3. Initialisation de la langue active
         change_language(current_lang)

@@ -1,29 +1,60 @@
 import json
-from typing import cast
-import os
-import sys
-import yt_dlp
+from pathlib import Path
+from time import sleep
+from typing import Any, cast
+
 import requests
-mainpath=os.path.dirname(__file__)
-sys.path.append(mainpath)
-mainjsonpath=os.path.join(mainpath,"frontend","myjson")
-available_language:dict[str,dict[str,str|bool]]={"autofrench":{"path":os.path.join(mainjsonpath,"transcripts","AutoFrench"),"language":"fr","automatic":True},"manufrench":{"path":os.path.join(mainjsonpath,"transcripts","ManuFrench"),"language":"fr","automatic":False},"manuenglish":{"path":os.path.join(mainjsonpath,"transcripts","ManuEnglish"),"language":"en","automatic":False}}
-chosen_language="autofrench"
+import yt_dlp
+
+# --- CONFIGURATION DES CHEMINS (Pathlib) ---
+MAIN_PATH = Path(__file__).parent.resolve()
+MAIN_JSON_PATH = MAIN_PATH / "frontend" / "myjson"
+
+AVAILABLE_LANGUAGES: dict[str, dict[str, Any]] = {
+    "autofrench": {
+        "path": MAIN_JSON_PATH / "transcripts" / "AutoFrench",
+        "language": "fr",
+        "automatic": True,
+    },
+    "manufrench": {
+        "path": MAIN_JSON_PATH / "transcripts" / "ManuFrench",
+        "language": "fr",
+        "automatic": False,
+    },
+    "manuenglish": {
+        "path": MAIN_JSON_PATH / "transcripts" / "ManuEnglish",
+        "language": "en",
+        "automatic": False,
+    },
+}
+
+CHOSEN_LANGUAGE = "autofrench"
 
 
-def get_channel(name:str,path:str):
-    import subprocess
-    subprocess.run(f'yt-dlp --flat-playlist --dump-single-json --write-subs --write-auto-subs --sub-langs "fr*" "https://www.youtube.com/@{name}"',stdout=open(path,"w",encoding="utf8"),shell=True)
-    from pathlib import Path
-    newpath: Path = Path(path)
-    newpath.write_text(newpath.read_text(), encoding="utf8")
-def load_all_videos_from_channel_json(json_file:str):
+def get_channel(name: str, output_path: Path) -> None:
+    """Récupère l'index des vidéos d'une chaîne via l'API yt-dlp."""
+    ydl_opts :dict[str,str|bool]= {
+        "extract_flat": "in_playlist",
+        "dump_single_json": True,
+        "quiet": True,
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(f"https://www.youtube.com/@{name}", download=False)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(info, f, ensure_ascii=False, indent=4)
+
+
+def load_all_videos_from_channel_json(json_file: Path) -> list[dict[str, str]]:
+    """Extrait l'ID et le titre des vidéos depuis le fichier JSON de la chaîne."""
     with open(json_file, encoding="utf-8") as f:
-        data:dict[str, str| int| list[dict[str,str]]| list[dict[str,str | int]]| None| list[dict[str,str| int| list[dict[str, int]]| bool| dict[Any,Any]]]| dict[str,str| Unknown]]= json.load(f)
+        data = json.load(f)
 
-    all_videos :list[dict[str, str]]= []
-    playlist = data.get("entries", [])[0]
+    all_videos: list[dict[str, str]] = []
+    entries = data.get("entries", [])
+    playlist = entries[0] if entries else {}
     playlist_entries = playlist.get("entries", [])
+
     for video in playlist_entries:
         if video.get("_type") == "url" and video.get("ie_key") == "Youtube" and video.get("id"):
             all_videos.append({
@@ -32,57 +63,65 @@ def load_all_videos_from_channel_json(json_file:str):
             })
     return all_videos
 
-def improve_transcript(trans:list[dict[str, float|str]]|None):
-    """
-    :param trans: Liste de dictionnaires représentant les segments de transcript. Chaque dictionnaire contient les clés "text", "start" et "duration".
-    :return: None. La fonction modifie la liste trans en place.
-    """
-    if trans is not None:
-        bettertrans:list[dict[str, float|str]]=[]
-        for i in range(len(trans)):
-            ligne:str=cast(str, trans[i]["text"])
-            parties=ligne.split("\n")
-            modified_duration=round(cast(float, trans[i]["duration"])/len(parties),3)
-            for j in range(len(parties)):
-                bettertrans.append({"text":parties[j],"start":round(cast(float, trans[i]["start"])+modified_duration*j,3),"duration":modified_duration})
-        trans=bettertrans
-def improve_existant(path:str):
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-    for titre,transcripts in data.items():
-        improve_transcript(transcripts)
-        data[titre]=transcripts
-    save_transcript(data,path)
 
-def get_transcript(video_id:str):
-    ydl_opts:dict[str,bool|str|list[str]]= {
+def improve_transcript(trans: list[dict[str, Any]] | None) -> None:
+    """Découpe les lignes avec des sauts de ligne '\\n' et ajuste les timestamps sur place."""
+    if not trans:
+        return
+
+    bettertrans: list[dict[str, Any]] = []
+    for item in trans:
+        ligne = str(item["text"])
+        parties = ligne.split("\n")
+        duration = float(item["duration"])
+        start = float(item["start"])
+
+        modified_duration = round(duration / len(parties), 3)
+        for j, part in enumerate(parties):
+            bettertrans.append({
+                "text": part,
+                "start": round(start + modified_duration * j, 3),
+                "duration": modified_duration
+            })
+
+    # Mutation sur place
+    trans[:] = bettertrans
+
+
+def get_transcript(video_id: str) -> list[dict[str, Any]]:
+    lang_cfg = AVAILABLE_LANGUAGES[CHOSEN_LANGUAGE]
+    lang = str(lang_cfg["language"])
+
+    ydl_opts = {
         "skip_download": True,
         "writesubtitles": True,
-        "writeautomaticsub": available_language[chosen_language]["automatic"],
-        "subtitleslangs": [cast(str, available_language[chosen_language]["language"])],
+        "writeautomaticsub": bool(lang_cfg["automatic"]),
+        "subtitleslangs": [lang],
         "subtitlesformat": "json3",
+        "quiet": True,
     }
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
-        # Récupérer les sous-titres disponibles
         subtitles = info.get("subtitles", {})
         automatic_captions = info.get("automatic_captions", {})
-        # On privilégie les sous-titres normaux
-        lang = available_language[chosen_language]["language"]
+
         if lang in subtitles:
             subtitle_info = subtitles[lang]
         elif lang in automatic_captions:
             subtitle_info = automatic_captions[lang]
         else:
-            raise ValueError("Aucun sous-titre français disponible.")
-        # Chercher le format json3
-        json3 = next((subtitle for subtitle in subtitle_info if subtitle.get("ext") == "json3"),None)
-        if json3 is None:
-            raise ValueError("Le format json3 n'est pas disponible.")
+            raise ValueError(f"Aucun sous-titre ({lang}) disponible pour la vidéo {video_id}.")
+
+        json3 = next((s for s in subtitle_info if s.get("ext") == "json3"), None)
+        if not json3:
+            raise ValueError("Format json3 introuvable.")
+
         response = requests.get(json3["url"])
         response.raise_for_status()
         data = response.json()
-    transcript:list[dict[str, float|str]]= []
+
+    transcript: list[dict[str, Any]] = []
     for event in data.get("events", []):
         if "segs" not in event:
             continue
@@ -91,43 +130,50 @@ def get_transcript(video_id:str):
             continue
         start = event.get("tStartMs", 0) / 1000
         duration = event.get("dDurationMs", 0) / 1000
-        transcript.append({"start": start,"duration": duration,"text": text})
-    return transcript
-def get_save_transcripts(video_list:list[dict[str, str]]):
-    for video in video_list:
-        vid = video["id"]
-        print(f"Récupération du transcript de {video['title']} ({vid})...")
-        transcript= cast(list[dict[str, float|str]] | None,get_transcript(vid))
-        improve_transcript(transcript)
-        #transcripts[video["title"]]=transcript
-        save_transcript({video["title"]: transcript},vid+".json")
-    return
+        transcript.append({"start": start, "duration": duration, "text": text})
 
-def save_transcript(transcript:dict[str, list[dict[str, float|str]] | None], filename:str="transcripts.json"):
-    """
-    :param transcript: Dictionnaire contenant les transcripts à sauvegarder. La clé est le titre de la vidéo et la valeur est la liste des segments de transcript.
-    :param filename: Nom du fichier dans lequel sauvegarder les transcripts. Par défaut, le fichier est nommé "transcripts.json".
-    """
-    with open(os.path.join(cast(str, available_language[chosen_language]["path"]),filename),"r",encoding="utf-8") as f:
-        current=json.load(f)
-    for cle in transcript.keys():
-        if cle not in current.keys() or (current[cle]==None and transcript[cle]!=None):
-            current[cle]=transcript[cle]
-    with open(os.path.join(cast(str, available_language[chosen_language]["path"]),filename), "w", encoding="utf-8") as f:
-        json.dump(current, f, ensure_ascii=False, indent=4)
-    # Update index.json to include the new filename if it's not already there
-    with open(os.path.join(cast(str, available_language[chosen_language]["path"]),"index.json"),"r") as f:
-        index=json.load(f)
+    return transcript
+
+
+def save_transcript(transcript: dict[str, Any], filename: str = "transcripts.json") -> None:
+    folder_path = Path(str(AVAILABLE_LANGUAGES[CHOSEN_LANGUAGE]["path"]))
+    folder_path.mkdir(parents=True, exist_ok=True)
+    file_path = folder_path / filename
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(transcript, f, ensure_ascii=False, indent=4)
+    index_path = folder_path / "index.json"
+    index: list[str] = []
+    if index_path.exists():
+        with open(index_path, "r", encoding="utf-8") as f:
+            index = json.load(f)
     if filename not in index:
         index.append(filename)
-        with open(os.path.join(cast(str, available_language[chosen_language]["path"]),"index.json"),"w") as f:
+        with open(index_path, "w", encoding="utf-8") as f:
             json.dump(index, f, ensure_ascii=False, indent=4)
 
 
+def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
+    for video in video_list:
+        vid = video["id"]
+        title = video["title"]
+        print(f"Récupération du transcript de {title} ({vid})...")
+        try:
+            transcript = get_transcript(vid)
+            improve_transcript(transcript)
+            save_transcript({title: transcript}, f"{vid}.json")
+        except Exception as e:
+            print(f"Erreur lors de la récupération de {vid} : {e}")
+
+        print("Pause de 30s...")
+        sleep(30)
+
+
 if __name__ == "__main__":
-    get_channel("TheGreatReview", os.path.join(mainjsonpath, "videos.json"))
-    videos = load_all_videos_from_channel_json(os.path.join(mainjsonpath, "videos.json"))
+    channel_file = MAIN_JSON_PATH / "videos.json"
+    get_channel("TheGreatReview", channel_file)
+
+    videos = load_all_videos_from_channel_json(channel_file)
     print(f"{len(videos)} vidéos extraites.")
+
     get_save_transcripts(videos)
-    #save_transcript(transcripts,filename=os.path.join(ma, "transcriptsfr.json"))
-    print("Transcriptions sauvegardées dans './frontend/myjson/transcriptsfr.json'.") 
+    print("Transcriptions sauvegardées.")
