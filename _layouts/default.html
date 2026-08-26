@@ -4,20 +4,19 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{ page.title | default: site.title }}</title>
-        <link rel="icon" type="image/x-icon" href="./frontend/images/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="/TheGreatGuess/frontend/images/favicon.ico">
         <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
         <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     </head>
     <body class="min-h-screen bg-base-200 text-base-content p-4 md:p-8 flex flex-col items-center">
         <!-- En-tête avec bouton retour -->
         <div class="w-full max-w-3xl mb-4 flex justify-between items-center">
-            <a href="./frontend" class="btn btn-outline btn-primary btn-sm gap-2 rounded-xl">
+            <a href="/TheGreatGuess/frontend" class="btn btn-outline btn-primary btn-sm gap-2 rounded-xl">
                 ← Retour au jeu
             </a>
         </div>
         <main class="card w-full max-w-3xl bg-base-100 shadow-2xl p-6 md:p-10 border border-base-300/50 prose prose-invert max-w-none prose-headings:text-primary prose-a:text-secondary">
             {{ content }}
         </main>
-
     </body>
 </html>
