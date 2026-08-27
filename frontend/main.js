@@ -2,11 +2,11 @@
 const LANG_CONFIG = {
     fr: {
         label: "Français",
-        folders: ["AutoFrench"]
+        folders: ["French"]
     },
     en: {
         label: "English",
-        folders: ["ManuEnglish"]
+        folders: ["English"]
     }
 }
 

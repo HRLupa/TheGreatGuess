@@ -11,24 +11,19 @@ MAIN_PATH = Path(__file__).parent.resolve()
 MAIN_JSON_PATH = MAIN_PATH / "frontend" / "myjson"
 
 AVAILABLE_LANGUAGES: dict[str, dict[str, Any]] = {
-    "autofrench": {
-        "path": MAIN_JSON_PATH / "transcripts" / "AutoFrench",
+    "french": {
+        "path": MAIN_JSON_PATH / "transcripts" / "French",
         "language": "fr",
         "automatic": True,
     },
-    "manufrench": {
-        "path": MAIN_JSON_PATH / "transcripts" / "ManuFrench",
-        "language": "fr",
-        "automatic": False,
-    },
-    "manuenglish": {
-        "path": MAIN_JSON_PATH / "transcripts" / "ManuEnglish",
+    "english": {
+        "path": MAIN_JSON_PATH / "transcripts" / "English",
         "language": "en",
         "automatic": False,
     },
 }
 
-CHOSEN_LANGUAGE = "autofrench"
+chosen_language = "french"
 
 
 def get_channel(name: str, output_path: Path) -> None:
@@ -89,7 +84,7 @@ def improve_transcript(trans: list[dict[str, Any]] | None) -> None:
 
 
 def get_transcript(video_id: str) -> list[dict[str, Any]]:
-    lang_cfg = AVAILABLE_LANGUAGES[CHOSEN_LANGUAGE]
+    lang_cfg = AVAILABLE_LANGUAGES[chosen_language]
     lang = str(lang_cfg["language"])
 
     ydl_opts = {
@@ -136,7 +131,7 @@ def get_transcript(video_id: str) -> list[dict[str, Any]]:
 
 
 def save_transcript(transcript: dict[str, Any], filename: str = "transcripts.json") -> None:
-    folder_path = Path(str(AVAILABLE_LANGUAGES[CHOSEN_LANGUAGE]["path"]))
+    folder_path = Path(str(AVAILABLE_LANGUAGES[chosen_language]["path"]))
     folder_path.mkdir(parents=True, exist_ok=True)
     file_path = folder_path / filename
     with open(file_path, "w", encoding="utf-8") as f:
@@ -153,19 +148,22 @@ def save_transcript(transcript: dict[str, Any], filename: str = "transcripts.jso
 
 
 def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
-    for video in video_list:
-        vid = video["id"]
-        title = video["title"]
-        print(f"Récupération du transcript de {title} ({vid})...")
-        try:
-            transcript = get_transcript(vid)
-            improve_transcript(transcript)
-            save_transcript({title: transcript}, f"{vid}.json")
-        except Exception as e:
-            print(f"Erreur lors de la récupération de {vid} : {e}")
+    for current_language in AVAILABLE_LANGUAGES.keys():
+        global chosen_language
+        chosen_language = current_language
+        for video in video_list:
+            vid = video["id"]
+            title = video["title"]
+            print(f"Récupération du transcript de {title} ({vid})...")
+            try:
+                transcript = get_transcript(vid)
+                improve_transcript(transcript)
+                save_transcript({title: transcript}, f"{vid}.json")
+            except Exception as e:
+                print(f"Erreur lors de la récupération de {vid} : {e}")
 
-        print("Pause de 30s...")
-        sleep(30)
+            print("Pause de 30s...")
+            sleep(30)
 
 
 if __name__ == "__main__":
