@@ -648,7 +648,6 @@ function update_suggestions(query) {
             <span class="truncate mr-2">${title}</span>
             <span class="text-[10px] sm:text-xs text-base-content/40 italic flex items-center gap-1 shrink-0">
                 <svg class="w-3 h-3 text-base-content/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                Suggestion
             </span>
         </div>
     `).join('')
