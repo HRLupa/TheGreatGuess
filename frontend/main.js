@@ -110,6 +110,8 @@ function new_question(focusInput = true) {
     } else {
         nextBtn.innerText = "Question suivante"
     }
+    //Preload the video player
+    document.getElementById("video_player").innerHTML = get_html_yt(ids[phrases[current_question[current_question.length >> 1]][0]], phrases[current_question[0]][2])
 
     document.getElementById("button_title").classList.remove("hidden")
     titleInput.classList.remove("hidden")
@@ -248,7 +250,6 @@ function submit_time() {
     `
     document.getElementById("result").innerHTML = resultHtml
 
-    document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
     document.getElementById("video_player").classList.remove("hidden")
     document.getElementById("time_wrapper").classList.add("hidden")
     document.getElementById("time_help_box").classList.add("hidden")
