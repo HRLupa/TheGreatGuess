@@ -15,9 +15,11 @@
         <meta name="twitter:card" content="summary_large_image">
         <meta property="og:type" content="website">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://www.youtube.com/iframe_api"></script>
         <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="/TheGreatGuess/frontend/dist/style.css"/>
         <link rel="icon" type="image/x-icon" href="/TheGreatGuess/frontend/images/favicon.ico">
+        <link rel="preconnect" href="https://www.youtube.com">
         <link rel="preconnect" href="https://img.youtube.com" crossorigin> <!-- Preload YouTube images resources -->
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin> <!-- Preload CDN resources -->
         <style>
@@ -106,8 +108,8 @@
 
                     <!-- Sélecteur de langue -->
                     <select id="lang_select" onchange="confirm_language_change(this.value)" class="select select-bordered select-xs appearance-none bg-none sm:select-sm font-bold bg-base-100 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
-                        <option value="fr">🇫🇷 FR</option>
-                        <option value="en" selected>🇬🇧 EN</option>
+                        <option value="fr" selected>🇫🇷 FR</option>
+                        <option value="en">🇬🇧 EN</option>
                     </select>
 
                     <!-- Bouton Changement de thème (Clair / Sombre) -->
@@ -188,7 +190,9 @@
 
                     <div id="result" class="text-center"></div>
 
-                    <div id="video_player" class="flex justify-center hidden w-full"></div>
+                    <div id="video_player" class="flex justify-center hidden w-full">
+                        <iframe id="ytPlayer" class="w-full h-64 md:h-80 rounded-xl shadow-lg" src="https://www.youtube.com/embed/?enablejsapi=1" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
 
                     <button id="suivant" onclick="next_round()" class="btn btn-accent btn-lg w-full text-lg font-bold shadow-md hidden">Question suivante</button>
                 </div>

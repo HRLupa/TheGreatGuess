@@ -20,7 +20,7 @@ let correct_titles_count = 0
 let is_game_over=false
 let is_game_started=false
 let disabledVideos = new Set()
-let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang
+let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang, ytPlayer
 let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
@@ -30,7 +30,7 @@ let validated = false
 /* --- LOGIQUE DU GAMEPLAY --- */
 
 function get_html_yt(id, start) {
-    return `<iframe id="ytPlayer" class="w-full h-64 md:h-80 rounded-xl shadow-lg" src="https://www.youtube.com/embed/${id}?start=${Math.floor(start)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+    return `<iframe id="ytPlayer" class="w-full h-64 md:h-80 rounded-xl shadow-lg" src="https://www.youtube.com/embed/${id}?start=${Math.floor(start)}&autoplay=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
 }
 
 function get_phrases(transcripts) {
@@ -111,14 +111,14 @@ function new_question(focusInput = true) {
     } else {
         nextBtn.innerText = "Question suivante"
     }
-    //Preload the video player
-    document.getElementById("video_player").innerHTML = get_html_yt(ids[phrases[current_question[current_question.length >> 1]][0]], phrases[current_question[0]][2])
+
 
     document.getElementById("button_title").classList.remove("hidden")
     titleInput.classList.remove("hidden")
     timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
-    document.getElementById("video_player").classList.add("hidden")
+    const playerDiv = document.getElementById("video_player");
+    playerDiv.className = "absolute -left-[9999px] opacity-0 pointer-events-none w-full";
     document.getElementById("time_wrapper").classList.add("hidden")
     document.getElementById("time_help_box").classList.add("hidden")
     
@@ -203,7 +203,7 @@ async function submit_title() {
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
         
-        document.getElementById("video_player").classList.remove("hidden")
+        play_answer_video(expected_title, extended_start_time)
         document.getElementById("suivant").classList.remove("hidden")
         
         // Permet de passer directement avec Entrée si on souhaite passer la relecture vidéo
@@ -249,6 +249,9 @@ function submit_time() {
             </div>
         </div>
     `
+
+    play_answer_video(expected_title, extended_start_time)
+    
     document.getElementById("result").innerHTML = resultHtml
 
     document.getElementById("video_player").classList.remove("hidden")
@@ -933,8 +936,27 @@ function toggle_theme() {
     apply_theme(newTheme)
 }
 
+function onYouTubeIframeAPIReady() {
+    ytPlayer = new YT.Player('ytPlayer');
+}
+function play_answer_video(expected_title, startTime) {
+    const videoId = ids[expected_title];
+    if (!videoId) return;
+
+    const playerDiv = document.getElementById("video_player");
+    playerDiv.classList.remove("hidden");
+    playerDiv.className = "flex justify-center w-full relative opacity-100 pointer-events-auto";
+
+    if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+        ytPlayer.loadVideoById({
+            videoId: videoId,
+            startSeconds: Math.floor(startTime)
+        });
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    current_lang = localStorage.getItem("great_guess_language") || "en"
+    current_lang = localStorage.getItem("great_guess_language") || document.getElementById("lang_select").value
     document.getElementById("lang_select").value=current_lang
     init_theme()
     const titleInput = document.getElementById("video_title")
@@ -968,7 +990,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     document.addEventListener("click", (e) => {
-        if (!e.target.closest("#video_title") && !e.target.closest("#suggestions") && !e.target.closest("time_help_box")) {
+        if (!e.target.closest("#video_title") && !e.target.closest("#suggestions") && !e.target.closest("#time_help_box")) {
             hide_suggestions()
         }
         const helpBox = document.getElementById("time_help_box")
