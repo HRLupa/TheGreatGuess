@@ -251,7 +251,6 @@ function submit_time() {
     `
     document.getElementById("result").innerHTML = resultHtml
 
-    document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
     document.getElementById("video_player").classList.remove("hidden")
     document.getElementById("time_wrapper").classList.add("hidden")
     document.getElementById("time_help_box").classList.add("hidden")
@@ -820,7 +819,7 @@ function render_video_sidebar(videos) {
                         ` : `
                             <svg class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="9"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 8l8 8M16 8l-8 8"/>
                             </svg>
                         `}
                     </button>
