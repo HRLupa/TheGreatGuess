@@ -148,6 +148,8 @@ async function submit_title() {
             const subs = transcripts[v.title]
             return subs && Array.isArray(subs) && subs.length > 0
         })
+        const refreshBtn = document.getElementById("refresh_videos")
+    if (refreshBtn) refreshBtn.style.display = "none"
         render_video_sidebar(availableVideos)
     }
 
@@ -498,6 +500,9 @@ function reset_game() {
 
     const roundSelect = document.getElementById("round_select")
     if (roundSelect) roundSelect.disabled = false
+
+    const refreshBtn = document.getElementById("refresh_videos")
+    if (refreshBtn) refreshBtn.style.display = "inline-block"
 
     const display = document.getElementById("points_display")
     if (display) display.innerText = "Points : 0"
@@ -975,6 +980,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.key === "Enter") submit_time()
         })
     }
+
+    document.getElementById("refresh_videos")?.addEventListener("click", () => {
+        if (is_game_started) return;
+        disabledVideos.clear();
+        disabledByDefault.forEach(title => {
+            disabledVideos.add(title);
+        });
+        refresh_active_pool();
+    });
 
     // Raccourci Touche Entrée global pour passer à la manche suivante si le bouton est actif
     document.addEventListener("keydown", (e) => {
