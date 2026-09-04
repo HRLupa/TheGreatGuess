@@ -9,6 +9,7 @@ const LANG_CONFIG = {
         folders: ["English"]
     }
 }
+const disabledByDefault=["Tous les boss de Dark Souls 3 d'affilée sans mourir"]
 
 
 let transcriptsByLang = {}
@@ -110,6 +111,8 @@ function new_question(focusInput = true) {
     } else {
         nextBtn.innerText = "Question suivante"
     }
+    //Preload the video player
+    document.getElementById("video_player").innerHTML = get_html_yt(ids[phrases[current_question[current_question.length >> 1]][0]], phrases[current_question[0]][2])
 
     document.getElementById("button_title").classList.remove("hidden")
     titleInput.classList.remove("hidden")
@@ -199,7 +202,7 @@ async function submit_title() {
         
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
-        document.getElementById("video_player").innerHTML = get_html_yt(ids[expected_title], extended_start_time)
+        
         document.getElementById("video_player").classList.remove("hidden")
         document.getElementById("suivant").classList.remove("hidden")
         
@@ -497,6 +500,10 @@ function reset_game() {
     const display = document.getElementById("points_display")
     if (display) display.innerText = "Points : 0"
 
+    disabledByDefault.forEach(title=>{
+        disabledVideos.add(title)
+    })
+
     update_round_display()
     update_highscore_display()
 
@@ -647,7 +654,6 @@ function update_suggestions(query) {
             <span class="truncate mr-2">${title}</span>
             <span class="text-[10px] sm:text-xs text-base-content/40 italic flex items-center gap-1 shrink-0">
                 <svg class="w-3 h-3 text-base-content/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                Suggestion
             </span>
         </div>
     `).join('')
@@ -743,7 +749,7 @@ function refresh_active_pool() {
         const subs = transcripts[v.title]
         return subs && Array.isArray(subs) && subs.length > 0
     })
-
+    
     // 1. Filtrer les vidéos actives pour les suggestions de recherche
     const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
     searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
@@ -866,7 +872,7 @@ function change_language(newLang) {
     // 3. Filtrer uniquement les vidéos présentes dans ce set de sous-titres
     const availableVideos = rawVideos.filter(v => {
         const subs = transcripts[v.title]
-        return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0
+        return subs !== null && subs !== undefined && Array.isArray(subs) && subs.length > 0 && !(disabledVideos.has(v.title))
     })
 
     // 4. Mise à jour de la recherche et de la sidebar

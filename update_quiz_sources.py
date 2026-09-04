@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from time import sleep
-from typing import Any, cast
+from typing import Any
 
 import requests
 import yt_dlp
@@ -19,16 +19,14 @@ AVAILABLE_LANGUAGES: dict[str, dict[str, Any]] = {
     "english": {
         "path": MAIN_JSON_PATH / "transcripts" / "English",
         "language": "en",
-        "automatic": False,
+        "automatic": True,
     },
 }
-
-chosen_language = "french"
 
 
 def get_channel(name: str, output_path: Path) -> None:
     """Récupère l'index des vidéos d'une chaîne via l'API yt-dlp."""
-    ydl_opts :dict[str,str|bool]= {
+    ydl_opts: dict[str, str | bool] = {
         "extract_flat": "in_playlist",
         "dump_single_json": True,
         "quiet": True,
@@ -83,64 +81,82 @@ def improve_transcript(trans: list[dict[str, Any]] | None) -> None:
     trans[:] = bettertrans
 
 
-def get_transcript(video_id: str) -> list[dict[str, Any]]:
-    lang_cfg = AVAILABLE_LANGUAGES[chosen_language]
-    lang = str(lang_cfg["language"])
-
+def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]]:
+    """Extrait les métadonnées une seule fois et récupère les sous-titres de toutes les langues configurées."""
     ydl_opts = {
         "skip_download": True,
         "writesubtitles": True,
-        "writeautomaticsub": bool(lang_cfg["automatic"]),
-        "subtitleslangs": [lang],
+        "writeautomaticsub": True,
+        "subtitleslangs": [cfg["language"] for cfg in AVAILABLE_LANGUAGES.values()],
         "subtitlesformat": "json3",
         "quiet": True,
     }
+
+    results: dict[str, list[dict[str, Any]]] = {}
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
         subtitles = info.get("subtitles", {})
         automatic_captions = info.get("automatic_captions", {})
 
-        if lang in subtitles:
-            subtitle_info = subtitles[lang]
-        elif lang in automatic_captions:
-            subtitle_info = automatic_captions[lang]
-        else:
-            raise ValueError(f"Aucun sous-titre ({lang}) disponible pour la vidéo {video_id}.")
+        for lang_key, lang_cfg in AVAILABLE_LANGUAGES.items():
+            lang_code = str(lang_cfg["language"])
 
-        json3 = next((s for s in subtitle_info if s.get("ext") == "json3"), None)
-        if not json3:
-            raise ValueError("Format json3 introuvable.")
+            # Recherche des sous-titres (priorité aux manuel puis auto)
+            subtitle_info = None
+            if lang_code in subtitles:
+                subtitle_info = subtitles[lang_code]
+            elif lang_cfg.get("automatic", True) and lang_code in automatic_captions:
+                subtitle_info = automatic_captions[lang_code]
 
-        response = requests.get(json3["url"])
-        response.raise_for_status()
-        data = response.json()
+            if not subtitle_info:
+                print(f"  └─ [{lang_key}] Aucun sous-titre ({lang_code}) disponible.")
+                continue
 
-    transcript: list[dict[str, Any]] = []
-    for event in data.get("events", []):
-        if "segs" not in event:
-            continue
-        text = "".join(segment.get("utf8", "") for segment in event["segs"]).strip()
-        if not text:
-            continue
-        start = event.get("tStartMs", 0) / 1000
-        duration = event.get("dDurationMs", 0) / 1000
-        transcript.append({"start": start, "duration": duration, "text": text})
+            json3 = next((s for s in subtitle_info if s.get("ext") == "json3"), None)
+            if not json3:
+                print(f"  └─ [{lang_key}] Format json3 introuvable.")
+                continue
 
-    return transcript
+            try:
+                response = requests.get(json3["url"])
+                response.raise_for_status()
+                data = response.json()
+
+                transcript: list[dict[str, Any]] = []
+                for event in data.get("events", []):
+                    if "segs" not in event:
+                        continue
+                    text = "".join(segment.get("utf8", "") for segment in event["segs"]).strip()
+                    if not text:
+                        continue
+                    start = event.get("tStartMs", 0) / 1000
+                    duration = event.get("dDurationMs", 0) / 1000
+                    transcript.append({"start": start, "duration": duration, "text": text})
+
+                results[lang_key] = transcript
+            except Exception as e:
+                print(f"  └─ [{lang_key}] Erreur lors du téléchargement : {e}")
+            print("Pause de 30s...\n")
+            sleep(30)
+
+    return results
 
 
-def save_transcript(transcript: dict[str, Any], filename: str = "transcripts.json") -> None:
-    folder_path = Path(str(AVAILABLE_LANGUAGES[chosen_language]["path"]))
+def save_transcript(lang_key: str, transcript: dict[str, Any], filename: str) -> None:
+    folder_path = Path(str(AVAILABLE_LANGUAGES[lang_key]["path"]))
     folder_path.mkdir(parents=True, exist_ok=True)
+
     file_path = folder_path / filename
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(transcript, f, ensure_ascii=False, indent=4)
+
     index_path = folder_path / "index.json"
     index: list[str] = []
     if index_path.exists():
         with open(index_path, "r", encoding="utf-8") as f:
             index = json.load(f)
+
     if filename not in index:
         index.append(filename)
         with open(index_path, "w", encoding="utf-8") as f:
@@ -148,22 +164,21 @@ def save_transcript(transcript: dict[str, Any], filename: str = "transcripts.jso
 
 
 def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
-    for current_language in AVAILABLE_LANGUAGES.keys():
-        global chosen_language
-        chosen_language = current_language
-        for video in video_list:
-            vid = video["id"]
-            title = video["title"]
-            print(f"Récupération du transcript de {title} ({vid})...")
-            try:
-                transcript = get_transcript(vid)
-                improve_transcript(transcript)
-                save_transcript({title: transcript}, f"{vid}.json")
-            except Exception as e:
-                print(f"Erreur lors de la récupération de {vid} : {e}")
+    for video in video_list:
+        vid = video["id"]
+        title = video["title"]
+        print(f"Traitement : {title} ({vid})...")
 
-            print("Pause de 30s...")
-            sleep(30)
+        try:
+            transcripts_by_lang = fetch_transcripts_for_video(vid)
+
+            for lang_key, transcript in transcripts_by_lang.items():
+                improve_transcript(transcript)
+                save_transcript(lang_key, {title: transcript}, f"{vid}.json")
+                print(f"  └─ [{lang_key}] Sauvegardé avec succès.")
+        except Exception as e:
+            print(f"Erreur globale sur {vid} : {e}")
+
 
 
 if __name__ == "__main__":
@@ -171,7 +186,7 @@ if __name__ == "__main__":
     get_channel("TheGreatReview", channel_file)
 
     videos = load_all_videos_from_channel_json(channel_file)
-    print(f"{len(videos)} vidéos extraites.")
+    print(f"{len(videos)} vidéos extraites.\n")
 
     get_save_transcripts(videos)
     print("Transcriptions sauvegardées.")
