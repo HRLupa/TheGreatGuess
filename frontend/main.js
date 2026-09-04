@@ -965,6 +965,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (titleInput) {
         titleInput.addEventListener("input", (e) => update_suggestions(e.target.value))
         titleInput.addEventListener("keydown", handle_title_keydown)
+        titleInput.addEventListener("focus", function () {
+            setTimeout(() => this.select(), 0);
+        })
     }
 
     if (timeInput) {
