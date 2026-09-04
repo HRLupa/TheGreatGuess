@@ -29,9 +29,6 @@ let validated = false
 
 /* --- LOGIQUE DU GAMEPLAY --- */
 
-function get_html_yt(id, start) {
-    return `<iframe id="ytPlayer" class="w-full h-64 md:h-80 rounded-xl shadow-lg" src="https://www.youtube.com/embed/${id}?start=${Math.floor(start)}&autoplay=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
-}
 
 function get_phrases(transcripts) {
     let out = []
@@ -788,6 +785,7 @@ function render_video_sidebar(videos) {
         const titleFR = anglais_francais[v.title] || v.title
         const safeTitle = escape_title(v.title)
         const safeTitleFR = escape_title(titleFR)
+        const isLastActive = !isDisabled && activeVideos.length === 1
 
         return `
             <div class="group relative flex items-center gap-3 p-2.5 rounded-xl transition-all ${
@@ -811,7 +809,7 @@ function render_video_sidebar(videos) {
                 </div>
 
                 <!-- Afficher les boutons uniquement si la partie n'a PAS commencé -->
-                ${!is_game_started ? `
+                ${!is_game_started && !isLastActive ? `
                     <button onclick="toggle_video_status('${safeTitle}')" 
                             class="p-1 rounded-full transition-all shrink-0 ${
                                 isDisabled 
