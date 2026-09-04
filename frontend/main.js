@@ -203,7 +203,7 @@ async function submit_title() {
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
         
-        play_answer_video(expected_title, extended_start_time)
+        play_video(expected_title, extended_start_time)
         document.getElementById("suivant").classList.remove("hidden")
         
         // Permet de passer directement avec Entrée si on souhaite passer la relecture vidéo
@@ -250,7 +250,7 @@ function submit_time() {
         </div>
     `
 
-    play_answer_video(expected_title, extended_start_time)
+    play_video(expected_title, extended_start_time)
     
     document.getElementById("result").innerHTML = resultHtml
 
@@ -939,7 +939,7 @@ function toggle_theme() {
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('ytPlayer');
 }
-function play_answer_video(expected_title, startTime) {
+function play_video(expected_title, startTime) {
     const videoId = ids[expected_title];
     if (!videoId) return;
 
@@ -947,8 +947,8 @@ function play_answer_video(expected_title, startTime) {
     playerDiv.classList.remove("hidden");
     playerDiv.className = "flex justify-center w-full relative opacity-100 pointer-events-auto";
 
-    if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
-        ytPlayer.loadVideoById({
+    if (ytPlayer && typeof ytPlayer.cueVideoById === "function") {
+        ytPlayer.cueVideoById({
             videoId: videoId,
             startSeconds: Math.floor(startTime)
         });
