@@ -95,7 +95,7 @@ function new_question(focusInput = true) {
     current_question = indices
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
     
-    document.getElementById("phrase").innerText = `« ${phrase.replace("\n", " ")} »`
+    document.getElementById("phrase").innerHTML = `« ${phrase.replace("\n", " ").replace("<i>",'<span class="not-italic">').replace("</i>","</span>")} »`
     
     const titleInput = document.getElementById("video_title")
     const timeInput = document.getElementById("time_input")
@@ -861,7 +861,7 @@ function change_language(newLang) {
     disabledVideos.clear()
     current_lang = newLang
     localStorage.setItem("great_guess_language", newLang)
-
+    
     // 1. Récupération des sous-titres fusionnés pour la langue choisie
     transcripts = transcriptsByLang[current_lang] || {}
 
