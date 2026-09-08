@@ -80,6 +80,7 @@
                     </svg>
                     <span>Vidéos (<span id="video_count">0</span>)</span>
                 </h2>
+                <!-- Bouton de rafraîchissement de vidéos -->
                 <button id="refresh_videos" title="Réinitialiser la sélection" class="p-1 text-gray-500 hover:text-gray-700 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -100,7 +101,7 @@
         <!-- Zone Principale -->
         <main class="flex-1 flex flex-col items-center p-2.5 sm:p-4 md:p-8 overflow-y-auto">
             
-            <!-- Barre supérieure (Paramètres, Thème & High Score) -->
+            <!-- Barre de paramètres -->
             <div class="w-full max-w-3xl flex justify-between items-center gap-1 sm:gap-3 mb-3 min-h-[36px] sm:min-h-[44px]">
                 <div class="flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
                     <!-- Sélection des manches -->
@@ -117,7 +118,7 @@
                         <option value="en">🇬🇧 EN</option>
                     </select>
 
-                    <!-- Bouton Changement de thème (Clair / Sombre) -->
+                    <!-- Bouton changement de thème -->
                     <button onclick="toggle_theme()" type="button" class="btn btn-ghost btn-xs sm:btn-sm h-8 min-h-8 px-2 border border-base-300 bg-base-100 hover:bg-base-200" title="Changer de thème">
                         <svg id="theme_icon_sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                         <svg id="theme_icon_moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -127,7 +128,7 @@
                         <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 15</span>
                     </div>
 
-                    <!-- Meilleur Score actuel (Tablette / Desktop) -->
+                    <!-- Meilleur Score -->
                     <div class="hidden md:flex items-center gap-1.5 text-xs font-semibold bg-base-100 border border-base-300 px-3 py-1.5 rounded-lg shadow-sm h-8">
                         <span>Record :</span>
                         <span id="highscore_display" class="font-bold text-primary">0</span>
@@ -139,13 +140,13 @@
                 </div>
             </div>
 
-            <!-- Conteneur Carte Quiz -->
+            <!-- Conteneur principal -->
             <div class="w-full max-w-3xl mb-8">
                 
                 <!-- Écran de jeu -->
                 <div id="quiz_content" class="card w-full bg-base-100 shadow-2xl p-6 md:p-10 space-y-6 border border-base-300/50">
                     
-                    <!-- Phrase principale -->
+                    <!-- Phrase d'affichage -->
                     <div class="text-xl md:text-2xl font-bold text-center italic text-primary min-h-[4rem] flex items-center justify-center leading-relaxed" id="phrase">
                         Leave a Great Review
                     </div>
@@ -154,15 +155,15 @@
                     <div id="video_info_hint" class="flex justify-center hidden"></div>
 
                     <div class="relative space-y-4">
-                        <!-- Champ Titre & Autocomplétion -->
+                        <!-- Champ Titre -->
                         <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
                         <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-48 sm:max-h-60 overflow-y-auto hidden border border-base-300 top-14 sm:top-16"></div>
 
-                        <!-- CONTENEUR DU CHRONO (Contient l'input + le bouton ? + l'infobulle) -->
+                        <!-- Conteneur du temps -->
                         <div id="time_wrapper" class="relative hidden">
                             <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg pr-12 shadow-sm transition-all" placeholder="Moment" autocomplete="off" />
                             
-                            <!-- Bouton ? centré verticalement -->
+                            <!-- Bouton d'aide de temps -->
                             <button type="button" 
                                     onmousedown="event.preventDefault()"
                                     onclick="toggle_time_help(event)" 
@@ -170,7 +171,7 @@
                                 ?
                             </button>
 
-                            <!-- Overlay d'aide (ne se ferme pas au clic dans l'input) -->
+                            <!-- Overlay d'aide -->
                             <div id="time_help_box"
                                 class="hidden absolute right-0 bottom-full mb-2 w-64 p-3 bg-base-100 border border-base-300 rounded-xl shadow-xl z-50 text-xs text-base-content space-y-2">
                                 <div class="flex justify-between items-center pb-1 border-b border-base-200">
@@ -195,6 +196,7 @@
 
                     <div id="result" class="text-center"></div>
 
+                    <!-- Lecteur vidéo YouTube -->
                     <div id="video_player" class="flex justify-center hidden w-full">
                         <iframe id="ytPlayer" class="w-full h-64 md:h-80 rounded-xl shadow-lg" src="https://www.youtube.com/embed/?enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
@@ -202,10 +204,10 @@
                     <button id="suivant" onclick="next_round()" class="btn btn-accent btn-lg w-full text-lg font-bold shadow-md hidden">Question suivante</button>
                 </div>
 
-                <!-- Écran Fin de Partie (Game Over) -->
+                <!-- Écran Fin de Partie -->
                 <div id="game_over_screen" class="card w-full bg-base-100 shadow-2xl p-8 md:p-12 text-center space-y-6 border border-base-300/50 hidden">
                     
-                    <!-- Icône Couronne Minimaliste Épurée -->
+                    <!-- Écran nouveau record -->
                     <div class="flex flex-col items-center gap-3">
                         <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -225,7 +227,7 @@
                             <p class="text-xs font-semibold opacity-70 uppercase tracking-wider">Score final</p>
                             <p class="text-4xl font-black text-primary mt-1"><span id="final_score">0</span> <span class="text-xl font-medium text-base-content/60">/ <span id="max_possible_score">4000</span> pts</span></p>
                         </div>
-                        <!-- Jauge de progression animée -->
+                        <!-- Jauge de progression -->
                         <div class="w-full bg-base-300/80 rounded-full h-3.5 overflow-hidden p-0.5 border border-base-300">
                             <div id="score_progress_bar" class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
                         </div>
@@ -246,7 +248,7 @@
 
             </div>
             <footer class="mt-auto pt-4 pb-2 w-full max-w-3xl grid grid-cols-3 items-center text-s text-base-content/60 border-t border-base-300/40">
-                <!-- À propos (À gauche) -->
+                <!-- À propos -->
                 <div class="flex justify-start text-xs">
                     <a href="https://hrlupa.github.io/TheGreatGuess/README" class="inline-flex items-center gap-1 hover:text-primary transition-colors font-medium">
                         <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,7 +258,7 @@
                     </a>
                 </div>
 
-                <!-- Discord (Au centre) -->
+                <!-- Discord -->
                 <div class="flex justify-center">
                     <a href="https://discord.com/users/545300661302984714" 
                     target="_blank" 
@@ -269,7 +271,7 @@
                     </a>
                 </div>
 
-                <!-- Faire un don (À droite) -->
+                <!-- Faire un don -->
                 <div class="flex justify-end text-xs">
                     <a href="https://www.buymeacoffee.com/hrlupa" 
                     target="_blank" 

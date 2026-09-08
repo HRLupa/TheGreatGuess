@@ -720,6 +720,8 @@ function handle_title_keydown(e) {
 function toggle_sidebar() {
     const sidebar = document.getElementById("sidebar")
     if (!sidebar) return
+    const refreshBtn = document.getElementById("refresh_videos")
+    if (refreshBtn) refreshBtn.style.display = sidebar.classList.contains("collapsed") ? "inline-block" : "none"
     sidebar.classList.toggle("collapsed")
 }
 
@@ -920,7 +922,7 @@ function init_theme() {
 function apply_theme(theme) {
     document.documentElement.setAttribute("data-theme", theme)
     localStorage.setItem("great_guess_theme", theme)
-    
+
     const sunIcon = document.getElementById("theme_icon_sun")
     const moonIcon = document.getElementById("theme_icon_moon")
 
