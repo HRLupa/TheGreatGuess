@@ -1,6 +1,19 @@
-from quiz_module import score_guess_quadratic
+#from quiz_module import score_guess_quadratic
 import matplotlib.pyplot as plt
 from typing import Callable
+def score_guess_quadratic(guess_time:float, start_time:float, video_duration:float):
+    error = abs(guess_time - start_time)
+    max_error = video_duration * (0.45-0.20*((video_duration-300)/7200))
+    #print(error,max_error)
+    if error >= max_error:
+        return 0
+    error_ratio = error / max_error
+    #print(error_ratio)
+    score = 200 * (1.02 - error_ratio) ** 1.4
+    if score>200:
+        score=200
+    #print("score : ",score)
+    return score
 def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecartmin:float=0,ecartmax:float=1,lengthmin:int=1,lengthmax:int=150,nblengths:int=100,nbpourcentages:int=100,correct_ratio:float=0.5):
     """fonctiontest prend en paramètre guesstime,start_time et video_duration (on considère que guess_time et start_time ne seront utilisés que pour calculer leurs différences)"""
     
@@ -14,7 +27,7 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     plt.plot(pourcentages,[fonctiontest((lengths[0]*60)*pourcentages[i]/100,(lengths[0]*60*correct_ratio),lengths[0]*60) for i in range(len(pourcentages))])
     plt.plot(pourcentages,[fonctiontest((lengths[nblengths//2]*60)*pourcentages[i]/100,lengths[nblengths//2]*60*correct_ratio,lengths[nblengths//2]*60) for i in range(len(pourcentages))])
     plt.plot(pourcentages,[fonctiontest((lengths[nblengths-1]*60)*pourcentages[i]/100,lengths[nblengths-1]*60*correct_ratio,lengths[nblengths-1]*60) for i in range(len(pourcentages))])
-    plt.legend([f"Durée de la vidéo : {lengths[0]} minutes",f"Durée de la vidéo : {round(lengths[nblengths-1])} minutes",f"Durée de la vidéo : {round(lengths[nblengths//2])} minutes"])
+    plt.legend([f"Durée de la vidéo : {lengths[0]} minutes",f"Durée de la vidéo : {round(lengths[nblengths//2])} minutes",f"Durée de la vidéo : {round(lengths[nblengths-1])} minutes"])
     plt.xlabel("Pourcentage d'écart entre le temps deviné et le temps réel")
     plt.ylabel("Score")
     plt.title("Évaluation des scores de devinettes")
@@ -33,4 +46,4 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     print(exp)"""
     return
 
-#test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0.8)
+test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0,lengthmax=100)
