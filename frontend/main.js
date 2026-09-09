@@ -79,7 +79,7 @@ function get_question() {
 
 function score_guess_quadratic(guessTime, startTime, videoDuration) {
     let error = Math.abs(guessTime - startTime)
-    let maxError = videoDuration * (0.50-0.2*((videoDuration-300)/7200))
+    let maxError = videoDuration * Math.max(0.2,(0.80-0.5*((videoDuration-300)/7200)**0.2))
     if (error >= maxError) return 0
     let errorRatio = error / maxError
     let score = 200 * Math.pow(1.02 - errorRatio, 1.4)
