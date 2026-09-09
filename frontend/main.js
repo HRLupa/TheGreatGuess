@@ -15,6 +15,7 @@ const disabledByDefault=["Tous les boss de Dark Souls 3 d'affilée sans mourir"]
 let transcriptsByLang = {}
 let transcripts = {}
 let rawVideos = []
+let current_round=1
 let max_rounds=15
 let correct_titles_count = 0
 let is_game_over=false
@@ -22,6 +23,7 @@ let is_game_started=false
 let disabledVideos = new Set()
 let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang, ytPlayer
 let searchCandidates = []
+let is_full_data_loaded = false
 let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
@@ -87,9 +89,19 @@ function score_guess_quadratic(guessTime, startTime, videoDuration) {
 }
 
 function new_question(focusInput = true) {
+    if (transcriptsByLang[current_lang]) {
+        transcripts = transcriptsByLang[current_lang]
+        phrases = get_phrases(transcripts)
+    }
     if (!phrases || phrases.length === 0) return
     const indices = get_question()
     current_question = indices
+
+    const center_idx = current_question[current_question.length >> 1]
+    window.current_quote_signature = {
+        title: phrases[center_idx][0],
+        start: phrases[center_idx][2]
+    }
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
     
     document.getElementById("phrase").innerHTML = `« ${phrase.replace("\n", " ").replace("<i>",'<span class="not-italic">').replace("</i>","</span>")} »`
@@ -135,6 +147,18 @@ function new_question(focusInput = true) {
 
 async function submit_title() {
     if (validated) return
+    if (window.background_load_promise) {
+        const titleInput = document.getElementById("video_title")
+        const originalVal = titleInput.value
+        titleInput.disabled = true
+        
+        await window.background_load_promise
+        
+        titleInput.disabled = false
+        titleInput.value = originalVal
+        if (validated) return 
+    }
+
     validated = true
 
     if (!is_game_started) {
@@ -146,7 +170,8 @@ async function submit_title() {
             return subs && Array.isArray(subs) && subs.length > 0
         })
         const refreshBtn = document.getElementById("refresh_videos")
-    if (refreshBtn) refreshBtn.style.display = "none"
+        if (refreshBtn) refreshBtn.style.display = "none"
+        if (availableVideos.length==0) console.log("erreur")
         render_video_sidebar(availableVideos)
     }
 
@@ -320,35 +345,8 @@ async function load_language_transcripts(langKey) {
     }
 }
 
-async function load_data() {
+async function load_data_background() {
     try {
-        // 1. Chargement simultané des fichiers de base
-        const [videosRes, statiquesRes] = await Promise.all([
-            fetch("myjson/videos.json"),
-            fetch("myjson/statiques.json")
-        ])
-
-        const videosJson = await videosRes.json()
-        const statiques = await statiquesRes.json()
-
-        durations = {}
-        ids = {}
-        rawVideos = videosJson.entries[0].entries
-
-        rawVideos.forEach(v => {
-            durations[v.title] = v.duration
-            ids[v.title] = v.id
-        })
-
-        francais_anglais = statiques.francais_anglais || {}
-        manual_aliases = statiques.manual_aliases || {}
-
-        anglais_francais = {}
-        for (const [fr, en] of Object.entries(francais_anglais)) {
-            anglais_francais[en] = fr
-        }
-
-        // 2. Chargement simultané de TOUTES les langues en parallèle
         const langKeys = Object.keys(LANG_CONFIG)
         const langPromises = langKeys.map(lang => 
             load_language_transcripts(lang).then(transcripts => ({ lang, transcripts }))
@@ -359,13 +357,56 @@ async function load_data() {
             transcriptsByLang[lang] = transcripts
         })
 
-        // 3. Initialisation de la langue active
-        change_language(current_lang)
+        // On assigne les vraies données
+        transcripts = transcriptsByLang[current_lang] || {}
+        title_map = build_title_aliases(transcripts, manual_aliases)
+        phrases = get_phrases(transcripts)
+
+        // --- CORRECTION : RÉCONCILIATION DE L'INDEX ---
+        if (window.current_quote_signature && current_question) {
+            const p = window.current_quote_signature
+            const targetTitle = p.title // Le titre est déjà canonique, on l'utilise tel quel
+            
+            let foundIndex = -1
+            for (let i = 0; i < phrases.length; i++) {
+                if (phrases[i][0] === targetTitle && Math.abs(phrases[i][2] - p.start) < 0.1) {
+                    foundIndex = i
+                    break
+                }
+            }
+
+            // On met à jour current_question pour que submit_title ne crashe pas
+            if (foundIndex !== -1) {
+                current_question = close_phrases(foundIndex, 50)
+            }
+        }
+        // ----------------------------------------------
+
+        // On met à jour la recherche et l'UI en silence
+        const availableVideos = rawVideos.filter(v => {
+            const subs = transcripts[v.title]
+            return subs && Array.isArray(subs) && subs.length > 0
+        })
+        const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
+        searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
 
     } catch (err) {
-        console.error("Erreur de chargement des données :", err)
-        const phraseEl = document.getElementById("phrase")
-        if (phraseEl) phraseEl.innerText = "Erreur de chargement des fichiers JSON"
+        console.error("Erreur de chargement en tâche de fond :", err)
+    }
+}
+function commit_background_data() {
+    if (transcriptsByLang[current_lang]) {
+        transcripts = transcriptsByLang[current_lang]
+        title_map = build_title_aliases(transcripts, manual_aliases)
+        
+        const availableVideos = rawVideos.filter(v => {
+            const subs = transcripts[v.title]
+            return subs && Array.isArray(subs) && subs.length > 0
+        })
+        const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
+        
+        searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
+        //render_video_sidebar(availableVideos)
     }
 }
 
@@ -495,6 +536,9 @@ function reset_game() {
     is_game_over = false
     is_game_started = false
 
+    // On efface la mémoire de la question courante
+    window.current_quote_signature = null 
+
     const roundSelect = document.getElementById("round_select")
     if (roundSelect) roundSelect.disabled = false
 
@@ -513,6 +557,7 @@ function reset_game() {
 
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
+    
     refresh_active_pool()
 }
 
@@ -725,7 +770,8 @@ function toggle_sidebar() {
     sidebar.classList.toggle("collapsed")
 }
 
-function toggle_video_status(videoTitle) {
+async function toggle_video_status(videoTitle) {
+    if (window.background_load_promise) await window.background_load_promise
     if (is_game_started) return
     const availableVideos = rawVideos.filter(v => {
         const subs = transcripts[v.title]
@@ -750,24 +796,44 @@ function toggle_video_status(videoTitle) {
     refresh_active_pool()
 }
 
-function refresh_active_pool() {
+function refresh_active_pool(sidebar=true) {
     const availableVideos = rawVideos.filter(v => {
         const subs = transcripts[v.title]
         return subs && Array.isArray(subs) && subs.length > 0
     })
     
-    // 1. Filtrer les vidéos actives pour les suggestions de recherche
     const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
     searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
 
-    // 2. Mettre à jour les répliques tirables
     phrases = get_phrases(transcripts)
+    if (sidebar) render_video_sidebar(availableVideos)
 
-    // 3. Redessiner la sidebar
-    render_video_sidebar(availableVideos)
+    // Réconciliation de la question en cours
+    if (window.current_quote_signature) {
+        const p = window.current_quote_signature
+        const targetTitle = (francais_anglais && francais_anglais[p.title]) || p.title
+        
+        let foundIndex = -1
+        for (let i = 0; i < phrases.length; i++) {
+            if (phrases[i][0] === targetTitle && Math.abs(phrases[i][2] - p.start) < 0.1) {
+                foundIndex = i
+                break
+            }
+        }
 
-    // 4. Réinitialiser la question posée
-    new_question(false)
+        if (foundIndex !== -1) {
+            current_question = close_phrases(foundIndex, 50)
+        } else {
+            // Si la vidéo a été masquée ou désactivée entre temps
+            new_question(false)
+        }
+        
+        // On débloque l'input (utile quand load_data_background a terminé)
+        const titleInput = document.getElementById("video_title")
+        if (titleInput) titleInput.focus()
+    } else {
+        new_question(false)
+    }
 }
 
 function render_video_sidebar(videos) {
@@ -960,6 +1026,104 @@ function play_video(expected_title, startTime) {
     }
 }
 
+/* --- CHARGEMENT RAPIDE & LAZY LOADING --- */
+
+async function first_load() {
+    const titleInput = document.getElementById("video_title")
+    if (titleInput) titleInput.focus()
+
+    // 1. Verrouiller submit_title immédiatement
+    let resolveBg
+    window.background_load_promise = new Promise(res => { resolveBg = res })
+
+    try {
+        // 2. Fetcher l'essentiel en priorité absolue (RÉSEAU DÉGAGÉ = VITESSE MAX)
+        const langConfig = LANG_CONFIG[current_lang] || LANG_CONFIG["fr"]
+        const folder = langConfig.folders[0]
+
+        const [videosRes, statiquesRes, indexRes] = await Promise.all([
+            fetch("myjson/videos.json"),
+            fetch("myjson/statiques.json"),
+            fetch(`myjson/transcripts/${folder}/index.json`)
+        ])
+        
+        const videosJson = await videosRes.json()
+        const statiques = await statiquesRes.json()
+        const fileList = await indexRes.json()
+
+        rawVideos = videosJson.entries[0].entries
+        durations = {}
+        ids = {}
+        rawVideos.forEach(v => { durations[v.title] = v.duration; ids[v.title] = v.id })
+
+        francais_anglais = statiques.francais_anglais || {}
+        manual_aliases = statiques.manual_aliases || {}
+        anglais_francais = {}
+        for (const [fr, en] of Object.entries(francais_anglais)) { anglais_francais[en] = fr }
+
+        disabledVideos.clear()
+        disabledByDefault.forEach(title => disabledVideos.add(title))
+        
+        const activeVideos = rawVideos.filter(v => !disabledVideos.has(v.title))
+        searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
+        
+        render_video_sidebar(rawVideos)
+
+        // 3. Charger le sous-titre aléatoire (toujours priorité haute)
+        const randomFile = fileList[Math.floor(Math.random() * fileList.length)]
+        const transcriptRes = await fetch(`myjson/transcripts/${folder}/${randomFile}`)
+        const transcriptData = await transcriptRes.json()
+
+        let initialTranscripts = {}
+        for (const [titleKey, subs] of Object.entries(transcriptData)) {
+            if (!Array.isArray(subs)) continue
+            const canonicalTitle = francais_anglais[titleKey] || titleKey
+            initialTranscripts[canonicalTitle] = subs.map(sub => ({
+                text: sub.text || sub.content || "",
+                start: parseFloat(sub.start ?? sub.start_time ?? 0),
+                duration: parseFloat(sub.duration ?? sub.dur ?? 2.0)
+            })).filter(sub => sub.text.trim().length > 0)
+        }
+        
+        // Plus de risque d'écrasement, on assigne directement
+        transcripts = initialTranscripts
+        title_map = build_title_aliases(transcripts, manual_aliases)
+        phrases = get_phrases(transcripts)
+
+        // 4. Afficher la question INSTANTANÉMENT
+        if (!window.current_quote_signature) {
+            const savedText = titleInput ? titleInput.value : ""
+            
+            new_question() 
+            
+            if (titleInput) {
+                titleInput.disabled = false
+                titleInput.placeholder = "Titre de la vidéo..."
+                if (savedText) {
+                    titleInput.value = savedText
+                    update_suggestions(savedText)
+                }
+                setTimeout(() => titleInput.focus(), 100)
+            }
+        }
+
+        // 5. ENFIN, on lance le chargement lourd !
+        // La bande passante est maintenant 100% disponible pour lui.
+        load_data_background().finally(() => {
+            is_full_data_loaded = true 
+            resolveBg()
+            window.background_load_promise = null
+        })
+
+    } catch (error) {
+        console.error("Erreur first_load :", error)
+        resolveBg() // On libère le jeu en cas d'erreur
+        window.background_load_promise = null
+    }
+}
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     current_lang = localStorage.getItem("great_guess_language") || document.getElementById("lang_select").value
     document.getElementById("lang_select").value=current_lang
@@ -1000,6 +1164,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Si l'utilisateur n'est pas en train d'interagir avec les inputs
                 if (document.activeElement !== titleInput && document.activeElement !== timeInput) {
                     e.preventDefault()
+                    e.stopPropagation()
                     next_round()
                 }
             }
@@ -1017,6 +1182,5 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     })
-
-    load_data()
+    first_load()
 })

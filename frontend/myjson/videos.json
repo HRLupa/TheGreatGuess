@@ -4,7 +4,7 @@
     "channel_id": "UC2ruguOcwnVR2_4DtiGnmLg",
     "title": "TheGreatReview",
     "availability": "public",
-    "channel_follower_count": 895000,
+    "channel_follower_count": 897000,
     "description": "ça parle de jeux ici \n\n\n",
     "tags": [],
     "thumbnails": [
@@ -90,7 +90,7 @@
             "channel_id": "UC2ruguOcwnVR2_4DtiGnmLg",
             "title": "TheGreatReview - Videos",
             "availability": "public",
-            "channel_follower_count": 895000,
+            "channel_follower_count": 897000,
             "description": "ça parle de jeux ici \n\n\n",
             "tags": [],
             "thumbnails": [
@@ -185,7 +185,7 @@
                         }
                     ],
                     "duration": 2051,
-                    "view_count": 1800000,
+                    "view_count": 1900000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -199,7 +199,7 @@
                     "__x_forwarded_for_ip": null
                 },
                 {
-                    "title": "\"Ce n'est pas de l'esport, c'est la FGC\"",
+                    "title": "It's not esports, it's the FGC",
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/gv5tzFa2yBg/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDTjkY6wOhwuOeH9HK4A0wWu1eEpQ",
@@ -325,7 +325,7 @@
                         }
                     ],
                     "duration": 7974,
-                    "view_count": 3500000,
+                    "view_count": 3600000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -437,7 +437,7 @@
                         }
                     ],
                     "duration": 7720,
-                    "view_count": 8200000,
+                    "view_count": 8300000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -549,7 +549,7 @@
                         }
                     ],
                     "duration": 717,
-                    "view_count": 1100000,
+                    "view_count": 1200000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -577,7 +577,7 @@
                         }
                     ],
                     "duration": 496,
-                    "view_count": 527000,
+                    "view_count": 528000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -661,7 +661,7 @@
                         }
                     ],
                     "duration": 306,
-                    "view_count": 439000,
+                    "view_count": 441000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -740,7 +740,7 @@
                         }
                     ],
                     "duration": 300,
-                    "view_count": 308000,
+                    "view_count": 309000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -768,7 +768,7 @@
                         }
                     ],
                     "duration": 430,
-                    "view_count": 502000,
+                    "view_count": 503000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -796,7 +796,7 @@
                         }
                     ],
                     "duration": 499,
-                    "view_count": 911000,
+                    "view_count": 913000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -824,7 +824,7 @@
                         }
                     ],
                     "duration": 5415,
-                    "view_count": 278000,
+                    "view_count": 280000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -852,7 +852,7 @@
                         }
                     ],
                     "duration": 367,
-                    "view_count": 271000,
+                    "view_count": 272000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -880,7 +880,7 @@
                         }
                     ],
                     "duration": 364,
-                    "view_count": 636000,
+                    "view_count": 639000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -908,7 +908,7 @@
                         }
                     ],
                     "duration": 777,
-                    "view_count": 705000,
+                    "view_count": 708000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -992,7 +992,7 @@
                         }
                     ],
                     "duration": 454,
-                    "view_count": 212000,
+                    "view_count": 213000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -1048,7 +1048,7 @@
                         }
                     ],
                     "duration": 414,
-                    "view_count": 262000,
+                    "view_count": 263000,
                     "timestamp": null,
                     "live_status": null,
                     "availability": null,
@@ -1095,7 +1095,7 @@
             "webpage_url": "https://www.youtube.com/@TheGreatReview/videos",
             "__x_forwarded_for_ip": null,
             "release_year": null,
-            "epoch": 1787774614
+            "epoch": 1788986472
         },
         {
             "id": "UC2ruguOcwnVR2_4DtiGnmLg",
@@ -1103,7 +1103,7 @@
             "channel_id": "UC2ruguOcwnVR2_4DtiGnmLg",
             "title": "TheGreatReview - Shorts",
             "availability": "public",
-            "channel_follower_count": 895000,
+            "channel_follower_count": 897000,
             "description": "ça parle de jeux ici \n\n\n",
             "tags": [],
             "thumbnails": [
@@ -1178,14 +1178,35 @@
             "channel_is_verified": true,
             "modified_date": null,
             "view_count": null,
-            "playlist_count": 52,
+            "playlist_count": 53,
             "uploader": "TheGreatReview",
             "channel_url": "https://www.youtube.com/channel/UC2ruguOcwnVR2_4DtiGnmLg",
             "_type": "playlist",
             "entries": [
                 {
+                    "title": "The birth of the Metro saga #gaming",
+                    "view_count": 51000,
+                    "thumbnails": [
+                        {
+                            "url": "https://i.ytimg.com/vi/_S1WxaThjqc/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLCWeLnSJYWng3bnjGwxiTSXThwT6g&usqp=CCk",
+                            "height": 720,
+                            "width": 405
+                        },
+                        {
+                            "url": "https://i.ytimg.com/vi/_S1WxaThjqc/oardefault.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLCL2vTrSH7GqFroY5Ka1zj__lnIDA&usqp=CCk",
+                            "height": 608,
+                            "width": 405
+                        }
+                    ],
+                    "ie_key": "Youtube",
+                    "id": "_S1WxaThjqc",
+                    "_type": "url",
+                    "url": "https://www.youtube.com/shorts/_S1WxaThjqc",
+                    "__x_forwarded_for_ip": null
+                },
+                {
                     "title": "When the influencer law made everyone PANIC",
-                    "view_count": 573000,
+                    "view_count": 604000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/r87wdq4IRK0/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBryDm8fZ4899Qts-H669bdQJtmlg&usqp=CCk",
@@ -1206,7 +1227,7 @@
                 },
                 {
                     "title": "The diabolical move that turned the whole game around",
-                    "view_count": 56000,
+                    "view_count": 58000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/0UtqYgIgyqg/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBWyP9rmQX4bb9QppDPpUvZhSDXcA&usqp=CCk",
@@ -1227,7 +1248,7 @@
                 },
                 {
                     "title": "A French studio brings a legendary board game to life",
-                    "view_count": 171000,
+                    "view_count": 173000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/6-wl0c8lOXo/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLC15oM8CWCnNUJrnSL-KoFGJLAAug&usqp=CCk",
@@ -1248,7 +1269,7 @@
                 },
                 {
                     "title": "He waited an hour to make a single unit",
-                    "view_count": 169000,
+                    "view_count": 170000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/BimnlHnjPQw/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLAPfghic4Zpe6OQqjZqWiH1PIMhzg&usqp=CCk",
@@ -1269,7 +1290,7 @@
                 },
                 {
                     "title": "He composed the Final Fantasy soundtrack from his hospital bed",
-                    "view_count": 95000,
+                    "view_count": 96000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/AbHcjX8VDFI/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLD-OWovU4BTLKEqTy9tmcdlF-Nlxw&usqp=CCk",
@@ -1290,7 +1311,7 @@
                 },
                 {
                     "title": "The one that all Age of Empires players fear...",
-                    "view_count": 138000,
+                    "view_count": 139000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/LVcWWOOe_aA/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDP9rlPp-yAef2i9RIHS3CJiN15_w&usqp=CCk",
@@ -1311,7 +1332,7 @@
                 },
                 {
                     "title": "He built the Great Wall of China in Age of Empires",
-                    "view_count": 141000,
+                    "view_count": 142000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/ORdhSdeT9l8/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBHoe7LHt6VVMwG3kGfykMfwExS9w&usqp=CCk",
@@ -1332,7 +1353,7 @@
                 },
                 {
                     "title": "Stuck for 5 hours on Age of Empires",
-                    "view_count": 138000,
+                    "view_count": 139000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/aTxQ33XKIhs/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDRZqDnpchYhXvOyI-K0s65FkhKcg&usqp=CCk",
@@ -1353,7 +1374,7 @@
                 },
                 {
                     "title": "The sequel to one of the most difficult shooters on the PS5 has just been released.",
-                    "view_count": 385000,
+                    "view_count": 386000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/zHx1gh-bP4I/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBDhnL2K64PLJ40kXGLV4703e5UvQ&usqp=CCk",
@@ -1374,7 +1395,7 @@
                 },
                 {
                     "title": "The game is so old that its players will have to save up for a new console. #gaming",
-                    "view_count": 606000,
+                    "view_count": 614000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/TjQnZnkp-mc/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDuSq9lD79yfNPXJOsXfjKQIyc16g&usqp=CCk",
@@ -1395,7 +1416,7 @@
                 },
                 {
                     "title": "stopped while I was cycling",
-                    "view_count": 779000,
+                    "view_count": 786000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/aNx_5BrtttU/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLD2ItGGzjJpvzJYXQysL8ScYWULBw&usqp=CCk",
@@ -1437,7 +1458,7 @@
                 },
                 {
                     "title": "Abandoned in the storm, he wins the 1v3 for his team #fortnite #gaming",
-                    "view_count": 83000,
+                    "view_count": 84000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/1NZAHTWji3E/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLCyMERydRcp769D6wDC6tVAUuRzRA&usqp=CCk",
@@ -1458,15 +1479,15 @@
                 },
                 {
                     "title": "All the Fortnite tournaments organized this year #gaming",
-                    "view_count": 67000,
+                    "view_count": 68000,
                     "thumbnails": [
                         {
-                            "url": "https://i.ytimg.com/vi/dLMHPhEWMa0/oar1.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLARXThe9ZV1g04eTn1Px2uB5wBHRw&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/dLMHPhEWMa0/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLADlCoOtVW8ODKgrraWAmBJy4gP4A&usqp=CCk",
                             "height": 720,
                             "width": 405
                         },
                         {
-                            "url": "https://i.ytimg.com/vi/dLMHPhEWMa0/oar1.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLAfWniSpAbiWpUSWgaI8pbhcVF19Q&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/dLMHPhEWMa0/oar2.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLAez1sjnki8ELG9MttLHmSqs5ORSw&usqp=CCk",
                             "height": 608,
                             "width": 405
                         }
@@ -1479,7 +1500,7 @@
                 },
                 {
                     "title": "The creators of Halo have made an extraction shooter #gaming",
-                    "view_count": 151000,
+                    "view_count": 152000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/PW8KvP_0Tok/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBDn0Zyzr7Fl2VyYHcDqkZTZPha9Q&usqp=CCk",
@@ -1500,7 +1521,7 @@
                 },
                 {
                     "title": "The most incredible comeback in Rainbow Six history #gaming",
-                    "view_count": 279000,
+                    "view_count": 280000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/bF457anzeR4/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLB7XtampCUsqfGknzgtV8Om1RbNnw&usqp=CCk",
@@ -1542,7 +1563,7 @@
                 },
                 {
                     "title": "When playing video games was always a group activity #gaming",
-                    "view_count": 69000,
+                    "view_count": 70000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/M0GvV2qM_ts/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDem7yglKv8SDS-jWOtAHQq9ArxDQ&usqp=CCk",
@@ -1563,7 +1584,7 @@
                 },
                 {
                     "title": "He won a tournament with only one health point. #gaming #fgc",
-                    "view_count": 5400000,
+                    "view_count": 5500000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/mb33v7pLQnE/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLA8u3x4OfKYIUEQZWAS92epSE3f1Q&usqp=CCk",
@@ -1605,7 +1626,7 @@
                 },
                 {
                     "title": "the most famous parade in video games #gaming #fgc",
-                    "view_count": 172000,
+                    "view_count": 173000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/5M-EL5vGzOw/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLD146sIZd7wx2pZlNl8RKk-V6J9KQ&usqp=CCk",
@@ -1689,7 +1710,7 @@
                 },
                 {
                     "title": "He starts crying in the middle of a match #gaming #fgc",
-                    "view_count": 44000,
+                    "view_count": 45000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/S19lNvhX_Rs/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLD47QAQx3xqtr8gH14YFDiaUDEi7Q&usqp=CCk",
@@ -1710,7 +1731,7 @@
                 },
                 {
                     "title": "The guy who won tournaments with the worst character... #gaming",
-                    "view_count": 344000,
+                    "view_count": 346000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/jcaDa6hNkng/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLAN6tDJpIKBZthYBvvThqt97BlLCQ&usqp=CCk",
@@ -1752,7 +1773,7 @@
                 },
                 {
                     "title": "Not just a mahjong game... #gaming",
-                    "view_count": 39000,
+                    "view_count": 40000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/gvdBLF8eODA/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLAOHnTCkRiSU1m_Hj9DN_x47E-GvQ&usqp=CCk",
@@ -1773,15 +1794,15 @@
                 },
                 {
                     "title": "the greatest REVENGE in fighting games",
-                    "view_count": 90000,
+                    "view_count": 91000,
                     "thumbnails": [
                         {
-                            "url": "https://i.ytimg.com/vi/UOMRzPL76sM/oar3.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDXr91DhHtIYgf7ADPlERNyy9rAEg&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/UOMRzPL76sM/oar1.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDJn-kNwqP41RGN_lzUdLWnhHOIEQ&usqp=CCk",
                             "height": 720,
                             "width": 405
                         },
                         {
-                            "url": "https://i.ytimg.com/vi/UOMRzPL76sM/oar3.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLD5z-Nc_O-IQhd1jG3afEktoLF4UQ&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/UOMRzPL76sM/oar1.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLCkEvvgaUj4b01n5GYOA6_BfYMzvg&usqp=CCk",
                             "height": 608,
                             "width": 405
                         }
@@ -1794,15 +1815,15 @@
                 },
                 {
                     "title": "Well then, bro?",
-                    "view_count": 84000,
+                    "view_count": 85000,
                     "thumbnails": [
                         {
-                            "url": "https://i.ytimg.com/vi/vC4hR_g1eqo/oar3.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDJFTnBvK7xtu5cGYR-gT8Hd4jJUQ&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/vC4hR_g1eqo/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLC1tEPoNp_kOEObAXJz5nWC3ZDGxg&usqp=CCk",
                             "height": 720,
                             "width": 405
                         },
                         {
-                            "url": "https://i.ytimg.com/vi/vC4hR_g1eqo/oar3.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLATARprrf5seynr6b4pQO76f6aC0g&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/vC4hR_g1eqo/oar2.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLA8VmgeLLDeefqUamUWB9i8xqKqJA&usqp=CCk",
                             "height": 608,
                             "width": 405
                         }
@@ -1839,12 +1860,12 @@
                     "view_count": 48000,
                     "thumbnails": [
                         {
-                            "url": "https://i.ytimg.com/vi/G3pmhStFXzA/oar1.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLCLdT976KlgLemf_sPv6RvzE_LDsw&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/G3pmhStFXzA/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBgmZzYG-RPAi51sKiaDEJlCC015g&usqp=CCk",
                             "height": 720,
                             "width": 405
                         },
                         {
-                            "url": "https://i.ytimg.com/vi/G3pmhStFXzA/oar1.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLD5nool8OiLv-a7rHI3Q8Dh_Mm59Q&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/G3pmhStFXzA/oar2.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLDF3d7vU4qgyTVWxZ5RMwT1RixC0g&usqp=CCk",
                             "height": 608,
                             "width": 405
                         }
@@ -1899,7 +1920,7 @@
                 },
                 {
                     "title": "4 friends realize they forgot the summer they met",
-                    "view_count": 466000,
+                    "view_count": 467000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/teqZWXQRHiU/oar1.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDE_k9kGv1xNcRzfsCQ2eeBgHKbHg&usqp=CCk",
@@ -1919,7 +1940,7 @@
                     "__x_forwarded_for_ip": null
                 },
                 {
-                    "title": "la tentative de la dernière chance",
+                    "title": "The last-ditch attempt",
                     "view_count": 145000,
                     "thumbnails": [
                         {
@@ -1962,7 +1983,7 @@
                 },
                 {
                     "title": "le meilleur auteur de fantasy français",
-                    "view_count": 179000,
+                    "view_count": 180000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/5bd8L-WJ5lo/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLCYu5mniD0lbjH5a_Dea0O8PRwhiw&usqp=CCk",
@@ -1983,7 +2004,7 @@
                 },
                 {
                     "title": "studios should say how they actually make games",
-                    "view_count": 140000,
+                    "view_count": 141000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/bTnrHpwDsv8/oar3.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLAARdZfhKQRwDUO2XbPKAnkiV0pHg&usqp=CCk",
@@ -2025,7 +2046,7 @@
                 },
                 {
                     "title": "the importance of music in videos",
-                    "view_count": 312000,
+                    "view_count": 313000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/ljoHZRVkMQw/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBulfIuXDYD9taxNXu5Blo82WLz_w&usqp=CCk",
@@ -2046,7 +2067,7 @@
                 },
                 {
                     "title": "How to improve your storytelling?",
-                    "view_count": 375000,
+                    "view_count": 380000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/X34gT4wvf2Y/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDa5x_NNqhwZmLVINQRTcm0cucb_w&usqp=CCk",
@@ -2070,12 +2091,12 @@
                     "view_count": 95000,
                     "thumbnails": [
                         {
-                            "url": "https://i.ytimg.com/vi/sxVXSPU48Qs/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLBSkwaeV_d_3w8QgNgluM2iA-1OVQ&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/sxVXSPU48Qs/oar3.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLA-TW4vFSFhU65nWWZiQV-Yjuu5Qg&usqp=CCk",
                             "height": 720,
                             "width": 405
                         },
                         {
-                            "url": "https://i.ytimg.com/vi/sxVXSPU48Qs/oar2.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLCazihGJeBVqn-BvDybWHA7kU4BbQ&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/sxVXSPU48Qs/oar3.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLDTSCoyA9ZumXjkvtUpauJGCRidnQ&usqp=CCk",
                             "height": 608,
                             "width": 405
                         }
@@ -2088,7 +2109,7 @@
                 },
                 {
                     "title": "y aura jamais de Titanfall 3...",
-                    "view_count": 127000,
+                    "view_count": 128000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/HKlHz7s6kCw/oardefault.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLAIUtFOMTpX3gx7Nd2CxKZ3o2Xwug&usqp=CCk",
@@ -2209,7 +2230,7 @@
                 },
                 {
                     "title": "They recruited the worst Toplaner in the league #leagueoflegends #worlds",
-                    "view_count": 592000,
+                    "view_count": 594000,
                     "thumbnails": [
                         {
                             "url": "https://i.ytimg.com/vi/ArViJS6Y8aY/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLC1sOVnl6cOpJQE3Kcxnp7phRLGhA&usqp=CCk",
@@ -2230,15 +2251,15 @@
                 },
                 {
                     "title": "Laisser un ours mener les négociations #shorts",
-                    "view_count": 1000000,
+                    "view_count": 1100000,
                     "thumbnails": [
                         {
-                            "url": "https://i.ytimg.com/vi/hsGyY7svJcQ/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLAB-SE_RfH0ykiWUUnW8dK5tc8Vlw&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/hsGyY7svJcQ/oar1.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=&rs=AOn4CLDLY9kEyoQ6Z9Pm0VVHJik6tpm5Tg&usqp=CCk",
                             "height": 720,
                             "width": 405
                         },
                         {
-                            "url": "https://i.ytimg.com/vi/hsGyY7svJcQ/oar2.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLCNygjGCB8Wmbb1eqJ1OlBzKkw09g&usqp=CCk",
+                            "url": "https://i.ytimg.com/vi/hsGyY7svJcQ/oar1.jpg?sqp=-oaymwEgCJUDEOAESFWQAgHyq4qpAw8IARUAAIhCcAHAAQbIAQE=&rs=AOn4CLCA1YAJZjQJ84uT-hoeQhRIzuyEXg&usqp=CCk",
                             "height": 608,
                             "width": 405
                         }
@@ -2271,7 +2292,7 @@
             "webpage_url": "https://www.youtube.com/@TheGreatReview/shorts",
             "__x_forwarded_for_ip": null,
             "release_year": null,
-            "epoch": 1787774615
+            "epoch": 1788986472
         }
     ],
     "webpage_url": "https://www.youtube.com/@TheGreatReview",
@@ -2281,5 +2302,5 @@
     "extractor": "youtube:tab",
     "extractor_key": "YoutubeTab",
     "release_year": null,
-    "epoch": 1787774614
+    "epoch": 1788986472
 }
