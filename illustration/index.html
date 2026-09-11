@@ -13,7 +13,6 @@
             overflow: hidden;
             background: black;
         }
-
         #background-video {
             position: fixed;
             inset: 0;
@@ -21,6 +20,13 @@
             height: 100%;
             object-fit: contain;
             z-index: 0;
+            pointer-events: none;
+        }
+        #video-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: transparent;
         }
     </style>
 </head>
@@ -29,5 +35,6 @@
     <video id="background-video" autoplay muted loop playsinline>
         <source src="./animation_pandoru.mp4" type="video/mp4">
     </video>
+    <div id="video_overlay"></div>
 </body>
 </html>
