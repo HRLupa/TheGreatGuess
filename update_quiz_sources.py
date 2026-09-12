@@ -6,6 +6,10 @@ from typing import Any
 import requests
 import yt_dlp
 
+import sys
+from requests.exceptions import HTTPError
+from yt_dlp.utils import DownloadError
+
 # --- CONFIGURATION DES CHEMINS (Pathlib) ---
 MAIN_PATH = Path(__file__).parent.resolve()
 MAIN_JSON_PATH = MAIN_PATH / "frontend" / "myjson"
@@ -81,13 +85,27 @@ def improve_transcript(trans: list[dict[str, Any]] | None) -> None:
     trans[:] = bettertrans
 
 
+def find_subtitle_track(sub_dict: dict[str, Any], lang_code: str) -> list[dict[str, Any]] | None:
+    """Recherche flexible d'une langue (supporte 'fr', 'fr-FR', 'en-US', etc.)."""
+    if not sub_dict:
+        return None
+    # 1. Correspondance exacte
+    if lang_code in sub_dict:
+        return sub_dict[lang_code]
+    # 2. Correspondance par préfixe (ex: "fr-FR" pour "fr")
+    for key, tracks in sub_dict.items():
+        if key.startswith(lang_code):
+            return tracks
+    return None
+
+
 def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]]:
     """Extrait les métadonnées une seule fois et récupère les sous-titres de toutes les langues configurées."""
     ydl_opts = {
         "skip_download": True,
         "writesubtitles": True,
         "writeautomaticsub": True,
-        "subtitleslangs": [cfg["language"] for cfg in AVAILABLE_LANGUAGES.values()],
+        "subtitleslangs": ["fr*", "en*"],  # Capture les variantes (fr-FR, en-US...)
         "subtitlesformat": "json3",
         "quiet": True,
     }
@@ -102,12 +120,10 @@ def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]
         for lang_key, lang_cfg in AVAILABLE_LANGUAGES.items():
             lang_code = str(lang_cfg["language"])
 
-            # Recherche des sous-titres (priorité aux manuel puis auto)
-            subtitle_info = None
-            if lang_code in subtitles:
-                subtitle_info = subtitles[lang_code]
-            elif lang_cfg.get("automatic", True) and lang_code in automatic_captions:
-                subtitle_info = automatic_captions[lang_code]
+            # Recherche prioritaire : manuels puis automatiques
+            subtitle_info = find_subtitle_track(subtitles, lang_code)
+            if not subtitle_info and lang_cfg.get("automatic", True):
+                subtitle_info = find_subtitle_track(automatic_captions, lang_code)
 
             if not subtitle_info:
                 print(f"  └─ [{lang_key}] Aucun sous-titre ({lang_code}) disponible.")
@@ -135,10 +151,13 @@ def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]
                     transcript.append({"start": start, "duration": duration, "text": text})
 
                 results[lang_key] = transcript
+            except HTTPError as e:
+                if e.response is not None and e.response.status_code == 429:
+                    print(f"\n[ERREUR FATALE] 429 Too Many Requests sur les sous-titres ({lang_key}). Arrêt du script.")
+                    sys.exit(1)
+                print(f"  └─ [{lang_key}] Erreur HTTP : {e}")
             except Exception as e:
                 print(f"  └─ [{lang_key}] Erreur lors du téléchargement : {e}")
-            print("Pause de 30s...\n")
-            sleep(30)
 
     return results
 
@@ -167,6 +186,9 @@ def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
     for video in video_list:
         vid = video["id"]
         title = video["title"]
+        
+        print("Pause de 200s avant la prochaine requête YouTube...\n")
+        sleep(200)
         print(f"Traitement : {title} ({vid})...")
 
         try:
@@ -176,6 +198,13 @@ def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
                 improve_transcript(transcript)
                 save_transcript(lang_key, {title: transcript}, f"{vid}.json")
                 print(f"  └─ [{lang_key}] Sauvegardé avec succès.")
+                
+        except DownloadError as e:
+            if "429" in str(e) or "Too Many Requests" in str(e):
+                print(f"\n[ERREUR FATALE] 429 interceptée par yt-dlp sur {vid}. Arrêt immédiat.")
+                sys.exit(1)
+            print(f"Erreur yt-dlp sur {vid} : {e}")
+            
         except Exception as e:
             print(f"Erreur globale sur {vid} : {e}")
 

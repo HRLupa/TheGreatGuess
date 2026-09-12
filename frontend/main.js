@@ -1027,6 +1027,24 @@ function play_video(expected_title, startTime) {
 }
 
 /* --- CHARGEMENT RAPIDE & LAZY LOADING --- */
+function get_first_random_file(fileList,durations){
+    console.log(fileList,durations)
+    const weightedFiles = fileList.map(filename => {
+        const cleanTitle = filename.substring(0,filename.length-5)
+        const canonicalTitle = francais_anglais[cleanTitle] || cleanTitle
+        const weight = durations[canonicalTitle] || durations[cleanTitle]
+        return { canonicalTitle, weight }
+    })
+    const totalWeight = weightedFiles.reduce((sum, f) => sum + f.weight, 0)
+    let randomWeight = Math.random() * totalWeight
+    console.log(weightedFiles,randomWeight)
+    for (const item of weightedFiles) {
+        if (randomWeight < item.weight) {
+            return item.canonicalTitle+".json"
+        }
+        randomWeight -= item.weight
+    }
+}
 
 async function first_load() {
     const titleInput = document.getElementById("video_title")
@@ -1054,7 +1072,7 @@ async function first_load() {
         rawVideos = videosJson.entries[0].entries
         durations = {}
         ids = {}
-        rawVideos.forEach(v => { durations[v.title] = v.duration; ids[v.title] = v.id })
+        rawVideos.forEach(v => { durations[v.id] = v.duration; ids[v.title] = v.id })
 
         francais_anglais = statiques.francais_anglais || {}
         manual_aliases = statiques.manual_aliases || {}
@@ -1068,9 +1086,8 @@ async function first_load() {
         searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
         
         render_video_sidebar(rawVideos)
-
-        // 3. Charger le sous-titre aléatoire (toujours priorité haute)
-        const randomFile = fileList[Math.floor(Math.random() * fileList.length)]
+        const randomFile = get_first_random_file(fileList,durations)
+        console.log(randomFile)
         const transcriptRes = await fetch(`myjson/transcripts/${folder}/${randomFile}`)
         const transcriptData = await transcriptRes.json()
 

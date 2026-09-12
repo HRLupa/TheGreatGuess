@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from typing import Callable
 def score_guess_quadratic(guess_time:float, start_time:float, video_duration:float):
     error = abs(guess_time - start_time)
-    max_error = video_duration * (0.45-0.20*((video_duration-300)/7200))
+    max_error = video_duration * max(0.2,(0.8-0.5*(video_duration/7200)**0.2))
     #print(error,max_error)
     if error >= max_error:
         return 0
@@ -14,6 +14,14 @@ def score_guess_quadratic(guess_time:float, start_time:float, video_duration:flo
         score=200
     #print("score : ",score)
     return score
+def score_guess_hybrid(guess_time:float,start_time:float,video_duration:float):
+    error=abs(guess_time-start_time)
+    max_error=2.1*(video_duration**0.76)
+    if error>=max_error:
+        return 0
+    error_ratio = error / max_error
+    score=200*((1.02-error_ratio)**1.4)
+    return min(200,score)
 def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecartmin:float=0,ecartmax:float=1,lengthmin:int=1,lengthmax:int=150,nblengths:int=100,nbpourcentages:int=100,correct_ratio:float=0.5):
     """fonctiontest prend en paramètre guesstime,start_time et video_duration (on considère que guess_time et start_time ne seront utilisés que pour calculer leurs différences)"""
     
@@ -46,4 +54,4 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     print(exp)"""
     return
 
-test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0,lengthmax=100)
+test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0.5,lengthmax=60)
