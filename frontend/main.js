@@ -9,8 +9,7 @@ const LANG_CONFIG = {
         folders: ["English"]
     }
 }
-import { Log } from 'youtubei.js';
-Log.setLevel(Log.Level.NONE)
+
 const disabledByDefault=["Tous les boss de Dark Souls 3 d'affilée sans mourir"]
 
 
