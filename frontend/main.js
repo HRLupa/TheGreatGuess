@@ -598,6 +598,7 @@ function show_game_over() {
 
     update_highscore_display()
     gameOverScreen.classList.remove("hidden")
+    sendResults()
 }
 
 /* --- GESTION DES HIGH SCORES (LOCAL STORAGE) --- */
@@ -991,6 +992,41 @@ function toggle_theme() {
     const currentTheme = document.documentElement.getAttribute("data-theme") || "dark"
     const newTheme = currentTheme === "dark" ? "light" : "dark"
     apply_theme(newTheme)
+}
+
+/* Sending results */
+
+
+function getId() {
+    let id = localStorage.getItem("game_session_id");
+    if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("game_session_id", id);
+    }
+    return id;
+}
+
+async function sendResults() {
+    const payload = {
+        session_id: getId(),
+        score: totalpoints,
+        removed: disabledVideos,
+        correct_titles: correct_titles_count
+    };
+
+    try {
+        const response = await fetch("https://thegreatguess.hrlupa0.workers.dev/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.status === 429) {
+            console.warn("No results stored : Less than 2 minutes since last result");
+        }
+    } catch (err) {
+        console.error("Error with result storage", err);
+    }
 }
 
 function onYouTubeIframeAPIReady() {
