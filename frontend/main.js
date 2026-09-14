@@ -597,7 +597,7 @@ function show_game_over() {
 
     update_highscore_display()
     gameOverScreen.classList.remove("hidden")
-    sendResults()
+    if (totalpoints>500) sendResults()
 }
 
 /* --- GESTION DES HIGH SCORES (LOCAL STORAGE) --- */
