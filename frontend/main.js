@@ -197,7 +197,7 @@ async function submit_title() {
         
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
-        const totalDuration = durations[expected_title]
+        const totalDuration = durations[ids[expected_title]]
         const hintBox = document.getElementById("video_info_hint")
         if (hintBox) {
             hintBox.innerHTML = `
@@ -255,7 +255,7 @@ function submit_time() {
     const indcontext = close_phrases(current_question[current_question.length >> 1], 180)
     const extended_start_time = phrases[indcontext[0]][2]
     
-    const durationvideo = durations[expected_title]
+    const durationvideo = durations[ids[expected_title]]
     const score = score_guess_quadratic(secondsGuessed, extended_start_time, durationvideo)
 
     animate_points(score)
@@ -1048,23 +1048,24 @@ function play_video(expected_title, startTime) {
 }
 
 /* --- CHARGEMENT RAPIDE & LAZY LOADING --- */
-function get_first_random_file(fileList,durations){
-    console.log(fileList,durations)
+function get_first_random_file(fileList, durations) {
     const weightedFiles = fileList.map(filename => {
-        const cleanTitle = filename.substring(0,filename.length-5)
-        const canonicalTitle = francais_anglais[cleanTitle] || cleanTitle
-        const weight = durations[canonicalTitle] || durations[cleanTitle]
-        return { canonicalTitle, weight }
+        const videoId = filename.replace(".json", "")
+        const weight = durations[videoId] || 0
+        return { filename, weight }
     })
+
     const totalWeight = weightedFiles.reduce((sum, f) => sum + f.weight, 0)
     let randomWeight = Math.random() * totalWeight
-    console.log(weightedFiles,randomWeight)
+
     for (const item of weightedFiles) {
         if (randomWeight < item.weight) {
-            return item.canonicalTitle+".json"
+            return item.filename
         }
         randomWeight -= item.weight
     }
+
+    return fileList[0] || ""
 }
 
 async function first_load() {
@@ -1076,7 +1077,7 @@ async function first_load() {
     window.background_load_promise = new Promise(res => { resolveBg = res })
 
     try {
-        // 2. Fetcher l'essentiel en priorité absolue (RÉSEAU DÉGAGÉ = VITESSE MAX)
+        
         const langConfig = LANG_CONFIG[current_lang] || LANG_CONFIG["fr"]
         const folder = langConfig.folders[0]
 
@@ -1091,14 +1092,19 @@ async function first_load() {
         const fileList = await indexRes.json()
 
         rawVideos = videosJson.entries[0].entries
-        durations = {}
-        ids = {}
-        rawVideos.forEach(v => { durations[v.id] = v.duration; ids[v.title] = v.id })
 
         francais_anglais = statiques.francais_anglais || {}
         manual_aliases = statiques.manual_aliases || {}
         anglais_francais = {}
         for (const [fr, en] of Object.entries(francais_anglais)) { anglais_francais[en] = fr }
+        durations = {}
+        ids = {}
+        rawVideos.forEach(v => {
+            durations[v.id] = v.duration
+            ids[v.title] = v.id
+            if (anglais_francais[v.title]) ids[anglais_francais[v.title]] = v.id
+            if (francais_anglais[v.title]) ids[francais_anglais[v.title]] = v.id
+        })
 
         disabledVideos.clear()
         disabledByDefault.forEach(title => disabledVideos.add(title))
