@@ -9,6 +9,8 @@ const LANG_CONFIG = {
         folders: ["English"]
     }
 }
+import { Log } from 'youtubei.js';
+Log.setLevel(Log.Level.NONE)
 const disabledByDefault=["Tous les boss de Dark Souls 3 d'affilée sans mourir"]
 
 
@@ -23,7 +25,6 @@ let is_game_started=false
 let disabledVideos = new Set()
 let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang, ytPlayer
 let searchCandidates = []
-let is_full_data_loaded = false
 let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
@@ -392,21 +393,6 @@ async function load_data_background() {
 
     } catch (err) {
         console.error("Erreur de chargement en tâche de fond :", err)
-    }
-}
-function commit_background_data() {
-    if (transcriptsByLang[current_lang]) {
-        transcripts = transcriptsByLang[current_lang]
-        title_map = build_title_aliases(transcripts, manual_aliases)
-        
-        const availableVideos = rawVideos.filter(v => {
-            const subs = transcripts[v.title]
-            return subs && Array.isArray(subs) && subs.length > 0
-        })
-        const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
-        
-        searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
-        //render_video_sidebar(availableVideos)
     }
 }
 
@@ -782,7 +768,7 @@ async function toggle_video_status(videoTitle) {
 
     if (!disabledVideos.has(videoTitle)) {
         // Tentative de désactivation : vérifier la contrainte d'au moins 1 vidéo active
-        if (activeCount <= 1) {
+        if (activeCount == 1) {
             alert("Il doit y avoir au moins une vidéo active pour jouer.")
             return
         }
@@ -1127,7 +1113,6 @@ async function first_load() {
         // 5. ENFIN, on lance le chargement lourd !
         // La bande passante est maintenant 100% disponible pour lui.
         load_data_background().finally(() => {
-            is_full_data_loaded = true 
             resolveBg()
             window.background_load_promise = null
         })
