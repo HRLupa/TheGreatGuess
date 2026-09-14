@@ -1010,7 +1010,8 @@ async function sendResults() {
         session_id: getId(),
         score: totalpoints,
         removed: disabledVideos,
-        correct_ratio: JSON.stringify(correct_titles_count)+"/"+JSON.stringify(max_rounds)
+        correct_titles: correct_titles_count,
+        amount_rounds: max_rounds
     };
 
     try {
