@@ -35,10 +35,10 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     plt.plot(pourcentages,[fonctiontest((lengths[0]*60)*pourcentages[i]/100,(lengths[0]*60*correct_ratio),lengths[0]*60) for i in range(len(pourcentages))])
     plt.plot(pourcentages,[fonctiontest((lengths[nblengths//2]*60)*pourcentages[i]/100,lengths[nblengths//2]*60*correct_ratio,lengths[nblengths//2]*60) for i in range(len(pourcentages))])
     plt.plot(pourcentages,[fonctiontest((lengths[nblengths-1]*60)*pourcentages[i]/100,lengths[nblengths-1]*60*correct_ratio,lengths[nblengths-1]*60) for i in range(len(pourcentages))])
-    plt.legend([f"Durée de la vidéo : {lengths[0]} minutes",f"Durée de la vidéo : {round(lengths[nblengths//2])} minutes",f"Durée de la vidéo : {round(lengths[nblengths-1])} minutes"])
-    plt.xlabel("Pourcentage d'écart entre le temps deviné et le temps réel")
+    plt.legend([f"Video duration : {lengths[0]} minutes",f"Video duration : {round(lengths[nblengths//2])} minutes",f"Video duration : {round(lengths[nblengths-1])} minutes"])
+    plt.xlabel("Difference percentage between the guessed time and the actual time")
     plt.ylabel("Score")
-    plt.title("Évaluation des scores de devinettes")
+    plt.title("Guessing scores evalution")
     plt.grid(which='major',linewidth=0.5)
     plt.show()
     """exp=" "*6

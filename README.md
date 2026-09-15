@@ -11,6 +11,8 @@ title: Documentation
 
 [Français](#français)
 
+[Avancement des transcripts](#avancement-des-transcripts)
+
 ## English
 
 ### Presentation
@@ -37,6 +39,10 @@ After making your guess, you will be awarded a score based on how close you were
 ### Incorrect Guess
 
 If you guess an incorrect video, a clip showing the target video will be shown to you starting at the moment corresponding to the displayed text, helping you recall the scene for the next time.
+
+### State of transcriptions
+
+Some transcriptions come from manual transcripts from the video, which are great and of quality, while some others come from the automatic YouTube retranscription, and are not adaptated to the website. I am working on adding more manual transcripts on French language, but will leave the English ones untouched, out of respect towards TheGreatReview who wanted translators who were speaking English natively so that they could replicate his tone in a good way, which I am not capable of. However, I am working on French subtitles, to provide a gameplay of better quality, while still being accurate, as I don't have to translate anything. Here's the current state of the manual/automatic subtitles
 
 ### Advanced
 
@@ -72,3 +78,70 @@ Si vous avez *guess* la mauvaise vidéo, la séquence vidéo qui était à trouv
 ### Avancé
 
 Si vous avez des idées d'amélioration ou si vous constatez des comportements sur le site qui vous semblent indésirés, je vous invite à me contacter sur [Discord](https://discord.com/users/545300661302984714) ou à ouvrir une [issue](https://github.com/HRLupa/TheGreatGuess/issues) pour m'en informer, afin que je puisse faire la mise à jour.
+
+## Avancement des transcripts
+
+### English transcripts
+
+#### Manual
+
+- The incredible story of Otzdarva and the hardest Dark Souls run
+- The last big Secret
+- How Among Us made it
+- Greatest game of capture the flag ever played
+- Geopolitics explained through pixels
+- Gaming teams of the future
+- Tunic : Le jeu qui en cachait un autre
+- C'est quoi un bon film ?
+- Qu'est-ce que le cinéma a appris au jeu vidéo ?
+- 22 minutes pour sauver l'univers (ok un peu plus)
+- La plus belle des équipes
+- Créer (et détruire) la plus grosse licence d'Occident
+- La légende de Barbe Scintillante
+- 22 minutes de + pour comprendre l'univers
+- Le jeu où on plante des sapins
+- Quand 500 jeunes ont tenu une montagne contre les nazis
+
+#### Automatic
+
+- Bloqués 5 heures sur Age of Empires
+
+### Transcripts français
+
+#### Manuels
+
+- La géopolitique expliquée avec des pixels
+- 22 minutes pour sauver l'univers (ok un peu plus)
+
+#### Automatiques
+
+- Un noob sur csgo
+- Dark souls : comment utiliser la verticalité pour construire une carte
+- Haikyuu! Quand le volley, c'est vraiment toute ta vie.
+- Made in abyss : Review
+- HITMAN
+- L'ère des cristaux - Review
+- Frostpunk : il fait beau demain ?
+- Pourquoi Ghost Recon fait péter un plomb ?
+- Fallen Order manque d'ambition
+- Tous les boss de Dark Souls 3 d'affilée sans mourir
+- Subnautica
+- Dead By Daylight et la dissonance ludonarrative.
+- Leçon de mise en scène avec Doom Eternal
+- L'incroyable histoire d'Otzdarva et de la run Dark Souls la plus difficile
+- La quête du dernier secret
+- Comment Among Us a explosé
+- La plus grande partie de capture de drapeau de l'histoire d'Internet
+- Les clubs du futur
+- Tunic : Le jeu qui en cachait un autre
+- C'est quoi un bon film ?
+- Qu'est-ce que le cinéma a appris au jeu vidéo ?
+- La plus belle des équipes
+- Créer (et détruire) la plus grosse licence d'Occident
+- La légende de Barbe Scintillante
+- 22 minutes de + pour comprendre l'univers
+- Le jeu où on plante des sapins
+- Quand 500 jeunes ont tenu une montagne contre les nazis
+- Mais pourquoi Nintendo porte plainte contre tout le monde ?
+- \"Ce n'est pas de l'esport, c'est la FGC\"
+- Bloqués 5 heures sur Age of Empires

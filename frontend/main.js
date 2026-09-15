@@ -220,7 +220,7 @@ async function submit_title() {
         affichage = `
             <div class="space-y-1">
                 <p class="text-xl font-bold text-error">Mauvais titre ! (+0 pt)</p>
-                <p class="text-base text-base-content/80">La vidéo était « <strong>${expected_title}</strong> » à <strong>${seconds_to_hms(extended_start_time)}</strong>.</p>
+                <p class="text-base text-base-content/80">La vidéo était « <strong>${anglais_francais[expected_title]}</strong> » à <strong>${seconds_to_hms(extended_start_time)}</strong>.</p>
             </div>
         `
         
@@ -353,6 +353,7 @@ async function load_data_background() {
         )
 
         const langResults = await Promise.all(langPromises)
+
         langResults.forEach(({ lang, transcripts }) => {
             transcriptsByLang[lang] = transcripts
         })
@@ -389,6 +390,7 @@ async function load_data_background() {
         })
         const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
         searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
+        render_video_sidebar(availableVideos)
 
     } catch (err) {
         console.error("Erreur de chargement en tâche de fond :", err)
@@ -1073,7 +1075,6 @@ async function first_load() {
     const titleInput = document.getElementById("video_title")
     if (titleInput) titleInput.focus()
 
-    // 1. Verrouiller submit_title immédiatement
     let resolveBg
     window.background_load_promise = new Promise(res => { resolveBg = res })
 
@@ -1111,11 +1112,9 @@ async function first_load() {
         disabledByDefault.forEach(title => disabledVideos.add(title))
         
         const activeVideos = rawVideos.filter(v => !disabledVideos.has(v.title))
+        render_video_sidebar(activeVideos)
         searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
-        
-        render_video_sidebar(rawVideos)
         const randomFile = get_first_random_file(fileList,durations)
-        console.log(randomFile)
         const transcriptRes = await fetch(`myjson/transcripts/${folder}/${randomFile}`)
         const transcriptData = await transcriptRes.json()
 

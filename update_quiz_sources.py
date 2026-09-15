@@ -1,31 +1,86 @@
 import json
+import sys
 from pathlib import Path
 from time import sleep
 from typing import Any
 
 import requests
 import yt_dlp
-
-import sys
 from requests.exceptions import HTTPError
 from yt_dlp.utils import DownloadError
 
 # --- CONFIGURATION DES CHEMINS (Pathlib) ---
 MAIN_PATH = Path(__file__).parent.resolve()
 MAIN_JSON_PATH = MAIN_PATH / "frontend" / "myjson"
+STATE_FILE_PATH = MAIN_JSON_PATH / "transcripts" / "current_state.json"
 
 AVAILABLE_LANGUAGES: dict[str, dict[str, Any]] = {
-    "french": {
+    "French": {
         "path": MAIN_JSON_PATH / "transcripts" / "French",
         "language": "fr",
         "automatic": True,
     },
-    "english": {
+    "English": {
         "path": MAIN_JSON_PATH / "transcripts" / "English",
         "language": "en",
         "automatic": True,
     },
 }
+
+
+def load_current_state() -> dict[str, dict[str, list[str]]]:
+    """Charge le fichier current_state.json s'il existe."""
+    if STATE_FILE_PATH.exists():
+        try:
+            with open(STATE_FILE_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Erreur lors de la lecture de {STATE_FILE_PATH.name} : {e}")
+
+    return {lang: {"manual": [], "automatic": []} for lang in AVAILABLE_LANGUAGES}
+
+
+def save_current_state(state: dict[str, dict[str, list[str]]]) -> None:
+    """Sauvegarde l'état actuel dans current_state.json."""
+    STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(STATE_FILE_PATH, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=4)
+
+
+def update_state(state: dict, lang_name: str, title: str, is_manual: bool) -> None:
+    """Met à jour les listes manual/automatic dans current_state.json sans doublons."""
+    if lang_name not in state:
+        state[lang_name] = {"manual": [], "automatic": []}
+
+    target_cat = "manual" if is_manual else "automatic"
+    other_cat = "automatic" if is_manual else "manual"
+
+    if title in state[lang_name][other_cat]:
+        state[lang_name][other_cat].remove(title)
+
+    if title not in state[lang_name][target_cat]:
+        state[lang_name][target_cat].append(title)
+
+
+def is_video_already_processed(video_id: str) -> bool:
+    """Vérifie si le fichier existe et contient une transcription valide."""
+    for lang_cfg in AVAILABLE_LANGUAGES.values():
+        file_path = lang_cfg["path"] / f"{video_id}.json"
+        if not file_path.exists():
+            return False
+        
+        # Vérification du contenu du fichier
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # On vérifie qu'il y a au moins une clé avec une liste non vide
+                content = list(data.values())[0] if data else None
+                if not content or not isinstance(content, list):
+                    return False
+        except Exception:
+            return False
+
+    return True
 
 
 def get_channel(name: str, output_path: Path) -> None:
@@ -81,7 +136,6 @@ def improve_transcript(trans: list[dict[str, Any]] | None) -> None:
                 "duration": modified_duration
             })
 
-    # Mutation sur place
     trans[:] = bettertrans
 
 
@@ -89,28 +143,26 @@ def find_subtitle_track(sub_dict: dict[str, Any], lang_code: str) -> list[dict[s
     """Recherche flexible d'une langue (supporte 'fr', 'fr-FR', 'en-US', etc.)."""
     if not sub_dict:
         return None
-    # 1. Correspondance exacte
     if lang_code in sub_dict:
         return sub_dict[lang_code]
-    # 2. Correspondance par préfixe (ex: "fr-FR" pour "fr")
     for key, tracks in sub_dict.items():
         if key.startswith(lang_code):
             return tracks
     return None
 
 
-def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]]:
-    """Extrait les métadonnées une seule fois et récupère les sous-titres de toutes les langues configurées."""
+def fetch_transcripts_for_video(video_id: str) -> dict[str, dict[str, Any]]:
+    """Récupère les sous-titres et indique s'ils sont manuels ou automatiques."""
     ydl_opts = {
         "skip_download": True,
         "writesubtitles": True,
         "writeautomaticsub": True,
-        "subtitleslangs": ["fr*", "en*"],  # Capture les variantes (fr-FR, en-US...)
+        "subtitleslangs": ["fr*", "en*"],
         "subtitlesformat": "json3",
         "quiet": True,
     }
 
-    results: dict[str, list[dict[str, Any]]] = {}
+    results: dict[str, dict[str, Any]] = {}
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
@@ -119,11 +171,13 @@ def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]
 
         for lang_key, lang_cfg in AVAILABLE_LANGUAGES.items():
             lang_code = str(lang_cfg["language"])
+            is_manual = True
 
             # Recherche prioritaire : manuels puis automatiques
             subtitle_info = find_subtitle_track(subtitles, lang_code)
             if not subtitle_info and lang_cfg.get("automatic", True):
                 subtitle_info = find_subtitle_track(automatic_captions, lang_code)
+                is_manual = False
 
             if not subtitle_info:
                 print(f"  └─ [{lang_key}] Aucun sous-titre ({lang_code}) disponible.")
@@ -150,10 +204,13 @@ def fetch_transcripts_for_video(video_id: str) -> dict[str, list[dict[str, Any]]
                     duration = event.get("dDurationMs", 0) / 1000
                     transcript.append({"start": start, "duration": duration, "text": text})
 
-                results[lang_key] = transcript
+                results[lang_key] = {
+                    "transcript": transcript,
+                    "is_manual": is_manual
+                }
             except HTTPError as e:
                 if e.response is not None and e.response.status_code == 429:
-                    print(f"\n[ERREUR FATALE] 429 Too Many Requests sur les sous-titres ({lang_key}). Arrêt du script.")
+                    print(f"\n[ERREUR FATALE] 429 Too Many Requests sur ({lang_key}). Arrêt du script.")
                     sys.exit(1)
                 print(f"  └─ [{lang_key}] Erreur HTTP : {e}")
             except Exception as e:
@@ -183,31 +240,44 @@ def save_transcript(lang_key: str, transcript: dict[str, Any], filename: str) ->
 
 
 def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
+    state = load_current_state()
+
     for video in video_list:
         vid = video["id"]
         title = video["title"]
-        
-        print("Pause de 200s avant la prochaine requête YouTube...\n")
-        sleep(200)
+
+        if is_video_already_processed(vid):
+            print(f"{title} déjà complet, on passe")
+            continue
+
+        print(f"Pause de 320s avant la prochaine requête YouTube pour {title}...\n")
+        sleep(320)
         print(f"Traitement : {title} ({vid})...")
 
         try:
             transcripts_by_lang = fetch_transcripts_for_video(vid)
 
-            for lang_key, transcript in transcripts_by_lang.items():
+            for lang_key, data in transcripts_by_lang.items():
+                transcript = data["transcript"]
+                is_manual = data["is_manual"]
+
                 improve_transcript(transcript)
                 save_transcript(lang_key, {title: transcript}, f"{vid}.json")
-                print(f"  └─ [{lang_key}] Sauvegardé avec succès.")
                 
+                update_state(state, lang_key, title, is_manual)
+                save_current_state(state)
+
+                mode_str = "Manuel" if is_manual else "Automatique"
+                print(f"  └─ [{lang_key}] Sauvegardé avec succès ({mode_str}).")
+
         except DownloadError as e:
             if "429" in str(e) or "Too Many Requests" in str(e):
                 print(f"\n[ERREUR FATALE] 429 interceptée par yt-dlp sur {vid}. Arrêt immédiat.")
                 sys.exit(1)
             print(f"Erreur yt-dlp sur {vid} : {e}")
-            
+
         except Exception as e:
             print(f"Erreur globale sur {vid} : {e}")
-
 
 
 if __name__ == "__main__":
@@ -218,4 +288,4 @@ if __name__ == "__main__":
     print(f"{len(videos)} vidéos extraites.\n")
 
     get_save_transcripts(videos)
-    print("Transcriptions sauvegardées.")
+    print("Transcriptions et état sauvegardés.")
