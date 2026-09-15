@@ -327,11 +327,14 @@ async function load_language_transcripts(langKey) {
                     if (!Array.isArray(subs)) continue
 
                     const canonicalTitle = francais_anglais[titleKey] || titleKey
-                    const cleanedSubs = subs.map(sub => ({
-                        text: sub.text || sub.content || "",
-                        start: parseFloat(sub.start ?? sub.start_time ?? 0),
-                        duration: parseFloat(sub.duration ?? sub.dur ?? 2.0)
-                    })).filter(sub => sub.text.trim().length > 0)
+                    const cleanedSubs = subs.map(sub => {
+                        const parsedStart = parseFloat(sub.start ?? sub.start_time ?? 0);
+                        return {
+                            text: sub.text || sub.content || "",
+                            start: isNaN(parsedStart) ? 0 : parsedStart,
+                            duration: parseFloat(sub.duration ?? sub.dur ?? 2.0)
+                        };
+                    }).filter(sub => sub.text.trim().length > 0);
 
                     mergedTranscripts[canonicalTitle] = cleanedSubs
                 }
@@ -1036,18 +1039,29 @@ function onYouTubeIframeAPIReady() {
 }
 function play_video(expected_title, startTime) {
     const videoId = ids[expected_title];
-    if (!videoId) return;
+    if (!videoId) {
+        console.warn(`Video ID not found for title: "${expected_title}"`);
+        return;
+    }
+    const validStartTime = (isNaN(startTime) || startTime < 0) ? 0 : Math.floor(startTime);
 
     const playerDiv = document.getElementById("video_player");
-    playerDiv.classList.remove("hidden");
-    playerDiv.className = "flex justify-center w-full relative opacity-100 pointer-events-auto";
-
-    if (ytPlayer && typeof ytPlayer.cueVideoById === "function") {
-        ytPlayer.cueVideoById({
-            videoId: videoId,
-            startSeconds: Math.floor(startTime)
-        });
+    if (playerDiv) {
+        playerDiv.classList.remove("hidden");
+        playerDiv.className = "flex justify-center w-full relative opacity-100 pointer-events-auto";
     }
+    setTimeout(() => {
+        if (ytPlayer && typeof ytPlayer.cueVideoById === "function") {
+            try {
+                ytPlayer.cueVideoById({
+                    videoId: videoId,
+                    startSeconds: validStartTime
+                });
+            } catch (err) {
+                console.error("Error cueing YouTube video:", err);
+            }
+        }
+    }, 50);
 }
 
 /* --- CHARGEMENT RAPIDE & LAZY LOADING --- */
