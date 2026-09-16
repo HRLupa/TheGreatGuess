@@ -991,18 +991,9 @@ function toggle_theme() {
 /* Sending results */
 
 
-function getId() {
-    let id = localStorage.getItem("game_session_id");
-    if (!id) {
-        id = crypto.randomUUID();
-        localStorage.setItem("game_session_id", id);
-    }
-    return id;
-}
 
 async function sendResults() {
     const payload = {
-        session_id: getId(),
         score: totalpoints,
         removed: disabledVideos,
         correct_titles: correct_titles_count,
