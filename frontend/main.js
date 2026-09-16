@@ -384,16 +384,6 @@ async function load_data_background() {
                 current_question = close_phrases(foundIndex, 50)
             }
         }
-        // ----------------------------------------------
-
-        // On met à jour la recherche et l'UI en silence
-        const availableVideos = rawVideos.filter(v => {
-            const subs = transcripts[v.title]
-            return subs && Array.isArray(subs) && subs.length > 0
-        })
-        const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
-        searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
-        render_video_sidebar(availableVideos)
 
     } catch (err) {
         console.error("Erreur de chargement en tâche de fond :", err)
@@ -1097,14 +1087,16 @@ async function first_load() {
         const langConfig = LANG_CONFIG[current_lang] || LANG_CONFIG["fr"]
         const folder = langConfig.folders[0]
 
-        const [videosRes, statiquesRes, indexRes] = await Promise.all([
+        const [videosRes, statiquesRes, stateRes, indexRes] = await Promise.all([
             fetch("myjson/videos.json"),
             fetch("myjson/statiques.json"),
+            fetch("myjson/transcripts/current_state.json"),
             fetch(`myjson/transcripts/${folder}/index.json`)
         ])
         
         const videosJson = await videosRes.json()
         const statiques = await statiquesRes.json()
+        const stateData = await stateRes.json()
         const fileList = await indexRes.json()
 
         rawVideos = videosJson.entries[0].entries
@@ -1124,9 +1116,16 @@ async function first_load() {
 
         disabledVideos.clear()
         disabledByDefault.forEach(title => disabledVideos.add(title))
-        
-        const activeVideos = rawVideos.filter(v => !disabledVideos.has(v.title))
-        render_video_sidebar(activeVideos)
+        const shortcut_to_extended={"en":"English","fr":"French"}
+        const langState = stateData[shortcut_to_extended[current_lang]] || { manual: [], automatic: [] }
+        console.log("state",langState)
+        const validTitles = new Set([...langState.manual, ...langState.automatic])
+        const availableVideos = rawVideos.filter(v => {
+            const titleFR = anglais_francais[v.title] || v.title
+            return validTitles.has(v.title) || validTitles.has(titleFR)
+        })
+        const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
+        render_video_sidebar(availableVideos)
         searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
         const randomFile = get_first_random_file(fileList,durations)
         const transcriptRes = await fetch(`myjson/transcripts/${folder}/${randomFile}`)
