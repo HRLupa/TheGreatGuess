@@ -91,6 +91,7 @@ Si vous avez des idées d'amélioration ou si vous constatez des comportements s
 - Greatest game of capture the flag ever played
 - Geopolitics explained through pixels
 - Gaming teams of the future
+- Le mystère du 8
 - Tunic : Le jeu qui en cachait un autre
 - C'est quoi un bon film ?
 - Qu'est-ce que le cinéma a appris au jeu vidéo ?
@@ -133,6 +134,7 @@ Si vous avez des idées d'amélioration ou si vous constatez des comportements s
 - Comment Among Us a explosé
 - La plus grande partie de capture de drapeau de l'histoire d'Internet
 - Les clubs du futur
+- Le mystère du 8
 - Tunic : Le jeu qui en cachait un autre
 - C'est quoi un bon film ?
 - Qu'est-ce que le cinéma a appris au jeu vidéo ?
