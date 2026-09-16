@@ -995,7 +995,7 @@ function toggle_theme() {
 async function sendResults() {
     const payload = {
         score: totalpoints,
-        removed: disabledVideos,
+        removed: Array.from(disabledVideos),
         correct_titles: correct_titles_count,
         amount_rounds: max_rounds
     };
