@@ -1085,6 +1085,10 @@ async function first_load() {
     let resolveBg
     window.background_load_promise = new Promise(res => { resolveBg = res })
 
+    const refreshBtn = document.getElementById('refresh_videos');
+    const icon = refreshBtn.querySelector('svg');
+    icon.classList.add('animate-spin');
+
     try {
         
         const langConfig = LANG_CONFIG[current_lang] || LANG_CONFIG["fr"]
@@ -1170,13 +1174,18 @@ async function first_load() {
         load_data_background().finally(() => {
             resolveBg()
             window.background_load_promise = null
+            refreshBtn.disabled = false;
+            icon.classList.remove('animate-spin');
         })
 
     } catch (error) {
         console.error("Erreur first_load :", error)
         resolveBg() // On libère le jeu en cas d'erreur
         window.background_load_promise = null
+        refreshBtn.disabled = false;
+        icon.classList.remove('animate-spin');
     }
+
 }
 
 function open_settings_modal() {

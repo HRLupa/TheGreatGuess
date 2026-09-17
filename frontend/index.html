@@ -87,7 +87,7 @@
                     <span>Vidéos (<span id="video_count">0</span>)</span>
                 </h2>
                 <!-- Bouton de rafraîchissement de vidéos -->
-                <button id="refresh_videos" title="Réinitialiser la sélection" class="p-1 text-gray-500 hover:text-gray-700 transition-colors">
+                <button id="refresh_videos" title="Réinitialiser la sélection" class="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" disabled">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
@@ -110,7 +110,7 @@
             <dialog id="settings_modal" class="modal">
                 <div class="modal-box bg-base-100 max-w-md space-y-6">
                     <div class="flex items-center justify-between border-b border-base-200 pb-2">
-                        <h3 class="font-bold text-lg">Paramètres du jeu</h3>
+                        <h3 class="font-bold text-lg">Paramètres</h3>
                         <form method="dialog">
                             <button class="btn btn-sm btn-circle btn-ghost">✕</button>
                         </form>
@@ -129,7 +129,7 @@
                     <!-- Nombre de manches -->
                     <div class="flex items-center justify-between">
                         <label class="font-medium text-sm">Nombre de manches</label>
-                        <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-xs appearance-none bg-none sm:select-sm font-bold bg-base-100 disabled:bg-base-200 disabled:opacity-60 text-[11px] sm:text-xs md:text-sm px-1.5 sm:px-3 h-8 min-h-8">
+                        <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-sm">
                             <option value="5">5 Manches</option>
                             <option value="15" selected>15 Manches</option>
                             <option value="30">30 Manches</option>
