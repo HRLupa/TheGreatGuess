@@ -161,8 +161,11 @@
                 </form>
             </dialog>
             
-            <div class="w-full max-w-3xl flex justify-between items-center gap-2 mb-3 min-h-[36px] sm:min-h-[44px]">
-                <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+            <!-- Barre supérieure du jeu -->
+            <div class="w-full max-w-3xl relative flex items-center justify-between mb-3 min-h-[36px] sm:min-h-[44px]">
+                
+                <!-- Paramètres et Thème -->
+                <div class="flex items-center gap-1 sm:gap-2 z-10">
                     <button onclick="open_settings_modal()" type="button" id="settings_btn_header" class="btn btn-ghost btn-xs sm:btn-sm h-8 min-h-8 px-2 border border-base-300 bg-base-100 hover:bg-base-200" title="Paramètres">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -174,17 +177,22 @@
                         <svg id="theme_icon_moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
                 </div>
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <div class="badge badge-primary badge-outline font-bold h-8 min-h-8 px-2 sm:px-3 text-[11px] sm:text-xs whitespace-nowrap shrink-0">
+
+                <!-- Manche -->
+                <div class="absolute left-1/4 -translate-x-1/2">
+                    <div class="badge badge-primary badge-outline font-bold h-8 min-h-8 px-2 sm:px-3 text-[11px] sm:text-xs whitespace-nowrap">
                         <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 15</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold bg-base-100 border border-base-300 px-2.5 sm:px-3 py-1.5 rounded-lg shadow-sm h-8 shrink-0">
-                        <span>Record :</span>
-                        <span id="highscore_display" class="font-bold text-primary">0</span>
                     </div>
                 </div>
 
-                <div class="text-xs sm:text-base md:text-xl font-black bg-base-100 border border-base-300 px-2 sm:px-4 py-1.5 h-8 min-h-8 flex items-center rounded-xl sm:rounded-2xl shadow-md whitespace-nowrap shrink-0">
+                <!-- Record -->
+                <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold bg-base-100 border border-base-300 px-2.5 sm:px-3 py-1.5 rounded-lg shadow-sm h-8 shrink-0">
+                    <span>Record :</span>
+                    <span id="highscore_display" class="font-bold text-primary">0</span>
+                </div>
+
+                <!-- Points -->
+                <div class="text-xs sm:text-base md:text-xl font-black bg-base-100 border border-base-300 px-2 sm:px-4 py-1.5 h-8 min-h-8 flex items-center rounded-xl sm:rounded-2xl shadow-md whitespace-nowrap shrink-0 z-10">
                     <span id="points_display">Points : 0</span>
                 </div>
             </div>
