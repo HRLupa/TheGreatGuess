@@ -1202,6 +1202,7 @@ document.addEventListener("DOMContentLoaded", () => {
     current_lang = localStorage.getItem("great_guess_language") || document.getElementById("lang_select").value
     document.getElementById("lang_select").value=current_lang
     init_theme()
+    update_highscore_display()
     const titleInput = document.getElementById("video_title")
     const timeInput = document.getElementById("time_input")
 
