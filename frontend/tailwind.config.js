@@ -2,7 +2,11 @@
 export default {
   content: ["./*.html", "./*.js","./src/**/*.{html,js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        pandoru: ["Pandoru", "sans-serif"],
+      },
+    },
   },
   plugins: [require("daisyui")],
   daisyui: {

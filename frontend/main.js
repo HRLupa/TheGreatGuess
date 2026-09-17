@@ -162,6 +162,7 @@ async function submit_title() {
     validated = true
 
     if (!is_game_started) {
+        
         is_game_started = true
         const roundSelect = document.getElementById("round_select")
         if (roundSelect) roundSelect.disabled = true
@@ -170,6 +171,10 @@ async function submit_title() {
             return subs && Array.isArray(subs) && subs.length > 0
         })
         const refreshBtn = document.getElementById("refresh_videos")
+        const settingsBtn=document.getElementById('settings_btn_header')
+        const themeBtn=document.getElementById('theme_btn_header')
+        if (settingsBtn) settingsBtn.classList.add('hidden');
+        if (themeBtn) themeBtn.classList.remove('hidden');
         if (refreshBtn) refreshBtn.style.display = "none"
         if (availableVideos.length==0) console.log("erreur")
         render_video_sidebar(availableVideos)
@@ -537,6 +542,11 @@ function reset_game() {
 
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
+
+    const settingsBtn=document.getElementById('settings_btn_header')
+    const themeBtn=document.getElementById('theme_btn_header')
+    if (settingsBtn) settingsBtn.classList.remove('hidden');
+    if (themeBtn) themeBtn.classList.add('hidden');
     
     refresh_active_pool()
 }
@@ -976,9 +986,11 @@ function apply_theme(theme) {
     if (theme === "dark") {
         if (sunIcon) sunIcon.classList.remove("hidden")
         if (moonIcon) moonIcon.classList.add("hidden")
+        document.getElementById("theme_toggle").checked=false
     } else {
         if (sunIcon) sunIcon.classList.add("hidden")
         if (moonIcon) moonIcon.classList.remove("hidden")
+        document.getElementById("theme_toggle").checked=true
     }
 }
 
@@ -1145,8 +1157,6 @@ async function first_load() {
             new_question() 
             
             if (titleInput) {
-                titleInput.disabled = false
-                titleInput.placeholder = "Titre de la vidéo..."
                 if (savedText) {
                     titleInput.value = savedText
                     update_suggestions(savedText)
@@ -1167,6 +1177,11 @@ async function first_load() {
         resolveBg() // On libère le jeu en cas d'erreur
         window.background_load_promise = null
     }
+}
+
+function open_settings_modal() {
+    const modal = document.getElementById("settings_modal");
+    if (modal) modal.showModal();
 }
 
 
