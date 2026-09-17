@@ -1087,7 +1087,8 @@ async function first_load() {
 
     const refreshBtn = document.getElementById('refresh_videos');
     const icon = refreshBtn.querySelector('svg');
-    icon.classList.add('animate-spin');
+    if (refreshBtn) refreshBtn.disabled = true;
+    if (icon) icon.classList.add('animate-spin');
 
     try {
         
@@ -1174,16 +1175,18 @@ async function first_load() {
         load_data_background().finally(() => {
             resolveBg()
             window.background_load_promise = null
-            refreshBtn.disabled = false;
-            icon.classList.remove('animate-spin');
+            if (refreshBtn) refreshBtn.disabled = false
+            if (icon) icon.classList.remove('animate-spin')
         })
+        refreshBtn.disabled = false;
+        icon.classList.remove('animate-spin');
 
     } catch (error) {
         console.error("Erreur first_load :", error)
         resolveBg() // On libère le jeu en cas d'erreur
         window.background_load_promise = null
         refreshBtn.disabled = false;
-        icon.classList.remove('animate-spin');
+        icon.classList.remove('animate-spin')
     }
 
 }
@@ -1217,7 +1220,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.getElementById("refresh_videos")?.addEventListener("click", () => {
-        if (is_game_started) return;
+        if (is_game_started || window.background_load_promise) return;
+        console.log("happened here")
         disabledVideos.clear();
         disabledByDefault.forEach(title => {
             disabledVideos.add(title);
