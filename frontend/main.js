@@ -787,7 +787,7 @@ async function toggle_video_status(videoTitle) {
     refresh_active_pool()
 }
 
-function refresh_active_pool(sidebar=true) {
+function refresh_active_pool() {
     const availableVideos = rawVideos.filter(v => {
         const subs = transcripts[v.title]
         return subs && Array.isArray(subs) && subs.length > 0
@@ -796,35 +796,16 @@ function refresh_active_pool(sidebar=true) {
     const activeVideos = availableVideos.filter(v => !disabledVideos.has(v.title))
     searchCandidates = build_search_candidates(activeVideos, manual_aliases, anglais_francais)
 
-    phrases = get_phrases(transcripts)
-    if (sidebar) render_video_sidebar(availableVideos)
-
-    // Réconciliation de la question en cours
-    if (window.current_quote_signature) {
-        const p = window.current_quote_signature
-        const targetTitle = (francais_anglais && francais_anglais[p.title]) || p.title
-        
-        let foundIndex = -1
-        for (let i = 0; i < phrases.length; i++) {
-            if (phrases[i][0] === targetTitle && Math.abs(phrases[i][2] - p.start) < 0.1) {
-                foundIndex = i
-                break
-            }
+    // 1. Filtrer les sous-titres pour ne garder que les vidéos actives
+    const activeTranscripts = {}
+    activeVideos.forEach(v => {
+        if (transcripts[v.title]) {
+            activeTranscripts[v.title] = transcripts[v.title]
         }
-
-        if (foundIndex !== -1) {
-            current_question = close_phrases(foundIndex, 50)
-        } else {
-            // Si la vidéo a été masquée ou désactivée entre temps
-            new_question(false)
-        }
-        
-        // On débloque l'input (utile quand load_data_background a terminé)
-        const titleInput = document.getElementById("video_title")
-        if (titleInput) titleInput.focus()
-    } else {
-        new_question(false)
-    }
+    })
+    phrases = get_phrases(activeTranscripts)
+    render_video_sidebar(availableVideos)
+    new_question(false)
 }
 
 function render_video_sidebar(videos) {
