@@ -27,6 +27,34 @@ let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
+let authorize_blank=(localStorage.getItem("great_guess_blank") || "true")!=="false"
+const difficulties={
+    normal:{
+        fonction:normal_difficulty,
+        sidebar:true,
+        extend_context:true,
+        suggestions:true
+    },
+    hard:{
+        fonction:normal_difficulty,
+        sidebar:false,
+        extend_context:true,
+        suggestions:false
+    },
+    hardcore:{
+        fonction:hardcore_difficulty,
+        sidebar:false,
+        extend_context:true,
+        suggestions:false
+    },
+    perfect:{
+        fonction:perfect_difficulty,
+        sidebar:false,
+        extend_context:false,
+        suggestions:false
+    }
+}
+let current_difficulty=localStorage.getItem("great_guess_difficulty") || "normal"
 
 
 /* --- LOGIQUE DU GAMEPLAY --- */
@@ -48,25 +76,28 @@ function get_phrases(transcripts) {
 }
 
 function close_phrases(ind, lengthMin) {
-    let renvoi = [ind]
-    let total = phrases[ind][1].length
-    let cpt = 0
     const title = phrases[ind][0]
+    let left = ind
+    let right = ind
+    let total = phrases[ind][1].length
     while (total < lengthMin) {
-        let before = ind - ((cpt >> 1) + 1)
-        let after = ind + ((cpt >> 1) + 1)
-        let added = false
-        if (cpt % 2 === 0 && before >= 0 && phrases[before][0] === title) {
-            renvoi.unshift(before)
-            total += phrases[before][1].length
-            added = true
-        } else if (after < phrases.length && phrases[after][0] === title) {
-            renvoi.push(after)
-            total += phrases[after][1].length
-            added = true
+        let expanded = false
+        if (left > 0 && phrases[left - 1][0] === title) {
+            left--
+            total += phrases[left][1].length
+            expanded = true
         }
-        if (!added) break
-        cpt++
+        if (total >= lengthMin) break
+        if (right < phrases.length - 1 && phrases[right + 1][0] === title) {
+            right++
+            total += phrases[right][1].length
+            expanded = true
+        }
+        if (!expanded) break
+    }
+    let renvoi = []
+    for (let i = left; i <= right; i++) {
+        renvoi.push(i)
     }
     return renvoi
 }
@@ -113,6 +144,7 @@ function new_question(focusInput = true) {
     timeInput.classList.remove("input-error")
     hide_suggestions()
     document.getElementById("suivant").classList.add("hidden")
+    document.getElementById("video_title").classList.remove("input-error")
     
     const nextBtn = document.getElementById("suivant")
     if (max_rounds > 0 && current_round >= max_rounds) {
@@ -145,7 +177,27 @@ function new_question(focusInput = true) {
     }
 }
 
+function normal_difficulty(rawInput,expectedTitle){
+    const guessed_title = title_map[normalize(rawInput)]
+    return (guessed_title && francais_anglais[guessed_title] === expectedTitle)
+}
+function hardcore_difficulty(rawInput,expectedTitle){
+    return (overnormalyze(rawInput)===overnormalyze(anglais_francais[expectedTitle]))
+}
+function perfect_difficulty(rawInput,expected_title){
+    return (rawInput===anglais_francais[expected_title])
+}
+function overnormalyze(title){
+    return (title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, ""))
+}
 async function submit_title() {
+    validated = true
+    const video_input= document.getElementById("video_title")
+    if (video_input.value==="" && !authorize_blank) {
+        video_input.classList.add("input-error")
+        return
+    }
+    video_input.classList.remove("input-error")
     if (validated) return
     if (window.background_load_promise) {
         const titleInput = document.getElementById("video_title")
@@ -158,8 +210,6 @@ async function submit_title() {
         titleInput.value = originalVal
         if (validated) return 
     }
-
-    validated = true
 
     if (!is_game_started) {
         
@@ -185,12 +235,22 @@ async function submit_title() {
     const guessed_title = title_map[normalize(rawInput)]
     const expected_title = phrases[current_question[current_question.length >> 1]][0]
 
-    const indcontext = close_phrases(current_question[current_question.length >> 1], 180)
+    /*const indcontext = difficulties[current_difficulty].close? current_question : close_phrases(current_question[current_question.length >> 1], 180)
     const expandedPhrase = indcontext.map(i => phrases[i][1].trim()).join(" ")
-    const extended_start_time = phrases[indcontext[0]][2]
+    const extended_start_time = phrases[indcontext[0]][2]*/
+    const shouldExtend = difficulties[current_difficulty]?.extend_context ?? true
+    const indcontext = shouldExtend 
+        ? close_phrases(current_question[current_question.length >> 1], 180) 
+        : current_question
+
+    const expandedPhrase = indcontext.map(i => phrases[i][1].trim()).join(" ")
+    const playback_start_time = phrases[indcontext[0]][2]
+
+    // Formatage propre avec ellipsis uniquement en cas d'extension
+    const formattedPhrase = shouldExtend ? `« ... ${expandedPhrase.replace("\n", " ")} ... »` : `« ${expandedPhrase.replace("\n", " ")} »`
 
     let affichage = ""
-    if (guessed_title && francais_anglais[guessed_title] === expected_title) {
+    if (difficulties[current_difficulty].fonction(rawInput,expected_title)) {
         correct_titles_count++
         animate_points(200)
         affichage = `
@@ -200,7 +260,7 @@ async function submit_title() {
             </div>
         `
         
-        document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
+        document.getElementById("phrase").innerText = formattedPhrase
 
         const totalDuration = durations[ids[expected_title]]
         const hintBox = document.getElementById("video_info_hint")
@@ -225,17 +285,14 @@ async function submit_title() {
         affichage = `
             <div class="space-y-1">
                 <p class="text-xl font-bold text-error">Mauvais titre ! (+0 pt)</p>
-                <p class="text-base text-base-content/80">La vidéo était « <strong>${anglais_francais[expected_title]}</strong> » à <strong>${seconds_to_hms(extended_start_time)}</strong>.</p>
+                <p class="text-base text-base-content/80">La vidéo était « <strong>${anglais_francais[expected_title]}</strong> » à <strong>${seconds_to_hms(playback_start_time)}</strong>.</p>
             </div>
         `
         
         document.getElementById("phrase").innerText = `« ... ${expandedPhrase.replace("\n", " ")} ... »`
 
-        
-        play_video(expected_title, extended_start_time)
+        play_video(expected_title, playback_start_time)
         document.getElementById("suivant").classList.remove("hidden")
-        
-        // Permet de passer directement avec Entrée si on souhaite passer la relecture vidéo
         setTimeout(() => document.getElementById("suivant").focus(), 100)
     }
 
@@ -256,12 +313,13 @@ function submit_time() {
     }
 
     timeInput.classList.remove("input-error")
-    
-    const indcontext = close_phrases(current_question[current_question.length >> 1], 180)
-    const extended_start_time = phrases[indcontext[0]][2]
+    const exact_quote_start = phrases[current_question[0]][2]
+    const shouldExtend = difficulties[current_difficulty]?.extend_context ?? true
+    const indcontext = shouldExtend ? close_phrases(current_question[current_question.length >> 1], 180) : current_question
+    const playback_start_time = phrases[indcontext[0]][2]
     
     const durationvideo = durations[ids[expected_title]]
-    const score = score_guess_quadratic(secondsGuessed, extended_start_time, durationvideo)
+    const score = score_guess_quadratic(secondsGuessed, exact_quote_start, durationvideo)
 
     animate_points(score)
 
@@ -272,14 +330,14 @@ function submit_time() {
                 + ${score} points
             </div>
             <div class="text-sm md:text-base text-base-content/90">
-                Moment exact : <strong>${seconds_to_hms(extended_start_time)}</strong> 
+                Moment exact : <strong>${seconds_to_hms(exact_quote_start)}</strong> 
                 <span class="mx-1">•</span> Votre estimation : <strong>${seconds_to_hms(secondsGuessed)}</strong> 
-                <span class="mx-1">•</span> Écart : <strong>${seconds_to_hms(Math.abs(extended_start_time - secondsGuessed))}</strong>
+                <span class="mx-1">•</span> Écart : <strong>${seconds_to_hms(Math.abs(exact_quote_start - secondsGuessed))}</strong>
             </div>
         </div>
     `
 
-    play_video(expected_title, extended_start_time)
+    play_video(expected_title, playback_start_time)
     
     document.getElementById("result").innerHTML = resultHtml
 
@@ -566,6 +624,11 @@ function show_game_over() {
     document.getElementById("quiz_content").classList.add("hidden")
 
     const isNewRecord = save_highscore(max_rounds, totalpoints)
+
+    const justUnlocked=unlock_pro_function()
+    if (justUnlocked){
+        console.log("Nouvelle difficulté débloquée")
+    }
     
     const gameOverScreen = document.getElementById("game_over_screen")
     const finalScoreEl = document.getElementById("final_score")
@@ -607,18 +670,18 @@ function show_game_over() {
 
 /* --- GESTION DES HIGH SCORES (LOCAL STORAGE) --- */
 
-function get_highscore_key(rounds) {
-    return `great_guess_highscore_${rounds}`
+function get_highscore_key(rounds,diff) {
+    return `great_guess_highscore_${rounds}_${diff}`
 }
 
-function get_highscore(rounds) {
-    return parseInt(localStorage.getItem(get_highscore_key(rounds)) || "0", 10)
+function get_highscore(rounds,diff=current_difficulty) {
+    return parseInt(localStorage.getItem(get_highscore_key(rounds,diff)) || "0", 10)
 }
 
-function save_highscore(rounds, score) {
-    const current = get_highscore(rounds)
+function save_highscore(rounds, score, diff = current_difficulty) {
+    const current = get_highscore(rounds,diff)
     if (score > current) {
-        localStorage.setItem(get_highscore_key(rounds), score)
+        localStorage.setItem(get_highscore_key(rounds,diff), score)
         return true
     }
     return false
@@ -627,7 +690,7 @@ function save_highscore(rounds, score) {
 function update_highscore_display() {
     const highscoreEl = document.getElementById("highscore_display")
     if (highscoreEl) {
-        highscoreEl.innerText = get_highscore(max_rounds)
+        highscoreEl.innerText = get_highscore(max_rounds,current_difficulty)
     }
 }
 
@@ -665,7 +728,7 @@ function escape_title(str) {
 
 function update_suggestions(query) {
     const suggestionsEl = document.getElementById("suggestions")
-    if (!suggestionsEl) return
+    if (!suggestionsEl || !difficulties[current_difficulty].suggestions) return
 
     const normQuery = normalize(query)
     if (normQuery.length === 0) {
@@ -809,8 +872,16 @@ function refresh_active_pool() {
 }
 
 function render_video_sidebar(videos) {
+    const sidebarEl = document.getElementById("sidebar")
     const listContainer = document.getElementById("video_list")
     const countContainer = document.getElementById("video_count")
+
+    if (!difficulties[current_difficulty].sidebar) {
+        if (sidebarEl) sidebarEl.style.display = "none"
+        return
+    } else {
+        if (sidebarEl) sidebarEl.style.display = ""
+    }
 
     const activeVideos = videos.filter(v => !disabledVideos.has(v.title))
     const inactiveVideos = videos.filter(v => disabledVideos.has(v.title))
@@ -981,6 +1052,60 @@ function toggle_theme() {
     apply_theme(newTheme)
 }
 
+/* GESTION DES DIFFICULTÉS */
+
+function change_difficulty(new_difficulty) {
+    if (difficulties[new_difficulty]) {
+        current_difficulty = new_difficulty
+        localStorage.setItem("great_guess_difficulty", current_difficulty)
+        update_highscore_display()
+        const availableVideos = rawVideos.filter(v => {
+            const subs = transcripts[v.title]
+            return subs && Array.isArray(subs) && subs.length > 0
+        })
+        render_video_sidebar(availableVideos)
+        if (!difficulties[current_difficulty].suggestions) {
+            hide_suggestions()
+        }
+    }
+}
+
+function update_difficulty_options() {
+    const select = document.getElementById("difficulty_select")
+    if (!select) return
+
+    let perfectOption = select.querySelector("option[value='perfect']")
+
+    if (is_extra_difficulty_unlocked()) {
+        if (!perfectOption) {
+            perfectOption = document.createElement("option")
+            perfectOption.value = "perfect"
+            perfectOption.innerText = "Parfait"
+            select.appendChild(perfectOption)
+        }
+    } else if (perfectOption) {
+        perfectOption.remove()
+    }
+    select.value = current_difficulty
+}
+
+function unlock_pro_function(){
+    if (max_rounds===15 && totalpoints>=4000){
+        const wasUnlocked = is_extra_difficulty_unlocked()
+        localStorage.setItem("great_guess_unlocked", "true")
+        return !wasUnlocked
+    }
+    return false
+}
+
+function is_extra_difficulty_unlocked() {
+    return localStorage.getItem("great_guess_unlocked") === "true"
+}
+
+function toggle_blank(){
+    authorize_blank=!authorize_blank
+    localStorage.setItem("great_guess_blank",authorize_blank)
+}
 /* Sending results */
 
 
@@ -990,7 +1115,9 @@ async function sendResults() {
         score: totalpoints,
         removed: Array.from(disabledVideos),
         correct_titles: correct_titles_count,
-        amount_rounds: max_rounds
+        amount_rounds: max_rounds,
+        difficulty:current_difficulty,
+        blank:authorize_blank
     };
 
     try {
@@ -1059,6 +1186,17 @@ function get_first_random_file(fileList, durations) {
     return fileList[0] || ""
 }
 
+function transition_high_scores(){
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (/^great_guess_highscore_\d*$/.test(key)) {
+            const rounds=key.replace("great_guess_highscore_","")
+            save_highscore(rounds,localStorage.getItem(key))
+            localStorage.removeItem(key)
+        }
+    }
+}
+
 async function first_load() {
     const titleInput = document.getElementById("video_title")
     if (titleInput) titleInput.focus()
@@ -1107,7 +1245,6 @@ async function first_load() {
         disabledByDefault.forEach(title => disabledVideos.add(title))
         const shortcut_to_extended={"en":"English","fr":"French"}
         const langState = stateData[shortcut_to_extended[current_lang]] || { manual: [], automatic: [] }
-        console.log("state",langState)
         const validTitles = new Set([...langState.manual, ...langState.automatic])
         const availableVideos = rawVideos.filter(v => {
             const titleFR = anglais_francais[v.title] || v.title
@@ -1159,9 +1296,6 @@ async function first_load() {
             if (refreshBtn) refreshBtn.disabled = false
             if (icon) icon.classList.remove('animate-spin')
         })
-        refreshBtn.disabled = false;
-        icon.classList.remove('animate-spin');
-
     } catch (error) {
         console.error("Erreur first_load :", error)
         resolveBg() // On libère le jeu en cas d'erreur
@@ -1173,6 +1307,7 @@ async function first_load() {
 }
 
 function open_settings_modal() {
+    update_difficulty_options()
     const modal = document.getElementById("settings_modal");
     if (modal) modal.showModal();
 }
@@ -1182,6 +1317,12 @@ function open_settings_modal() {
 document.addEventListener("DOMContentLoaded", () => {
     current_lang = localStorage.getItem("great_guess_language") || document.getElementById("lang_select").value
     document.getElementById("lang_select").value=current_lang
+
+    transition_high_scores()
+    update_difficulty_options()
+    const allowBlankToggle = document.getElementById("allow_blank")
+    if (allowBlankToggle) allowBlankToggle.checked = authorize_blank
+
     init_theme()
     update_highscore_display()
     const titleInput = document.getElementById("video_title")
@@ -1203,7 +1344,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("refresh_videos")?.addEventListener("click", () => {
         if (is_game_started || window.background_load_promise) return;
-        console.log("happened here")
         disabledVideos.clear();
         disabledByDefault.forEach(title => {
             disabledVideos.add(title);

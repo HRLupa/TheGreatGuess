@@ -151,9 +151,22 @@
                             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
-                            
                         </label>
                     </div>
+                    <!-- Difficulté -->
+                    <div class="flex items-center justify-between">
+                        <label class="font-medium text-sm">Difficulté</label>
+                        <select id="difficulty_select" onchange="change_difficulty(this.value)" class="select select-bordered select-sm">
+                            <option value="normal" selected>Normale</option>
+                            <option value="hard">Difficile</option>
+                            <option value="hardcore">Hardcore</option>
+                        </select>
+                    </div>
+
+                    <!-- Si une entrée vide peut être acceptée comme un titre valide-->
+                    <div class="flex items-center justify-between">
+                        <label class="font-medium text-sm">Autoriser les titres vides</label>
+                        <input type="checkbox" id="allow_blank" checked onchange="toggle_blank()" class="toggle toggle-primary toggle-sm" />
                     </div>
                 </div>
                 <form method="dialog" class="modal-backdrop">
