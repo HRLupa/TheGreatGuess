@@ -153,26 +153,45 @@
                             </svg>
                         </label>
                     </div>
-                    <!-- Difficulté -->
-                    <div class="flex items-center justify-between">
-                        <label class="font-medium text-sm">Difficulté</label>
-                        <select id="difficulty_select" onchange="change_difficulty(this.value)" class="select select-bordered select-sm">
-                            <option value="normal" selected>Normale</option>
-                            <option value="hard">Difficile</option>
-                            <option value="hardcore">Hardcore</option>
-                        </select>
-                    </div>
-
                     <!-- Si une entrée vide peut être acceptée comme un titre valide-->
                     <div class="flex items-center justify-between">
                         <label class="font-medium text-sm">Autoriser les titres vides</label>
                         <input type="checkbox" id="allow_blank" checked onchange="toggle_blank()" class="toggle toggle-primary toggle-sm" />
                     </div>
+                    <!-- Difficulté -->
+                    <div class="flex items-center justify-between">
+                        <label class="font-medium text-sm">Difficulté</label>
+                        <select id="difficulty_select" onchange="change_difficulty(this.value)" class="select select-bordered select-sm">
+                            <option value="normal" selected>Normal</option>
+                            <option value="hard">Difficile</option>
+                            <option value="hardcore">Hardcore</option>
+                        </select>
+                    </div>
+                    <p id="difficulty_description" class="text-xs text-base-content/70 mt-2 min-h-[2.5rem]"></p>
                 </div>
                 <form method="dialog" class="modal-backdrop">
                     <button class="cursor-default outline-none">close</button>
                 </form>
             </dialog>
+
+            <dialog id="unlock_modal" class="modal">
+                <div class="modal-box text-center border border-primary/20 shadow-2xl space-y-4">
+                    <h3 id="unlock_modal_title" class="font-bold text-2xl text-primary">Nouveau mode débloqué !</h3>
+                    
+                    <p id="unlock_modal_message" class="text-base-content/80 text-base leading-relaxed">
+                    <!-- Le message personnalisé s'affichera ici -->
+                    </p>
+
+                    <div class="modal-action justify-center pt-2">
+                        <form method="dialog">
+                            <button class="btn btn-primary px-8">Génial !</button>
+                        </form>
+                    </div>
+                </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>fermer</button>
+                    </form>
+                </dialog>
             
             <!-- Barre supérieure du jeu -->
             <div class="w-full max-w-3xl relative flex items-center justify-between mb-3 min-h-[36px] sm:min-h-[44px]">

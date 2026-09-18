@@ -28,30 +28,34 @@ let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
 let authorize_blank=(localStorage.getItem("great_guess_blank") || "true")!=="false"
-const difficulties={
-    normal:{
-        fonction:normal_difficulty,
-        sidebar:true,
-        extend_context:true,
-        suggestions:true
+const difficulties = {
+    normal: {
+        fonction: normal_difficulty,
+        sidebar: true,
+        extend_context: true,
+        suggestions: true,
+        description: "Suggestions actives, extrait rallongé après réponse et liste des vidéos disponible."
     },
-    hard:{
-        fonction:normal_difficulty,
-        sidebar:false,
-        extend_context:true,
-        suggestions:false
+    hard: {
+        fonction: normal_difficulty,
+        sidebar: false,
+        extend_context: true,
+        suggestions: false,
+        description: "Pas de suggestions ni de liste de vidéos. L'extrait reste rallongé."
     },
-    hardcore:{
-        fonction:hardcore_difficulty,
-        sidebar:false,
-        extend_context:true,
-        suggestions:false
+    hardcore: {
+        fonction: hardcore_difficulty,
+        sidebar: false,
+        extend_context: true,
+        suggestions: false,
+        description: "Le titre est demandé (plus de possibilité d'utiliser des raccourcis). Aucune aide visuelle. "
     },
-    perfect:{
-        fonction:perfect_difficulty,
-        sidebar:false,
-        extend_context:false,
-        suggestions:false
+    perfect: {
+        fonction: perfect_difficulty,
+        sidebar: false,
+        extend_context: false,
+        suggestions: false,
+        description: "C'est le moment d'être parfaits : aucune aide, et le titre doit être correct au caractère près"
     }
 }
 let current_difficulty=localStorage.getItem("great_guess_difficulty") || "normal"
@@ -619,6 +623,22 @@ function next_round() {
     }
 }
 
+// Message modifiable à souhait (supporte le **gras**)
+
+
+function show_unlock_difficulty() {
+    const message = "Mais c'est que vous êtes pro à ce jeu dis donc ! On va pouvoir corser ça un peu, allez voir la difficulté **Parfait** dans les paramètres 😼"
+    const modal = document.getElementById("unlock_modal")
+    const msgEl = document.getElementById("unlock_modal_message")
+    if (!modal) return
+
+    if (msgEl) {
+        msgEl.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    }
+    update_difficulty_options()
+    modal.showModal()
+}
+
 function show_game_over() {
     is_game_over = true
     document.getElementById("quiz_content").classList.add("hidden")
@@ -627,7 +647,7 @@ function show_game_over() {
 
     const justUnlocked=unlock_pro_function()
     if (justUnlocked){
-        console.log("Nouvelle difficulté débloquée")
+        show_unlock_difficulty()
     }
     
     const gameOverScreen = document.getElementById("game_over_screen")
@@ -1054,10 +1074,18 @@ function toggle_theme() {
 
 /* GESTION DES DIFFICULTÉS */
 
+function update_difficulty_description() {
+    const descEl = document.getElementById("difficulty_description")
+    if (descEl && difficulties[current_difficulty]) {
+        descEl.innerText = difficulties[current_difficulty].description
+    }
+}
+
 function change_difficulty(new_difficulty) {
     if (difficulties[new_difficulty]) {
         current_difficulty = new_difficulty
         localStorage.setItem("great_guess_difficulty", current_difficulty)
+        update_difficulty_description()
         update_highscore_display()
         const availableVideos = rawVideos.filter(v => {
             const subs = transcripts[v.title]
@@ -1087,6 +1115,7 @@ function update_difficulty_options() {
         perfectOption.remove()
     }
     select.value = current_difficulty
+    update_difficulty_description()
 }
 
 function unlock_pro_function(){
