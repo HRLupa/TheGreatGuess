@@ -195,6 +195,7 @@ function overnormalyze(title){
     return (title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, ""))
 }
 async function submit_title() {
+    if (validated) return
     validated = true
     const video_input= document.getElementById("video_title")
     if (video_input.value==="" && !authorize_blank) {
@@ -202,7 +203,6 @@ async function submit_title() {
         return
     }
     video_input.classList.remove("input-error")
-    if (validated) return
     if (window.background_load_promise) {
         const titleInput = document.getElementById("video_title")
         const originalVal = titleInput.value
@@ -238,10 +238,6 @@ async function submit_title() {
     const rawInput = document.getElementById("video_title").value
     const guessed_title = title_map[normalize(rawInput)]
     const expected_title = phrases[current_question[current_question.length >> 1]][0]
-
-    /*const indcontext = difficulties[current_difficulty].close? current_question : close_phrases(current_question[current_question.length >> 1], 180)
-    const expandedPhrase = indcontext.map(i => phrases[i][1].trim()).join(" ")
-    const extended_start_time = phrases[indcontext[0]][2]*/
     const shouldExtend = difficulties[current_difficulty]?.extend_context ?? true
     const indcontext = shouldExtend 
         ? close_phrases(current_question[current_question.length >> 1], 180) 
