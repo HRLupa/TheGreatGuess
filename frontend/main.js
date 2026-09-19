@@ -116,7 +116,7 @@ function get_question() {
 
 function score_guess_quadratic(guessTime, startTime, videoDuration) {
     let error = Math.abs(guessTime - startTime)
-    let maxError = videoDuration * Math.max(0.2,(0.80-0.5*((videoDuration-300)/7200)**0.2))
+    let maxError = videoDuration * Math.max(0.2,(0.80-0.5*((max(0,videoDuration-300))/7200)**0.2))
     if (error >= maxError) return 0
     let errorRatio = error / maxError
     let score = 200 * Math.pow(1.02 - errorRatio, 1.4)
@@ -459,7 +459,7 @@ async function load_data_background() {
 }
 
 function normalize(text) {
-    return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : ""
+    return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g,"").toLowerCase().trim() : ""
 }
 
 function build_title_aliases(transcripts, manual_aliases) {
