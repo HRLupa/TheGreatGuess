@@ -602,6 +602,7 @@ function reset_game() {
 
     update_round_display()
     update_highscore_display()
+    update_difficulty_badges()
 
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
@@ -610,7 +611,6 @@ function reset_game() {
     const themeBtn=document.getElementById('theme_btn_header')
     if (settingsBtn) settingsBtn.classList.remove('hidden');
     if (themeBtn) themeBtn.classList.add('hidden');
-    
     refresh_active_pool()
 }
 
@@ -669,6 +669,7 @@ function show_game_over() {
 
     // Animation de la barre de progression
     if (progressBar) {
+        progressBar.style.width = "0"
         const percentage = maxPossible > 0 ? Math.min(100, Math.round((totalpoints / maxPossible) * 100)) : 100
         // Léger timeout pour laisser l'écran s'afficher avant de déclencher la transition CSS
         setTimeout(() => {
@@ -1096,6 +1097,7 @@ function change_difficulty(new_difficulty) {
         if (!difficulties[current_difficulty].suggestions) {
             hide_suggestions()
         }
+        update_difficulty_badges()
     }
 }
 
@@ -1136,6 +1138,54 @@ function toggle_blank(){
     authorize_blank=!authorize_blank
     localStorage.setItem("great_guess_blank",authorize_blank)
 }
+
+function update_difficulty_badges(difficulty=current_difficulty) {
+    const quizBadge = document.getElementById('difficulty_badge_quiz');
+    const endBadge = document.getElementById('end_difficulty_badge');
+
+    if (!quizBadge || !endBadge) return;
+
+    // Si la difficulté est "normale", on masque les badges
+    if (difficulty === 'normal') {
+        quizBadge.classList.add('hidden');
+        endBadge.classList.add('hidden');
+        return;
+    }
+
+    let badgeHTML = '';
+
+    switch (difficulty) {
+        case 'hard':
+            badgeHTML = `
+                <span class="badge font-bold gap-1 px-3 py-2 text-xs uppercase tracking-wider bg-orange-500/15 text-orange-500 border-orange-500/30">
+                    Difficile
+                </span>`;
+            break;
+
+        case 'hardcore':
+            badgeHTML = `
+                <span class="badge badge-error font-bold gap-1 px-3 py-2 text-xs uppercase tracking-wider shadow-sm">
+                    Hardcore
+                </span>`;
+            break;
+
+        case 'perfect':
+        case 'parfait':
+            badgeHTML = `
+                <span class="badge font-black gap-1 px-3 py-2 text-xs uppercase tracking-wider bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-amber-950 border-amber-300 shadow-md">
+                    Parfait
+                </span>`;
+            break;
+    }
+
+    // Mise à jour des contenus et affichage
+    quizBadge.innerHTML = badgeHTML;
+    quizBadge.classList.remove('hidden');
+
+    endBadge.innerHTML = badgeHTML;
+    endBadge.classList.remove('hidden');
+}
+
 /* Sending results */
 
 
@@ -1355,6 +1405,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     init_theme()
     update_highscore_display()
+    update_difficulty_badges()
     const titleInput = document.getElementById("video_title")
     const timeInput = document.getElementById("time_input")
 
