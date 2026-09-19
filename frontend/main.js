@@ -274,6 +274,11 @@ async function submit_title() {
             `
             hintBox.classList.remove("hidden")
         }
+        if (!localStorage.getItem("time_helped")){
+            const time_help = document.getElementById("time_help_box")
+            if (time_help) time_help.classList.toggle("hidden")
+            localStorage.setItem("time_helped",true)
+        }
         document.getElementById("time_wrapper").classList.remove("hidden")
 
         const timeInput = document.getElementById("time_input")
