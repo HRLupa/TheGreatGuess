@@ -1098,6 +1098,7 @@ function change_difficulty(new_difficulty) {
             hide_suggestions()
         }
         update_difficulty_badges()
+        new_question()
     }
 }
 
