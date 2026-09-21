@@ -22,12 +22,13 @@ let correct_titles_count = 0
 let is_game_over=false
 let is_game_started=false
 let disabledVideos = new Set()
-let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang, ytPlayer
+let durations, francais_anglais, anglais_francais, manual_aliases, title_map, phrases, current_question, ids, current_lang, ytPlayer, start_segment
 let searchCandidates = []
 let activeSuggestionIndex = -1
 let totalpoints = 0
 let validated = false
 let authorize_blank=(localStorage.getItem("great_guess_blank") || "true")!=="false"
+let totalquestions=[]
 const difficulties = {
     normal: {
         fonction: normal_difficulty,
@@ -138,6 +139,9 @@ function new_question(focusInput = true) {
         start: phrases[center_idx][2]
     }
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
+
+    totalquestions.push({"phrase":phrase,"real_video":null,"real_time":window.current_quote_signature.start,"guessed_time":null,"guessed_video":null,"time_video":null,"time_moment":null,"score":0})
+    start_segment=Date.now()
     
     document.getElementById("phrase").innerHTML = `« ${phrase.replace("\n", " ").replace("<i>",'<span class="not-italic">').replace("</i>","</span>")} »`
     
@@ -204,7 +208,6 @@ async function submit_title() {
     }
     video_input.classList.remove("input-error")
     if (window.background_load_promise) {
-        const titleInput = document.getElementById("video_title")
         const originalVal = titleInput.value
         titleInput.disabled = true
         
@@ -214,9 +217,7 @@ async function submit_title() {
         titleInput.value = originalVal
         if (validated) return 
     }
-
     if (!is_game_started) {
-        
         is_game_started = true
         const roundSelect = document.getElementById("round_select")
         if (roundSelect) roundSelect.disabled = true
@@ -245,6 +246,11 @@ async function submit_title() {
 
     const expandedPhrase = indcontext.map(i => phrases[i][1].trim()).join(" ")
     const playback_start_time = phrases[indcontext[0]][2]
+
+    totalquestions[totalquestions.length-1]["time_video"]=Date.now()-start_segment
+    totalquestions[totalquestions.length-1]["guessed_video"]=guessed_title
+    totalquestions[totalquestions.length-1]["real_video"]=anglais_francais[expected_title]
+    start_segment=Date.now()
 
     // Formatage propre avec ellipsis uniquement en cas d'extension
     const formattedPhrase = shouldExtend ? `« ... ${expandedPhrase.replace("\n", " ")} ... »` : `« ${expandedPhrase.replace("\n", " ")} »`
@@ -325,6 +331,9 @@ function submit_time() {
     
     const durationvideo = durations[ids[expected_title]]
     const score = score_guess_quadratic(secondsGuessed, exact_quote_start, durationvideo)
+    totalquestions[totalquestions.length-1]["score"]=200+score
+    totalquestions[totalquestions.length-1]["time_moment"]=Date.now()-start_segment
+    totalquestions[totalquestions.length-1]["guessed_time"]=secondsGuessed
 
     animate_points(score)
 
@@ -1197,8 +1206,10 @@ async function sendResults() {
         removed: Array.from(disabledVideos),
         correct_titles: correct_titles_count,
         amount_rounds: max_rounds,
+        questions:totalquestions,
         difficulty:current_difficulty,
-        blank:authorize_blank
+        language:current_lang,
+        allows_blank:authorize_blank ? 1:0
     };
 
     try {
