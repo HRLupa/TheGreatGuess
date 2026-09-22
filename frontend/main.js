@@ -202,7 +202,7 @@ async function submit_title() {
     if (validated) return
     validated = true
     const video_input= document.getElementById("video_title")
-    if (video_input.value==="" && !authorize_blank) {
+    if (video_input.value.trim()==="" && !authorize_blank) {
         video_input.classList.add("input-error")
         return
     }
@@ -293,9 +293,11 @@ async function submit_title() {
         setTimeout(() => timeInput.focus(), 100)
     } else {
         animate_points(0)
+        const userEntered=rawInput.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")
         affichage = `
             <div class="space-y-1">
                 <p class="text-xl font-bold text-error">Mauvais titre ! (+0 pt)</p>
+                <i class="text-base text-base-content/60">Votre réponse : « <strong>${userEntered}</strong> »</i>
                 <p class="text-base text-base-content/80">La vidéo était « <strong>${anglais_francais[expected_title]}</strong> » à <strong>${seconds_to_hms(playback_start_time)}</strong>.</p>
             </div>
         `
@@ -1145,7 +1147,7 @@ function is_extra_difficulty_unlocked() {
 }
 
 function toggle_blank(){
-    authorize_blank=!authorize_blank
+    authorize_blank=authorize_blank?false:true
     localStorage.setItem("great_guess_blank",authorize_blank)
 }
 
