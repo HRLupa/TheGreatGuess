@@ -614,6 +614,7 @@ function reset_game() {
     update_round_display()
     update_highscore_display()
     update_difficulty_badges()
+    totalquestions.clear()
 
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
