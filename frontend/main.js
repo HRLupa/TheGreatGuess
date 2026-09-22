@@ -38,11 +38,11 @@ const difficulties = {
         description: "Suggestions actives, extrait rallongé après réponse et liste des vidéos disponible."
     },
     hard: {
-        fonction: normal_difficulty,
+        fonction: hardcore_difficulty,
         sidebar: false,
         extend_context: true,
-        suggestions: false,
-        description: "Pas de suggestions ni de liste de vidéos. L'extrait reste rallongé."
+        suggestions: true,
+        description: "Plus de liste de vidéos et plus de possibilité d'utiliser des raccourcis pour les vidéos. "
     },
     hardcore: {
         fonction: hardcore_difficulty,
