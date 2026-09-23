@@ -200,12 +200,12 @@ function overnormalyze(title){
 }
 async function submit_title() {
     if (validated) return
-    validated = true
     const video_input= document.getElementById("video_title")
     if (video_input.value.trim()==="" && !authorize_blank) {
         video_input.classList.add("input-error")
         return
     }
+    validated = true
     video_input.classList.remove("input-error")
     if (window.background_load_promise) {
         const originalVal = titleInput.value
