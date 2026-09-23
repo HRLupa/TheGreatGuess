@@ -140,7 +140,7 @@ function new_question(focusInput = true) {
     }
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
 
-    totalquestions.push({"phrase":phrase,"real_video":null,"real_time":window.current_quote_signature.start,"guessed_time":null,"guessed_video":null,"time_video":null,"time_moment":null,"score":0})
+    totalquestions.push({"phrase":phrase,"real_video":null,"real_time":window.current_quote_signature.start,"guessed_time":null,"guessed_video":null,"time_video":null,"time_moment":null,"score":0,"raw_guessed_video":null})
     start_segment=Date.now()
     
     document.getElementById("phrase").innerHTML = `« ${phrase.replace("\n", " ").replace("<i>",'<span class="not-italic">').replace("</i>","</span>")} »`
@@ -249,6 +249,7 @@ async function submit_title() {
 
     totalquestions[totalquestions.length-1]["time_video"]=Date.now()-start_segment
     totalquestions[totalquestions.length-1]["guessed_video"]=guessed_title
+    totalquestions[totalquestions.length-1]["raw_guessed_video"]=rawInput
     totalquestions[totalquestions.length-1]["real_video"]=anglais_francais[expected_title]
     start_segment=Date.now()
 
@@ -614,7 +615,7 @@ function reset_game() {
     update_round_display()
     update_highscore_display()
     update_difficulty_badges()
-    totalquestions.clear()
+    totalquestions=[]
 
     document.getElementById("quiz_content").classList.remove("hidden")
     document.getElementById("game_over_screen").classList.add("hidden")
@@ -1405,6 +1406,76 @@ function open_settings_modal() {
     update_difficulty_options()
     const modal = document.getElementById("settings_modal");
     if (modal) modal.showModal();
+}
+
+function open_summary_modal() {
+    const listContainer = document.getElementById("summary_list")
+    const modal = document.getElementById("summary_modal")
+    if (!listContainer || !modal) return
+
+    if (totalquestions.length === 0) {
+        listContainer.innerHTML = `<p class="text-center text-base-content/60 py-8">Aucune donnée disponible pour cette partie.</p>`
+    } else {
+        let summaryHtml = ""
+
+        totalquestions.forEach((q, index) => {
+            const titleSuccess = q.guessed_video && normalize(q.guessed_video) === normalize(q.real_video)
+            
+            const realVideoId = ids[q.real_video]
+            const guessedVideoId = q.guessed_video ? ids[q.guessed_video] : null
+
+            const realThumbHtml = realVideoId 
+                ? `<img src="https://img.youtube.com/vi/${realVideoId}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow shrink-0" alt="${q.real_video}" />` 
+                : `<div class="w-16 h-11 rounded-md bg-base-300/50 flex items-center justify-center shrink-0 text-xs text-base-content/40">N/A</div>`
+
+            const guessedThumbHtml = guessedVideoId 
+                ? `<img src="https://img.youtube.com/vi/${guessedVideoId}/default.jpg" class="w-16 h-11 object-cover rounded-md shadow shrink-0" alt="${q.guessed_video}" />` 
+                : `<div class="w-16 h-11 rounded-md bg-base-300/50 flex items-center justify-center shrink-0 text-xs text-base-content/40">N/A</div>`
+
+            summaryHtml += `
+                <div class="bg-base-200/60 p-4 rounded-xl border border-base-300 space-y-3">
+                    <div class="flex items-center justify-between border-b border-base-300/50 pb-2">
+                        <span class="font-bold text-sm text-primary">Manche ${index + 1}</span>
+                        <span class="badge ${q.score > 0 ? 'badge-success' : 'badge-ghost'} font-bold">
+                            +${q.score} points
+                        </span>
+                    </div>
+
+                    <p class="text-xs sm:text-sm italic text-base-content/80">« ${q.phrase} »</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                        <!-- Vidéo devinée -->
+                        <div class="flex items-start gap-2.5 p-2 rounded-lg bg-base-100/50 border border-base-300/40">
+                            ${guessedThumbHtml}
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] text-base-content/60 uppercase font-semibold">Titre deviné</p>
+                                <p class="text-xs font-bold leading-snug break-words ${titleSuccess ? 'text-success' : (q.guessed_video ? 'text-error' : 'text-base-content/40')}">
+                                    ${q.raw_guessed_video ? q.raw_guessed_video : 'Aucune réponse'}
+                                </p>
+                                ${q.guessed_time !== null ? `
+                                    <p class="text-[11px] font-mono text-base-content/60 mt-1">Estimé : ${seconds_to_hms(q.guessed_time)}</p>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Vraie vidéo -->
+                        <div class="flex items-start gap-2.5 p-2 rounded-lg bg-base-100/50 border border-base-300/40">
+                            ${realThumbHtml}
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] text-base-content/60 uppercase font-semibold">Vraie vidéo</p>
+                                <p class="text-xs font-bold leading-snug break-words text-base-content">${q.real_video}</p>
+                                <p class="text-[11px] font-mono text-base-content/60 mt-1">Moment : ${seconds_to_hms(q.real_time)}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        })
+
+        listContainer.innerHTML = summaryHtml
+    }
+
+    modal.showModal()
 }
 
 

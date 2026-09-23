@@ -193,6 +193,25 @@
                     <button>fermer</button>
                 </form>
             </dialog>
+
+            <!-- Modale de résumé de la partie -->
+            <dialog id="summary_modal" class="modal modal-bottom sm:modal-middle">
+                <div class="modal-box max-w-3xl max-h-[85vh] flex flex-col p-6">
+                    <h3 class="font-bold text-2xl mb-4 text-center">Résumé de la partie</h3>
+                    
+                    <!-- Conteneur dans lequel le JS injectera la liste des manches -->
+                    <div id="summary_list" class="overflow-y-auto flex-1 space-y-4 pr-1"></div>
+
+                    <div class="modal-action mt-4">
+                        <form method="dialog">
+                            <button class="btn btn-primary">Fermer</button>
+                        </form>
+                    </div>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>Fermer</button>
+                </form>
+            </dialog>
             
             <!-- Barre supérieure du jeu -->
             <div class="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl relative flex items-center justify-between mb-3 min-h-[36px] sm:min-h-[44px]">
@@ -335,6 +354,12 @@
                     <div>
                         <button onclick="reset_game()" class="btn btn-primary btn-lg px-8 font-bold shadow-lg">Nouvelle partie</button>
                     </div>
+                    <button onclick="open_summary_modal()" class="btn btn-outline btn-primary">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Voir le résumé
+                    </button>
                 </div>
 
             </div>
