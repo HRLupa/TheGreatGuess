@@ -205,7 +205,6 @@ async function submit_title() {
         video_input.classList.add("input-error")
         return
     }
-    validated = true
     video_input.classList.remove("input-error")
     if (window.background_load_promise) {
         const originalVal = titleInput.value
@@ -217,6 +216,7 @@ async function submit_title() {
         titleInput.value = originalVal
         if (validated) return 
     }
+    validated = true
     if (!is_game_started) {
         is_game_started = true
         const roundSelect = document.getElementById("round_select")
@@ -233,6 +233,7 @@ async function submit_title() {
         if (refreshBtn) refreshBtn.style.display = "none"
         if (availableVideos.length==0) console.log("erreur")
         render_video_sidebar(availableVideos)
+        totalquestions=[totalquestions[totalquestions.length-1]]
     }
 
     hide_suggestions()
