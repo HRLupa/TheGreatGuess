@@ -140,7 +140,7 @@ function new_question(focusInput = true) {
     }
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
 
-    totalquestions.push({"phrase":phrase,"real_video":null,"real_time":window.current_quote_signature.start,"guessed_time":null,"guessed_video":null,"time_video":null,"time_moment":null,"score":0,"raw_guessed_video":null})
+    totalquestions.push({"phrase":phrase,"real_video":null,"real_time":null,"guessed_time":null,"guessed_video":null,"time_video":null,"time_moment":null,"score":0,"raw_guessed_video":null})
     start_segment=Date.now()
     
     document.getElementById("phrase").innerHTML = `« ${phrase.replace("\n", " ").replace("<i>",'<span class="not-italic">').replace("</i>","</span>")} »`
@@ -335,6 +335,7 @@ function submit_time() {
     
     const durationvideo = durations[ids[expected_title]]
     const score = score_guess_quadratic(secondsGuessed, exact_quote_start, durationvideo)
+    totalquestions[totalquestions.length-1]["real_time"]=playback_start_time
     totalquestions[totalquestions.length-1]["score"]=200+score
     totalquestions[totalquestions.length-1]["time_moment"]=Date.now()-start_segment
     totalquestions[totalquestions.length-1]["guessed_time"]=secondsGuessed
@@ -1479,9 +1480,7 @@ function open_summary_modal() {
     modal.showModal()
 }
 
-
-
-document.addEventListener("DOMContentLoaded", () => {
+function init_website(){
     current_lang = localStorage.getItem("great_guess_language") || document.getElementById("lang_select").value
     document.getElementById("lang_select").value=current_lang
 
@@ -1548,4 +1547,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
     first_load()
-})
+}
+
+if (document.readyState!=="loading"){
+    init_website()
+} else {
+    document.addEventListener("DOMContentLoaded", init_website)
+}
