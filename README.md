@@ -106,6 +106,7 @@ Si vous avez des idées d'amélioration ou si vous constatez des comportements s
 #### Automatic
 
 - Bloqués 5 heures sur Age of Empires
+- It's not esports, it's the FGC
 
 ### Transcripts français
 
