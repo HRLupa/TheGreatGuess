@@ -1165,7 +1165,7 @@ function toggle_blank() {
 function toggle_automatic() {
     play_with_automatic = !play_with_automatic
     localStorage.setItem("great_guess_automatic", play_with_automatic)
-    render_video_sidebar()
+    refresh_active_pool()
 }
 
 function update_difficulty_badges(difficulty = current_difficulty) {
