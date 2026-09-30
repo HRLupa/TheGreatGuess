@@ -303,6 +303,7 @@ async function submit_title() {
         setTimeout(() => timeInput.focus(), 100)
     } else {
         animate_points(0)
+        totalquestions[totalquestions.length - 1]["real_time"] = playback_start_time
         const userEntered = rawInput.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
         affichage = `
             <div class="space-y-1">
