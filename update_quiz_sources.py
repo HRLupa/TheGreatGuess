@@ -83,36 +83,35 @@ def is_video_already_processed(video_id: str) -> bool:
     return True
 
 
-def get_channel(name: str, output_path: Path) -> None:
+def get_channel(name: str, raw_output_path: Path,output_path:Path) -> None:
     """Récupère l'index des vidéos d'une chaîne via l'API yt-dlp."""
     ydl_opts: dict[str, str | bool] = {
         "extract_flat": "in_playlist",
         "dump_single_json": True,
         "quiet": True,
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(f"https://www.youtube.com/@{name}", download=False)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(info, f, ensure_ascii=False, indent=4)
-
+        with open(raw_output_path, "w", encoding="utf-8") as f:
+            json.dump(info, f, ensure_ascii=False)
+    extracted_info=[]
+    for raw_video in info["entries"][0]["entries"]:
+        extracted_info.append({"title":raw_video["title"],"duration":raw_video["duration"],"id":raw_video["id"]})
+    with open(output_path,"w",encoding="utf-8") as f:
+        json.dump(extracted_info,f,ensure_ascii=False)
 
 def load_all_videos_from_channel_json(json_file: Path) -> list[dict[str, str]]:
     """Extrait l'ID et le titre des vidéos depuis le fichier JSON de la chaîne."""
     with open(json_file, encoding="utf-8") as f:
-        data = json.load(f)
+        playlist_entries = json.load(f)
 
     all_videos: list[dict[str, str]] = []
-    entries = data.get("entries", [])
-    playlist = entries[0] if entries else {}
-    playlist_entries = playlist.get("entries", [])
 
     for video in playlist_entries:
-        if video.get("_type") == "url" and video.get("ie_key") == "Youtube" and video.get("id"):
-            all_videos.append({
-                "id": video["id"],
-                "title": video.get("title", "Titre inconnu")
-            })
+        all_videos.append({
+            "id": video["id"],
+            "title": video.get("title", "Titre inconnu")
+        })
     return all_videos
 
 
@@ -281,8 +280,9 @@ def get_save_transcripts(video_list: list[dict[str, str]]) -> None:
 
 
 if __name__ == "__main__":
-    channel_file = MAIN_JSON_PATH / "videos.json"
-    get_channel("TheGreatReview", channel_file)
+    raw_channel_file = MAIN_JSON_PATH / "raw_videos.json"
+    channel_file=MAIN_JSON_PATH / "videos.json"
+    get_channel("TheGreatReview", raw_channel_file,channel_file)
 
     videos = load_all_videos_from_channel_json(channel_file)
     print(f"{len(videos)} vidéos extraites.\n")

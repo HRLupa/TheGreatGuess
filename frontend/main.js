@@ -1332,12 +1332,10 @@ async function first_load() {
             fetch(`myjson/transcripts/${folder}/index.json`)
         ])
 
-        const videosJson = await videosRes.json()
+        rawVideos = await videosRes.json()
         const statiques = await statiquesRes.json()
         const stateData = await stateRes.json()
         const fileList = await indexRes.json()
-
-        rawVideos = videosJson.entries[0].entries
 
         francais_anglais = statiques.francais_anglais || {}
         manual_aliases = statiques.manual_aliases || {}
