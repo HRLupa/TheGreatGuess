@@ -1,4 +1,5 @@
 #from quiz_module import score_guess_quadratic
+textes=[["Durée de la vidéo","Pourcentage d'écart entre le temps deviné et le temps réel","Évaluation des score du quiz"],["Video duration","Difference percentage between the guessed time and the actual time","Guessing scores evalution"]]
 import matplotlib.pyplot as plt
 from typing import Callable
 def score_guess_quadratic(guess_time:float, start_time:float, video_duration:float):
@@ -22,9 +23,8 @@ def score_guess_hybrid(guess_time:float,start_time:float,video_duration:float):
     error_ratio = error / max_error
     score=200*((1.02-error_ratio)**1.4)
     return min(200,score)
-def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecartmin:float=0,ecartmax:float=1,lengthmin:int=1,lengthmax:int=150,nblengths:int=100,nbpourcentages:int=100,correct_ratio:float=0.5):
+def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecartmin:float=0,ecartmax:float=1,lengthmin:int=1,lengthmax:int=150,video_lengths:list[int]|None=None,nblengths:int=100,nbpourcentages:int=100,correct_ratio:float=0.5):
     """fonctiontest prend en paramètre guesstime,start_time et video_duration (on considère que guess_time et start_time ne seront utilisés que pour calculer leurs différences)"""
-    
     lengths:list[float]=[lengthmin]
     pourcentages:list[float]=[ecartmin]
     for i in range(1,nblengths):
@@ -32,15 +32,22 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     for i in range(1,nbpourcentages):
         pourcentages.append(100*(ecartmin+(ecartmax-ecartmin)/(nbpourcentages)*(i)))
     print(lengths,pourcentages)
-    plt.plot(pourcentages,[fonctiontest((lengths[0]*60)*pourcentages[i]/100,(lengths[0]*60*correct_ratio),lengths[0]*60) for i in range(len(pourcentages))])
-    plt.plot(pourcentages,[fonctiontest((lengths[nblengths//2]*60)*pourcentages[i]/100,lengths[nblengths//2]*60*correct_ratio,lengths[nblengths//2]*60) for i in range(len(pourcentages))])
-    plt.plot(pourcentages,[fonctiontest((lengths[nblengths-1]*60)*pourcentages[i]/100,lengths[nblengths-1]*60*correct_ratio,lengths[nblengths-1]*60) for i in range(len(pourcentages))])
-    plt.legend([f"Video duration : {lengths[0]} minutes",f"Video duration : {round(lengths[nblengths//2])} minutes",f"Video duration : {round(lengths[nblengths-1])} minutes"])
-    plt.xlabel("Difference percentage between the guessed time and the actual time")
-    plt.ylabel("Score")
-    plt.title("Guessing scores evalution")
-    plt.grid(which='major',linewidth=0.5)
-    plt.show()
+    for j in range(len(textes)):
+        if video_lengths:
+            for k in range(len(video_lengths)):
+                #plt.plot(pourcentages,[fonctiontest((video_lengths[j]*60*pourcentages[i]/100),video_lengths[j]*60*correct_ratio,video_lengths[j])])
+                plt.plot(pourcentages,[fonctiontest((video_lengths[k]*60)*pourcentages[i]/100,video_lengths[k]*60*correct_ratio,video_lengths[k]*60) for i in range(len(pourcentages))])
+            plt.legend([f"{textes[j][0]} : {video_lengths[k]} minutes" for k in range(len(video_lengths))])
+        else:
+            plt.plot(pourcentages,[fonctiontest((lengths[0]*60)*pourcentages[i]/100,(lengths[0]*60*correct_ratio),lengths[0]*60) for i in range(len(pourcentages))])
+            plt.plot(pourcentages,[fonctiontest((lengths[nblengths//2]*60)*pourcentages[i]/100,lengths[nblengths//2]*60*correct_ratio,lengths[nblengths//2]*60) for i in range(len(pourcentages))])
+            plt.plot(pourcentages,[fonctiontest((lengths[nblengths-1]*60)*pourcentages[i]/100,lengths[nblengths-1]*60*correct_ratio,lengths[nblengths-1]*60) for i in range(len(pourcentages))])
+            plt.legend([f"{textes[j][0]} : {lengths[0]} minutes",f"{textes[j][0]} : {round(lengths[nblengths//2])} minutes",f"{textes[j][0]} : {round(lengths[nblengths-1])} minutes"])
+        plt.xlabel(textes[j][1])
+        plt.ylabel("Score")
+        plt.title(textes[j][2])
+        plt.grid(which='major',linewidth=0.5)
+        plt.show()
     """exp=" "*6
     for i in range(nblengths):
         exp+=str(round(lengths[i],1))+" "*(6-len(str(round(lengths[i],1))))
@@ -54,4 +61,4 @@ def test_fonctions_scores(fonctiontest:Callable[[float, float, float], int],ecar
     print(exp)"""
     return
 
-test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0.5,lengthmax=60)
+test_fonctions_scores(score_guess_quadratic,nbpourcentages=3000,nblengths=3000,correct_ratio=0.5,lengthmax=60,video_lengths=[1,30,90])
