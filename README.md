@@ -113,6 +113,7 @@ Si vous avez des idées d'amélioration ou si vous constatez des comportements s
 #### Manuels
 
 - La géopolitique expliquée avec des pixels
+- Tunic : Le jeu qui en cachait un autre
 - 22 minutes pour sauver l'univers (ok un peu plus)
 
 #### Automatiques
@@ -136,7 +137,6 @@ Si vous avez des idées d'amélioration ou si vous constatez des comportements s
 - La plus grande partie de capture de drapeau de l'histoire d'Internet
 - Les clubs du futur
 - Le mystère du 8
-- Tunic : Le jeu qui en cachait un autre
 - C'est quoi un bon film ?
 - Qu'est-ce que le cinéma a appris au jeu vidéo ?
 - La plus belle des équipes
