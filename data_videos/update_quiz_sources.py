@@ -10,8 +10,7 @@ from requests.exceptions import HTTPError
 from yt_dlp.utils import DownloadError
 
 # --- CONFIGURATION DES CHEMINS (Pathlib) ---
-MAIN_PATH = Path(__file__).parent.resolve()
-MAIN_JSON_PATH = MAIN_PATH / "data_videos"
+MAIN_JSON_PATH = Path(__file__).parent.resolve()
 STATE_FILE_PATH = MAIN_JSON_PATH / "transcripts" / "current_state.json"
 
 AVAILABLE_LANGUAGES: dict[str, dict[str, Path|str|bool]] = {
