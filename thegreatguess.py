@@ -143,7 +143,7 @@ def quiz(transcripts:dict[str,list[dict[str,str|float]]], title_map:dict[str,str
     phrases = getphrases(transcripts)
     score = 0
     rightguess=0
-    durations=get_durations(f"{mainpath}/frontend/myjson/videos.json")
+    durations=get_durations(f"{mainpath}/data_videos/videos.json")
     for i in range(n):
         if i!=0:
             waitingtime()
@@ -199,9 +199,9 @@ def quiz(transcripts:dict[str,list[dict[str,str|float]]], title_map:dict[str,str
     print(f"\n\n🎉  Score final : {score}/{400*n}\n🎮  Vidéos trouvées : {rightguess}/{n}")
 
 if __name__ == "__main__":
-    statiques=load_json(f"{mainpath}/frontend/myjson/statiques.json")
+    statiques=load_json(f"{mainpath}/data_videos/statiques.json")
     francais_anglais,manual_aliases=statiques["francais_anglais"],statiques["manual_aliases"]
-    transcripts = load_json(f"{mainpath}/frontend/myjson/transcripts.json")
-    #statiques=load_json("frontend/myjson/statiques.json")
+    transcripts = load_json(f"{mainpath}/data_videos/transcripts.json")
+    #statiques=load_json("data_videos/statiques.json")
     title_map = build_title_aliases(transcripts, manual_aliases)
     quiz(transcripts, title_map, n=nbquestions)

@@ -1,4 +1,2 @@
 title: TheGreatGuess
 description: Guide et informations sur le jeu
-exclude:
-  - frontend/node_modules

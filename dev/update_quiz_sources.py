@@ -11,7 +11,7 @@ from yt_dlp.utils import DownloadError
 
 # --- CONFIGURATION DES CHEMINS (Pathlib) ---
 MAIN_PATH = Path(__file__).parent.resolve()
-MAIN_JSON_PATH = MAIN_PATH / "frontend" / "myjson"
+MAIN_JSON_PATH = MAIN_PATH / "data_videos"
 STATE_FILE_PATH = MAIN_JSON_PATH / "transcripts" / "current_state.json"
 
 AVAILABLE_LANGUAGES: dict[str, dict[str, Any]] = {

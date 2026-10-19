@@ -1,16 +1,414 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<title>TheGreatGuess - Le quiz sur les vidéos de TheGreatReview</title>
-<meta name="description" content="Un quiz sur les vidéos de TheGreatReview qui permet de tester vos connaissances pour reconnaitre des moments de ses vidéos.">
-<meta http-equiv="refresh" content="0; URL=./frontend">
-<meta property="og:title" content="TheGreatGuess - Le quiz sur les vidéos de TheGreatReview">
-<meta property="og:description" content="Un quiz sur les vidéos de TheGreatReview qui permet de tester vos connaissances pour reconnaitre des moments de ses vidéos.">
-<meta property="og:url" content="https://hrlupa.github.io/TheGreatGuess/frontend">
-<meta property="og:image" content="https://hrlupa.github.io/TheGreatGuess/frontend/images/preview_website.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:site_name" content="TheGreatGuess">
-<meta name="twitter:card" content="summary_large_image">
-<meta property="og:type" content="website">
-<link rel="icon" type="image/x-icon" href="/TheGreatGuess/frontend/images/favicon.ico">
-<link rel="canonical" href="/TheGreatGuess/frontend">
+<!doctype html>
+<html lang="fr" class="h-full bg-base-300">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TheGreatGuess - Le quiz sur les vidéos de TheGreatReview</title>
+        <meta name="description" content="Un quiz sur les vidéos de TheGreatReview qui permet de tester vos connaissances pour reconnaitre des moments de ses vidéos.">
+        <meta property="og:title" content="TheGreatGuess - Le quiz sur les vidéos de TheGreatReview">
+        <meta property="og:description" content="Un quiz sur les vidéos de TheGreatReview qui permet de tester vos connaissances pour reconnaitre des moments de ses vidéos.">
+        <meta property="og:url" content="https://hrlupa.github.io/TheGreatGuess/">
+        <meta property="og:image" content="https://hrlupa.github.io/TheGreatGuess/images/preview_website.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:site_name" content="TheGreatGuess">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="og:type" content="website">
+
+        <link rel="preconnect" href="https://cdn.tailwindcss.com">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <link rel="preconnect" href="https://www.youtube.com">
+        <link rel="preconnect" href="https://img.youtube.com" crossorigin>
+
+        <script src="https://cdn.tailwindcss.com"></script> <!-- Can't be deferred due to website deformation on loading-->
+        <script src="https://www.youtube.com/iframe_api" async></script>
+
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="/TheGreatGuess/src/style.css"/>
+        <link rel="icon" type="image/x-icon" href="/TheGreatGuess/images/favicon.ico">
+        <link rel="manifest" href="/TheGreatGuess/manifest.json">
+
+        <style>
+            @font-face {
+                font-family: "Pandoru";
+                src: url("/TheGreatGuess/src/Pandoru.ttf") format("truetype");
+                font-weight: 100;
+                font-style: normal;
+                font-display: swap;
+            }
+            #sidebar {
+                transition: height 0.3s ease, width 0.3s ease, padding 0.3s ease;
+            }
+
+            #sidebar.collapsed .sidebar-content {
+                display: none !important;
+            }
+
+            /* --- MOBILE (< 768px) : Repliement vers le HAUT --- */
+            @media (max-width: 767px) {
+                #sidebar {
+                    width: 100% !important;
+                    height: 14rem; /* Hauteur quand déplié */
+                }
+                #sidebar.collapsed {
+                    height: 3.5rem !important; /* Hauteur replié (seul le header reste visible) */
+                    padding-top: 0.5rem;
+                    padding-bottom: 0.5rem;
+                }
+                #sidebar_toggle_icon {
+                    transform: rotate(90deg); /* Flèche vers le haut (déplié) */
+                }
+                #sidebar.collapsed #sidebar_toggle_icon {
+                    transform: rotate(-90deg); /* Flèche vers le bas (replié) */
+                }
+            }
+
+            /* --- DESKTOP (>= 768px) : Repliement vers la GAUCHE --- */
+            @media (min-width: 768px) {
+                #sidebar {
+                    height: 100% !important;
+                    width: 24rem;
+                }
+                #sidebar.collapsed {
+                    width: 4rem !important;
+                    padding: 1rem 0.5rem;
+                }
+                #sidebar_toggle_icon {
+                    transform: rotate(0deg);
+                }
+                #sidebar.collapsed #sidebar_toggle_icon {
+                    transform: rotate(180deg);
+                }
+            }
+        </style>
+    </head>
+    <body class="h-full flex flex-col md:flex-row overflow-hidden bg-base-200 text-base-content">
+
+        <!-- Barre latérale repliable -->
+        <aside id="sidebar" class="w-full md:w-96 bg-base-100 border-r border-base-300 flex flex-col h-56 md:h-full p-5 shadow-md relative shrink-0">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="sidebar-content text-xl font-bold flex items-center gap-2 truncate">
+                    <svg class="w-6 h-6 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>Vidéos (<span id="video_count">0</span>)</span>
+                </h2>
+                <!-- Bouton de rafraîchissement de vidéos -->
+                <button id="refresh_videos" title="Réinitialiser la sélection" class="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" disabled">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+                <button onclick="toggle_sidebar()" type="button" class="p-2 rounded-xl bg-base-200 hover:bg-base-300 text-primary border border-base-300 transition-colors flex items-center justify-center shrink-0" title="Masquer / Afficher la liste">
+                    <svg id="sidebar_toggle_icon" class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="video_list" class="sidebar-content flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Contenu dynamique -->
+            </div>
+        </aside>
+
+        <!-- Zone Principale -->
+        <main class="flex-1 flex flex-col items-center p-2.5 sm:p-4 md:p-8 overflow-y-auto">
+            <!-- Modale de paramètres -->
+            <dialog id="settings_modal" class="modal">
+                <div class="modal-box bg-base-100 max-w-md space-y-6">
+                    <div class="flex items-center justify-between border-b border-base-200 pb-2">
+                        <h3 class="font-bold text-lg">Paramètres</h3>
+                        <form method="dialog">
+                            <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+                        </form>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Choix de langue -->
+                        <div class="flex items-center justify-between">
+                            <label class="font-medium text-sm">Langue des sous-titres</label>
+                            <select id="lang_select" onchange="confirm_language_change(this.value)" class="select select-bordered select-sm">
+                                <option value="fr" selected>Français</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+
+                        <!-- Nombre de manches -->
+                        <div class="flex items-center justify-between">
+                            <label class="font-medium text-sm">Nombre de manches</label>
+                            <select id="round_select" onchange="change_max_rounds(this.value)" class="select select-bordered select-sm">
+                                <option value="5">5 Manches</option>
+                                <option value="15" selected>15 Manches</option>
+                                <option value="30">30 Manches</option>
+                                <option value="0">Infini</option>
+                            </select>
+                        </div>
+
+                        <!-- Thème (Sombre / Clair) -->
+                        <div class="flex items-center justify-between">
+                            <label class="font-medium text-sm">Thème d'affichage</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <!-- Lune -->
+                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                </svg>
+                                <!-- Switch -->
+                                <input type="checkbox" id="theme_toggle" onchange="toggle_theme()" class="toggle toggle-primary toggle-sm" />
+                                <!-- Soleil -->
+                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            </label>
+                        </div>
+                        <!-- Si une entrée vide peut être acceptée comme un titre valide-->
+                        <div class="flex items-center justify-between">
+                            <label class="font-medium text-sm">Autoriser les titres vides</label>
+                            <input type="checkbox" id="allow_blank" checked onchange="toggle_blank()" class="toggle toggle-primary toggle-sm" />
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="font-medium text-sm">Autoriser les sous-titres automatiques</label>
+                            <input type="checkbox" id="play_automatic" checked onchange="toggle_automatic()" class="toggle toggle-primary toggle-sm" />
+                        </div>
+                        <!-- Difficulté -->
+                        <div class="flex items-center justify-between">
+                            <label class="font-medium text-sm">Difficulté</label>
+                            <select id="difficulty_select" onchange="change_difficulty(this.value)" class="select select-bordered select-sm">
+                                <option value="normal" selected>Normal</option>
+                                <option value="hard">Difficile</option>
+                                <option value="hardcore">Hardcore</option>
+                            </select>
+                        </div>
+                        <p id="difficulty_description" class="text-xs text-base-content/70 mt-2 min-h-[2.5rem]"></p>
+                    </div>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button class="cursor-default outline-none">Fermer</button>
+                </form>
+            </dialog>
+
+            <dialog id="unlock_modal" class="modal">
+                <div class="modal-box text-center border border-primary/20 shadow-2xl space-y-4">
+                    <h3 id="unlock_modal_title" class="font-bold text-2xl text-primary">Nouveau mode débloqué !</h3>
+                    
+                    <p id="unlock_modal_message" class="text-base-content/80 text-base leading-relaxed">
+                    <!-- Le message personnalisé s'affichera ici -->
+                    </p>
+
+                    <div class="modal-action justify-center pt-2">
+                        <form method="dialog">
+                            <button class="btn btn-primary px-8">Génial !</button>
+                        </form>
+                    </div>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>Fermer</button>
+                </form>
+            </dialog>
+
+            <!-- Modale de résumé de la partie -->
+            <dialog id="summary_modal" class="modal modal-bottom sm:modal-middle">
+                <div class="modal-box max-w-3xl max-h-[85vh] flex flex-col p-6">
+                    <h3 class="font-bold text-2xl mb-4 text-center">Résumé de la partie</h3>
+                    <div id="summary_list" class="overflow-y-auto flex-1 space-y-4 pr-1"></div>
+                    <div class="modal-action mt-4">
+                        <form method="dialog">
+                            <button class="btn btn-primary">Fermer</button>
+                        </form>
+                    </div>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button class="cursor-default outline-none">Fermer</button>
+                </form>
+            </dialog>
+            
+            <!-- Barre supérieure du jeu -->
+            <div class="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl relative flex items-center justify-between mb-3 min-h-[36px] sm:min-h-[44px]">
+                
+                <!-- Nombre de manches -->
+                <div class="z-10">
+                    <div class="badge badge-primary badge-outline font-bold h-8 min-h-8 px-2 sm:px-3 text-[11px] sm:text-xs whitespace-nowrap">
+                        <span>Manche : </span><span id="round_display" class="ml-0.5">1 / 15</span>
+                    </div>
+                </div>
+
+                <!-- Points -->
+                <div class="absolute left-1/2 -translate-x-1/2 text-xs sm:text-base md:text-xl font-black bg-base-100 border border-base-300 px-2 sm:px-4 py-1.5 h-8 min-h-8 flex items-center rounded-xl sm:rounded-2xl shadow-md whitespace-nowrap z-10">
+                    <span id="points_display">Points : 0</span>
+                </div>
+
+                <!-- Record--> 
+                <div class="absolute left-[78%] -translate-x-1/2 flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold bg-base-100 border border-base-300 px-2 sm:px-3 py-1.5 rounded-lg shadow-sm h-8 shrink-0 z-10">
+                    <span class="hidden sm:inline">Record :</span>
+                    <span id="highscore_display" class="font-bold text-primary">0</span>
+                </div>
+
+                <!-- Paramètres et Thème-->
+                <div class="flex items-center gap-1 sm:gap-2 z-10 ml-auto">
+                    <button onclick="open_settings_modal()" type="button" id="settings_btn_header" class="btn btn-ghost btn-xs sm:btn-sm h-8 min-h-8 px-2 border border-base-300 bg-base-100 hover:bg-base-200" title="Paramètres">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    <button onclick="toggle_theme()" type="button" id="theme_btn_header" class="btn btn-ghost btn-xs sm:btn-sm h-8 min-h-8 px-2 border border-base-300 bg-base-100 hover:bg-base-200 hidden" title="Changer de thème">
+                        <svg id="theme_icon_sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg id="theme_icon_moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conteneur principal -->
+            <div class="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl mb-8">
+                
+                <!-- Écran de jeu -->
+                <div id="quiz_content" class="card w-full bg-base-100 shadow-2xl p-6 md:p-10 space-y-6 border border-base-300/50">
+                    <div id="difficulty_badge_quiz" class="flex justify-center hidden mb-2"></div>
+                    <!-- Phrase d'affichage -->
+                    <div class="text-xl lg:text-2xl xl:text-3xl font-semibold text-center italic text-primary min-h-[4rem] flex items-center justify-center leading-relaxed" id="phrase">
+                        Leave a Great Review
+                    </div>
+
+                    <!-- Badge durée totale -->
+                    <div id="video_info_hint" class="flex justify-center hidden"></div>
+
+                    <div class="relative space-y-4">
+                        <!-- Champ titre -->
+                        <input id="video_title" class="input input-bordered input-primary input-lg w-full text-lg shadow-sm transition-all" placeholder="Titre ou thème de la vidéo..." autocomplete="off" />
+                        <div id="suggestions" class="absolute z-20 w-full bg-base-100 shadow-2xl rounded-xl max-h-48 sm:max-h-60 overflow-y-auto hidden border border-base-300 top-14 sm:top-16"></div>
+
+                        <!-- Conteneur du temps -->
+                        <div id="time_wrapper" class="relative hidden">
+                            <input id="time_input" class="input input-bordered input-secondary input-lg w-full text-lg pr-12 shadow-sm transition-all" placeholder="Moment" autocomplete="off" />
+                            
+                            <!-- Bouton d'aide de temps -->
+                            <button type="button" 
+                                    onmousedown="event.preventDefault()"
+                                    onclick="toggle_time_help(event)" 
+                                    class="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border border-base-content/60 text-base-content/80 hover:text-base-content hover:border-base-content text-xs font-bold flex items-center justify-center transition-colors bg-base-100 select-none z-10">
+                                ?
+                            </button>
+
+                            <!-- Overlay d'aide -->
+                            <div id="time_help_box"
+                                class="hidden absolute right-0 bottom-full mb-2 w-64 p-3 bg-base-100 border border-base-300 rounded-xl shadow-xl z-50 text-xs text-base-content space-y-2">
+                                <div class="flex justify-between items-center pb-1 border-b border-base-200">
+                                    <span class="font-bold text-xs">Exemples de formats</span>
+                                    <button type="button" onclick="toggle_time_help(event)" class="text-base-content/40 hover:text-base-content text-xs font-bold">✕</button>
+                                </div>
+                                <ul class="space-y-1 font-mono text-[11px] opacity-90">
+                                    <li><b class="text-secondary">20</b> → 20m</li>
+                                    <li><b class="text-secondary">1m30</b>/<b class="text-secondary">1m30s</b>/<b class="text-secondary">90s</b> → 1m 30s</li>
+                                    <li><b class="text-secondary">1h20</b>/<b class="text-secondary">1h20m</b> → 1h 20m</li>
+                                    <li><b class="text-secondary">1:30</b> → 1h 30m</li>
+                                    <li><b class="text-secondary">1:20:05</b> → 1h 20m 5s</li>
+                                    <li><b class="text-secondary">1.5</b> → 1m 30s</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Boutons de validation -->
+                        <button id="button_title" onclick="submit_title()" class="btn btn-primary btn-lg w-full text-lg font-bold shadow-md">Valider le titre</button>
+                        <button id="button_time" onclick="submit_time()" class="btn btn-secondary btn-lg w-full text-lg font-bold shadow-md hidden">Valider le temps</button>
+                    </div>
+
+                    <div id="result" class="text-center"></div>
+
+                    <!-- Lecteur vidéo YouTube -->
+                    <div id="video_player" class="flex justify-center hidden w-full">
+                        <iframe id="ytPlayer" class="w-full aspect-video rounded-xl shadow-lg" src="https://www.youtube.com/embed/?enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+
+                    <button id="suivant" onclick="next_round()" class="btn btn-accent btn-lg w-full text-lg font-bold shadow-md hidden">Question suivante</button>
+                </div>
+
+                <!-- Écran Fin de Partie -->
+                <div id="game_over_screen" class="card w-full bg-base-100 shadow-2xl p-8 md:p-12 text-center space-y-6 border border-base-300/50 hidden">
+                    
+                    <!-- Écran nouveau record -->
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z" />
+                            </svg>
+                        </div>
+                        
+                        <div id="new_record_badge" class="badge badge-warning font-black tracking-wide p-3 text-xs hidden uppercase animate-bounce">
+                            Nouveau Record !
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-3xl font-black">Partie terminée !</h2>
+                    
+                    <div class="bg-base-200 p-6 rounded-2xl border border-base-300 space-y-4 inline-block max-w-md mx-auto w-full">
+                        <div id="end_difficulty_badge" class="flex justify-center hidden mb-1"></div>   
+                        <div>
+                            <p class="text-xs font-semibold opacity-70 uppercase tracking-wider">Score final</p>
+                            <p class="text-4xl font-black text-primary mt-1"><span id="final_score">0</span> <span class="text-xl font-medium text-base-content/60">/ <span id="max_possible_score">4000</span> pts</span></p>
+                        </div>
+                        <!-- Jauge de progression -->
+                        <div class="w-full bg-base-300/80 rounded-full h-3.5 overflow-hidden p-0.5 border border-base-300">
+                            <div id="score_progress_bar" class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+                        <div class="pt-2 border-t border-base-300 flex justify-between items-center text-xs text-base-content/70 px-2 font-medium">
+                            <span>Vidéos trouvées :</span>
+                            <span class="font-bold text-base-content text-sm"><span id="correct_videos_count">0</span> / <span id="total_videos_played">0</span></span>
+                        </div>
+                        <div class="pt-2 border-t border-base-300 flex justify-between items-center text-xs text-base-content/70 px-2 font-medium">
+                            <span>Meilleur score de ce mode :</span>
+                            <span class="font-bold text-base-content text-sm" id="end_best_score">0</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button onclick="reset_game()" class="btn btn-primary btn-lg px-8 font-bold shadow-lg">Nouvelle partie</button>
+                    </div>
+                    <button onclick="open_summary_modal()" class="btn btn-outline btn-primary">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Voir le résumé
+                    </button>
+                </div>
+
+            </div>
+            <footer class="mt-auto pt-4 pb-2 w-full max-w-3xl grid grid-cols-3 items-center font-pandoru text-s text-base-content/60 border-t border-base-300/40">
+                <!-- À propos -->
+                <div class="flex justify-start text-[13px]">
+                    <a target="_blank" rel="noopener noreferrer" href="https://hrlupa.github.io/TheGreatGuess/README" class="group inline-flex items-center gap-1 hover:text-primary transition-colors font-medium">
+                        <svg class="w-3.5 h-3.5 opacity-80 transition-transform duration-200 group-hover:scale-[1.15] origin-right" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>À propos</span>
+                    </a>
+                </div>
+
+                <!-- Discord -->
+                <div class="flex justify-center text-[17px]">
+                    <a href="https://discord.com/users/545300661302984714" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="group inline-flex items-center gap-1.5 hover:text-primary transition-colors font-medium">
+                        <svg class="w-4 h-4 fill-current transition-transform duration-200 group-hover:scale-[1.25] origin-right" viewBox="0 0 127.14 96.36">
+                            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.87,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        <span>Par HRLupa</span>
+                    </a>
+                </div>
+
+                <!-- Faire un don -->
+                <div class="flex justify-end text-[13px]">
+                    
+                    <a href="https://www.buymeacoffee.com/hrlupa" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="group inline-flex items-center gap-1 hover:text-primary transition-colors font-medium">
+                        <img src="./images/LoveTunic.png" alt="Faire un don" loading="lazy" class="w-3 h-3 object-contain grayscale group-hover:grayscale-0 group-hover:scale-[1.25] transition-all duration-200 origin-right">
+                        <span>Faire un don</span>
+                    </a>
+                </div>
+            </footer>
+        </main>
+
+        <script src="./main.js"></script>
+    </body>
+</html>
