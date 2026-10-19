@@ -14,7 +14,7 @@ MAIN_PATH = Path(__file__).parent.resolve()
 MAIN_JSON_PATH = MAIN_PATH / "data_videos"
 STATE_FILE_PATH = MAIN_JSON_PATH / "transcripts" / "current_state.json"
 
-AVAILABLE_LANGUAGES: dict[str, dict[str, Any]] = {
+AVAILABLE_LANGUAGES: dict[str, dict[str, Path|str|bool]] = {
     "French": {
         "path": MAIN_JSON_PATH / "transcripts" / "French",
         "language": "fr",
@@ -47,7 +47,7 @@ def save_current_state(state: dict[str, dict[str, list[str]]]) -> None:
         json.dump(state, f, ensure_ascii=False, indent=4)
 
 
-def update_state(state: dict, lang_name: str, title: str, is_manual: bool) -> None:
+def update_state(state: dict[str, dict[str, list[str]]], lang_name: str, title: str, is_manual: bool) -> None:
     """Met à jour les listes manual/automatic dans current_state.json sans doublons."""
     if lang_name not in state:
         state[lang_name] = {"manual": [], "automatic": []}
@@ -94,7 +94,7 @@ def get_channel(name: str, raw_output_path: Path,output_path:Path) -> None:
         info = ydl.extract_info(f"https://www.youtube.com/@{name}", download=False)
         with open(raw_output_path, "w", encoding="utf-8") as f:
             json.dump(info, f, ensure_ascii=False)
-    extracted_info=[]
+    extracted_info:list[dict[str, str]]=[]
     for raw_video in info["entries"][0]["entries"]:
         extracted_info.append({"title":raw_video["title"],"duration":raw_video["duration"],"id":raw_video["id"]})
     with open(output_path,"w",encoding="utf-8") as f:
@@ -152,7 +152,7 @@ def find_subtitle_track(sub_dict: dict[str, Any], lang_code: str) -> list[dict[s
 
 def fetch_transcripts_for_video(video_id: str) -> dict[str, dict[str, Any]]:
     """Récupère les sous-titres et indique s'ils sont manuels ou automatiques."""
-    ydl_opts = {
+    ydl_opts :dict[str,str|bool|list[str]]= {
         "skip_download": True,
         "writesubtitles": True,
         "writeautomaticsub": True,

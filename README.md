@@ -3,7 +3,7 @@ layout: default
 title: Documentation
 ---
 
-[![Banner](./frontend/images/banner.jpg)](https://docs.google.com/spreadsheets/d/1EDEnH4NBZ_jRTlUTTp8WNjOYX3n9T7GdECEzr0Nr1aQ/edit?usp=sharing)
+[![Banner](./images/banner.jpg)](https://docs.google.com/spreadsheets/d/1EDEnH4NBZ_jRTlUTTp8WNjOYX3n9T7GdECEzr0Nr1aQ/edit?usp=sharing)
 
 # TheGreatGuess
 
@@ -34,7 +34,7 @@ You can enter the time in formats such as `XX:XX:XX` or `XXhXXmXXs`. By default,
 
 After making your guess, you will be awarded a score based on how close you were to the exact time. You can earn up to 200 points by finding the exact time. As a guide, you can score points within a range covering about 50% of the video's total duration (the duration will be displayed), and the calculation follows a quadratic curve (a one-minute difference results in a larger point variation when you're close to the target).
 
-![Guessing scores evaluation](./frontend/images/scores_en.png)
+![Guessing scores evaluation](./images/scores_en.png)
 
 ### Incorrect Guess
 
@@ -69,7 +69,7 @@ Vous pouvez saisir l'heure sous les formats `XX:XX:XX` ou `XXhXXmXXs`. Par défa
 
 Après avoir fait votre *guess*, un score vous sera attribué en fonction de votre proximité au temps exact. Vous pourrez gagner jusqu'à 200 points en trouvant le moment précis. À titre indicatif, il est possible de marquer des points sur environ 50 % de la durée totale de la vidéo (la durée vous sera indiquée), et le calcul suit une augmentation quadratique (un écart d'une minute entraîne une variation de points plus importante lorsque vous êtes proche de la cible).
 
-![Évaluation des scores de devinettes](./frontend/images/scores_fr.png)
+![Évaluation des scores de devinettes](./images/scores_fr.png)
 
 ### Mauvaise réponse
 
