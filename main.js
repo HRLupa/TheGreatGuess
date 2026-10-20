@@ -388,7 +388,7 @@ async function load_language_transcripts(langKey) {
 
     try {
         const indexPromises = config.folders.map(folder =>
-            fetch(`data_videos/transcripts/${folder}/index.json`)
+            fetch(`./data_videos/transcripts/${folder}/index.json`)
                 .then(res => res.ok ? res.json().then(fileList => ({ folder, fileList })) : null)
                 .catch(() => null)
         )
@@ -399,7 +399,7 @@ async function load_language_transcripts(langKey) {
         folderIndices.forEach(({ folder, fileList }) => {
             fileList.forEach(filename => {
                 filePromises.push(
-                    fetch(`data_videos/transcripts/${folder}/${filename}`)
+                    fetch(`./data_videos/transcripts/${folder}/${filename}`)
                         .then(res => res.ok ? res.json() : null)
                         .catch(() => null)
                 )
@@ -1326,10 +1326,10 @@ async function first_load() {
         const folder = langConfig.folders[0]
 
         const [videosRes, statiquesRes, stateRes, indexRes] = await Promise.all([
-            fetch("/data_videos/videos.json"),
-            fetch("/data_videos/statiques.json"),
-            fetch("/data_videos/transcripts/current_state.json"),
-            fetch(`/data_videos/transcripts/${folder}/index.json`)
+            fetch("./data_videos/videos.json"),
+            fetch("./data_videos/statiques.json"),
+            fetch("./data_videos/transcripts/current_state.json"),
+            fetch(`./data_videos/transcripts/${folder}/index.json`)
         ])
 
         rawVideos = await videosRes.json()
@@ -1370,7 +1370,7 @@ async function first_load() {
         const activeIds = new Set(activeVideos.map(v => v.id))
         const validFileList = fileList.filter(file => activeIds.has(file.replace(".json", "")))
         const randomFile = get_first_random_file(validFileList, durations)
-        const transcriptRes = await fetch(`data_videos/transcripts/${folder}/${randomFile}`)
+        const transcriptRes = await fetch(`./data_videos/transcripts/${folder}/${randomFile}`)
         const transcriptData = await transcriptRes.json()
 
         let initialTranscripts = {}
