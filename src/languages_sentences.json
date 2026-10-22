@@ -1,0 +1,250 @@
+{
+  "description_normal_difficulty": {
+    "en": "Suggestions are active, extended extract after answer and list of videos available.",
+    "fr": "Suggestions actives, extrait rallongé après réponse et liste des vidéos disponible."
+  },
+  "description_hard_difficulty": {
+    "en": "No more video list and no more possibility to use shortcuts for videos.",
+    "fr": "Plus de liste de vidéos et plus de possibilité d'utiliser des raccourcis pour les vidéos."
+  },
+  "description_hardcore_difficulty": {
+    "en": "No suggestions, no video list and no possibility to use shortcuts for videos.",
+    "fr": "Le titre est demandé (plus de possibilité d'utiliser des raccourcis). Aucune aide visuelle."
+  },
+  "description_perfect_difficulty": {
+    "en": "It's time to be perfect: no help, and the title must be correct to the character",
+    "fr": "C'est le moment d'être parfaits : aucune aide, et le titre doit être correct au caractère près"
+  },
+  "Bad_title": {
+    "en": "Wrong title! ",
+    "fr": "Mauvais titre ! "
+  },
+  "Good_title": {
+    "en": "Good title! ",
+    "fr": "Bon titre ! "
+  },
+  "Video": {
+    "en": "video",
+    "fr": "Vidéo"
+  },
+  "User_answer": {
+    "en": "Your answer",
+    "fr": "Votre réponse"
+  },
+  "Video_presentation": {
+    "en": "The video was",
+    "fr": "La vidéo était"
+  },
+  "at": {
+    "en": "at",
+    "fr": "à"
+  },
+  "Total_length": {
+    "en": "Total length",
+    "fr": "Durée totale"
+  },
+  "User_estimation": {
+    "en": "Your estimation",
+    "fr": "Votre estimation"
+  },
+  "Difference": {
+    "en": "Difference",
+    "fr": "Écart"
+  },
+  "perfect_unlock": {
+    "en": "Wow, you're a pro at this game! Let's make this a bit harder, go check the **Perfect** difficulty in the settings 😼",
+    "fr": "Mais c'est que vous êtes pro à ce jeu dis donc ! On va pouvoir corser ça un peu, allez voir la difficulté **Parfait** dans les paramètres 😼"
+  },
+  "empty_pool_alert":{
+    "en": "There must be at least one active video to play.",
+    "fr": "Il doit y avoir au moins une vidéo active pour jouer."
+  },
+  "add_back_video":{
+    "en": "Re-add this video",
+    "fr": "Réintégrer cette vidéo"
+  },
+  "remove_video":{
+    "en": "Remove this video",
+    "fr": "Retirer cette vidéo"
+  },
+  "change_language_warning":{
+    "en": "Warning: Changing the language will reset your current game and accumulated points. Do you want to continue?",
+    "fr": "Attention : Changer de langue réinitialisera votre partie en cours et vos points accumulés. Voulez-vous continuer ?"
+  },
+  "Normal": {
+    "en": "Normal",
+    "fr": "Normal"
+  },
+  "Hard": {
+    "en": "Hard",
+    "fr": "Difficile"
+  },
+  "Hardcore": {
+    "en": "Hardcore",
+    "fr": "Hardcore"
+  },
+  "Perfect": {
+    "en": "Perfect",
+    "fr": "Parfait"
+  },
+  "No data":{
+    "en": "No data available for this game.",
+    "fr": "Aucune donnée disponible pour cette partie."
+  },
+  "Round": {
+    "en": "Round",
+    "fr": "Manche"
+  },
+  "Rounds": {
+    "en": "Rounds",
+    "fr": "Manches"
+  },
+  "Guessed_title": {
+    "en": "Guessed title",
+    "fr": "Titre deviné"
+  },
+  "No_answer": {
+    "en": "No answer",
+    "fr": "Aucune réponse"
+  },
+  "Guessed": {
+    "en": "Guessed",
+    "fr": "Estimé"
+  },
+  "Actual_video": {
+    "en": "Actual video",
+    "fr": "Vraie vidéo"
+  },
+  "Moment": {
+    "en": "Moment",
+    "fr": "Moment"
+  },
+  "Videos": {
+    "en": "Videos",
+    "fr": "Vidéos"
+  },
+  "Hide": {
+    "en": "Hide",
+    "fr": "Cacher"
+  },
+  "Show_list": {
+    "en": "Show the list",
+    "fr": "Afficher la liste"
+  },
+  "Settings": {
+    "en": "Settings",
+    "fr": "Paramètres"
+  },
+  "Subtitles language": {
+    "en": "Subtitles language",
+    "fr": "Langue des sous-titres"
+  },
+  "Amount_rounds": {
+    "en": "Amount of rounds",
+    "fr": "Nombre de manches"
+  },
+  "Infinite": {
+    "en": "Infinite",
+    "fr": "Infini"
+  },
+  "Display theme":{
+    "en": "Display theme",
+    "fr": "Thème d'affichage"
+  },
+  "Allow_automatic":{
+    "en": "Allow automatic subtitles",
+    "fr": "Autoriser les sous-titres automatiques"
+  },
+  "Difficulty": {
+    "en": "Difficulty",
+    "fr": "Difficulté"
+  },
+  "Close": {
+    "en": "Close",
+    "fr": "Fermer"
+  },
+  "New_mode_unlocked": {
+    "en": "New mode unlocked!",
+    "fr": "Nouveau mode débloqué !"
+  },
+  "Great": {
+    "en": "Great!",
+    "fr": "Génial !"
+  },
+  "Game_info": {
+    "en": "Game summary",
+    "fr": "Résumé de la partie"
+  },
+  "Record": {
+    "en": "Record",
+    "fr": "Record"
+  },
+  "Change_theme": {
+    "en": "Change theme",
+    "fr": "Changer de thème"
+  },
+  "Title_placeholder":{
+    "en": "Video title or theme...",
+    "fr": "Titre ou thème de la vidéo..."
+  },
+  "Format_examples":{
+    "en": "Format examples",
+    "fr": "Exemples de formats"
+  },
+  "Validate_title":{
+    "en": "Validate the title",
+    "fr": "Valider le titre"
+  },
+  "Validate_time":{
+    "en": "Validate the time",
+    "fr": "Valider le temps"
+  },
+  "Next_question":{
+    "en": "Next question",
+    "fr": "Question suivante"
+  },
+  "New_record":{
+    "en": "New record!",
+    "fr": "Nouveau record !"
+  },
+  "Game_over":{
+    "en": "Game over!",
+    "fr": "Partie terminée !"
+  },
+  "Final_score":{
+    "en": "Final score",
+    "fr": "Score final"
+  },
+  "points_abbr":{
+    "en": "pts",
+    "fr": "pts"
+  },
+  "Found_videos":{
+    "en": "Found videos",
+    "fr": "Vidéos trouvées"
+  },
+  "Best_score_mode":{
+    "en": "Best score in this mode",
+    "fr": "Meilleur score dans ce mode"
+  },
+  "New_game":{
+    "en": "New game",
+    "fr": "Nouvelle partie"
+  },
+  "See summary":{
+    "en": "See summary",
+    "fr": "Voir le résumé"
+  },
+  "About":{
+    "en": "About",
+    "fr": "À propos"
+  },
+  "by_lupa":{
+    "en": "by HRLupa",
+    "fr": "par HRLupa"
+  },
+  "Donate":{
+    "en": "Donate",
+    "fr": "Faire un don"
+  }
+}
