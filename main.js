@@ -30,6 +30,7 @@ let totalpoints = 0
 let validated = false
 let authorize_blank = (localStorage.getItem("great_guess_blank") || "true") !== "false"
 let play_with_automatic = (localStorage.getItem("great_guess_automatic") || "true") !== "false"
+let show_time_preview = (localStorage.getItem("great_guess_time_preview") || "true") !== "false"
 let totalquestions = []
 const difficulties = {
     normal: {
@@ -181,6 +182,7 @@ function new_question(focusInput = true) {
     playerDiv.className = "absolute -left-[9999px] opacity-0 pointer-events-none w-full";
     document.getElementById("time_wrapper").classList.add("hidden")
     document.getElementById("time_help_box").classList.add("hidden")
+    update_time_preview()
 
     const hintBox = document.getElementById("video_info_hint")
     if (hintBox) {
@@ -290,12 +292,13 @@ async function submit_title() {
             `
             hintBox.classList.remove("hidden")
         }
-        if (!localStorage.getItem("time_helped")) {
+        if (!localStorage.getItem("time_helped_v2")) {
             const time_help = document.getElementById("time_help_box")
             if (time_help) time_help.classList.toggle("hidden")
-            localStorage.setItem("time_helped", true)
+            localStorage.setItem("time_helped_v2", true)
         }
         document.getElementById("time_wrapper").classList.remove("hidden")
+        update_time_preview()
 
         const timeInput = document.getElementById("time_input")
         timeInput.classList.remove("hidden")
@@ -372,6 +375,7 @@ function submit_time() {
     document.getElementById("video_player").classList.remove("hidden")
     document.getElementById("time_wrapper").classList.add("hidden")
     document.getElementById("time_help_box").classList.add("hidden")
+    update_time_preview()
     timeInput.classList.add("hidden")
     document.getElementById("button_time").classList.add("hidden")
 
@@ -517,14 +521,34 @@ function build_search_candidates(availableVideos, manual_aliases, anglais_franca
 
 /* --- FORMATTAGE & PARSEUR HMS --- */
 
-function seconds_to_hms(seconds) {
+function seconds_to_hms(seconds,extended=false) {
     if (isNaN(seconds) || seconds < 0) return "00:00"
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
     const s = Math.round(seconds % 60)
     const pad = x => x.toString().padStart(2, "0")
+    const parts = []
+    if (!extended){
+        if (h > 0) parts.push(`${h}:`)
+        parts.push(`${pad(m)}:`)
+        parts.push(`${pad(s)}`)
+    }
+    else{
+        if (h>0){
+            if (h>1) parts.push(`${h} heures `)
+            else parts.push(`1 heure `)
+        }
+        if (m>0){
+            if (m>1) parts.push(`${m} minutes `)
+            else parts.push(`1 minute `)
+        }
+        if (s>0){
+            if (s>1) parts.push(`${s} secondes`)
+            else parts.push(`${s} seconde`)
+        }
+    }
+    return parts.join("")
 
-    return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`
 }
 
 function hms_to_seconds(input) {
@@ -568,7 +592,7 @@ function hms_to_seconds(input) {
         const parts = str.split(":").map(p => parseInt(p, 10))
         if (parts.some(isNaN)) return NaN;
         if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
-        if (parts.length === 2) return parts[0] * 3600 + parts[1] * 60
+        if (parts.length === 2) return parts[0] * 60 + parts[1]
     }
 
     const num = parseFloat(str)
@@ -1003,6 +1027,60 @@ function render_video_sidebar() {
     }
 
     listContainer.innerHTML = html
+}
+
+/* --- APERÇU DU TEMPS INTERPRÉTÉ --- */
+
+
+function update_time_preview() {
+    const preview = document.getElementById("time_preview")
+    const text = document.getElementById("time_preview_text")
+    const closeBtn = document.getElementById("time_preview_close")
+    const timeInput = document.getElementById("time_input")
+    const wrapper = document.getElementById("time_wrapper")
+    if (!preview || !text || !timeInput) return
+
+    const active = show_time_preview && wrapper && !wrapper.classList.contains("hidden")
+    preview.classList.toggle("hidden", !active)
+
+    const raw = timeInput.value.trim()
+    if (!active || !raw) {
+        text.innerHTML = ""
+        if (closeBtn) closeBtn.classList.add("hidden")
+        return
+    }
+    if (closeBtn) closeBtn.classList.remove("hidden")
+
+    text.className = "text-base-content/70"
+    const seconds = hms_to_seconds(raw)
+    if (isNaN(seconds) || seconds < 0) {
+        text.textContent = "Format non reconnu"
+        return
+    }
+
+    let html = `<strong class="font-mono text-secondary">${seconds_to_hms(seconds,extended=true)}</strong>`
+
+    // Avertissement si le temps dépasse la durée de la vidéo
+    try {
+        const expected_title = phrases[current_question[current_question.length >> 1]][0]
+        const total = durations[ids[expected_title]]
+        if (typeof total === "number" && seconds > total) {
+            html += ` <span>(dépasse la durée de la vidéo)</span>`
+        }
+    } catch (e) {}
+
+    text.innerHTML = html
+}
+
+function toggle_time_preview() {
+    show_time_preview = !show_time_preview
+    localStorage.setItem("great_guess_time_preview", show_time_preview)
+    const toggle = document.getElementById("time_preview_toggle")
+    if (toggle) toggle.checked = show_time_preview
+    update_time_preview()
+}
+function dismiss_time_preview() {
+    if (show_time_preview) toggle_time_preview()
 }
 
 /* --- GESTION DE L'AIDE POUR LE TEMPS --- */
@@ -1501,6 +1579,8 @@ function init_website() {
     if (allowBlankToggle) allowBlankToggle.checked = authorize_blank
     const playAutomaticToggle = document.getElementById("play_automatic")
     if (playAutomaticToggle) playAutomaticToggle.checked = play_with_automatic
+    const timePreviewToggle = document.getElementById("time_preview_toggle")
+    if (timePreviewToggle) timePreviewToggle.checked = show_time_preview
 
     init_theme()
     update_highscore_display()
@@ -1517,6 +1597,10 @@ function init_website() {
     }
 
     if (timeInput) {
+        timeInput.addEventListener("input", () => {
+            timeInput.classList.remove("input-error")
+            update_time_preview()
+        })
         timeInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") submit_time()
         })
