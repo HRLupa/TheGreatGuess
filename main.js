@@ -32,6 +32,7 @@ let authorize_blank = (localStorage.getItem("great_guess_blank") || "true") !== 
 let play_with_automatic = (localStorage.getItem("great_guess_automatic") || "true") !== "false"
 let show_time_preview = (localStorage.getItem("great_guess_time_preview") || "true") !== "false"
 let totalquestions = []
+let summary_detailed = false
 const difficulties = {
     normal: {
         fonction: normal_difficulty,
@@ -126,7 +127,7 @@ function score_guess_quadratic(guessTime, startTime, videoDuration) {
     if (error >= maxError) return 0
     let errorRatio = error / maxError
     let score = 200 * Math.pow(1.02 - errorRatio, 1.4)
-    return Math.round(Math.min(score, 200))
+    return Math.min(score, 200)
 }
 
 function format_phrase(text) {
@@ -153,7 +154,7 @@ function new_question(focusInput = true) {
     }
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
 
-    totalquestions.push({ "phrase": phrase, "real_video": null, "real_time": null, "guessed_time": null, "guessed_video": null, "time_video": null, "time_moment": null, "score": 0, "raw_guessed_video": null })
+    totalquestions.push({ "phrase": phrase, "real_video": null, "real_time": null, "guessed_time": null, "guessed_video": null, "time_video": null, "time_moment": null, "score": 0, "raw_guessed_video": null, "video_duration":null})
     start_segment = Date.now()
 
     document.getElementById("phrase").innerHTML = `<span>« ${format_phrase(phrase)} »</span>`
@@ -346,11 +347,12 @@ function submit_time() {
     const playback_start_time = phrases[indcontext[0]][2]
 
     const durationvideo = durations[ids[expected_title]]
-    const score = score_guess_quadratic(secondsGuessed, exact_quote_start, durationvideo)
-    totalquestions[totalquestions.length - 1]["real_time"] = playback_start_time
+    const score = Math.round(score_guess_quadratic(secondsGuessed, exact_quote_start, durationvideo))
+    totalquestions[totalquestions.length - 1]["real_time"] = exact_quote_start
     totalquestions[totalquestions.length - 1]["score"] = 200 + score
     totalquestions[totalquestions.length - 1]["time_moment"] = Date.now() - start_segment
     totalquestions[totalquestions.length - 1]["guessed_time"] = secondsGuessed
+    totalquestions[totalquestions.length - 1]["video_duration"] = durationvideo
 
     animate_points(score)
 
@@ -1526,7 +1528,7 @@ function open_summary_modal() {
                 : `<div class="w-16 h-11 rounded-md bg-base-300/50 flex items-center justify-center shrink-0 text-xs text-base-content/40">N/A</div>`
 
             summaryHtml += `
-                <div class="bg-base-200/60 p-4 rounded-xl border border-base-300 space-y-3">
+                <div data-round="${index}"class="bg-base-200/60 p-4 rounded-xl border border-base-300 space-y-3">
                     <div class="flex items-center justify-between border-b border-base-300/50 pb-2">
                         <span class="font-bold text-sm text-primary">Manche ${index + 1}</span>
                         <span class="badge ${q.score > 0 ? 'badge-success' : 'badge-ghost'} font-bold">
@@ -1559,14 +1561,160 @@ function open_summary_modal() {
                             </div>
                         </div>
                     </div>
+                    ${summary_detailed ? build_score_chart(q) : ""}
                 </div>
             `
         })
 
         listContainer.innerHTML = summaryHtml
     }
+    const detailedToggle = document.getElementById("summary_detailed_toggle")
+    if (detailedToggle) detailedToggle.checked = summary_detailed
+    if (!modal.open) modal.showModal()
+}
+function toggle_summary_detailed() {
+    const list = document.getElementById("summary_list")
 
-    modal.showModal()
+    // Mémorise la manche la plus visible dans la liste et sa position
+    let anchorRound = null
+    let anchorOffset = 0
+    if (list) {
+        const listRect = list.getBoundingClientRect()
+        let bestVisible = 0
+        for (const card of list.querySelectorAll("[data-round]")) {
+            const rect = card.getBoundingClientRect()
+            if (rect.top > listRect.bottom) break
+            const visible = Math.min(rect.bottom, listRect.bottom) - Math.max(rect.top, listRect.top)
+            if (visible > bestVisible) {
+                bestVisible = visible
+                anchorRound = card.dataset.round
+                anchorOffset = rect.top - listRect.top
+            }
+        }
+    }
+
+    summary_detailed = document.getElementById("summary_detailed_toggle").checked
+    open_summary_modal()
+
+    // Remet cette même manche à la même position (entièrement visible si elle tient dans la liste)
+    if (list && anchorRound !== null) {
+        const card = list.querySelector(`[data-round="${anchorRound}"]`)
+        if (card) {
+            const listH = list.clientHeight
+            const lower = Math.min(0, listH - card.offsetHeight)
+            const upper = listH - 40
+            const offset = Math.min(Math.max(anchorOffset, lower), upper)
+            list.scrollTop += card.getBoundingClientRect().top - list.getBoundingClientRect().top - offset
+        }
+    }
+}
+
+// Imported function
+function build_score_chart(q) {
+    // Pas d'estimation de temps pour cette manche (mauvais titre, etc.)
+    if (q.guessed_time == null || q.real_time == null || !q.video_duration) return ""
+
+    const D = q.video_duration
+    const W = 400, H = 200
+    const m = { l: 34, r: 12, t: 22, b: 26 } // t élargi pour laisser la place à l'étiquette de points
+    const pw = W - m.l - m.r
+    const ph = H - m.t - m.b
+    const x = t => m.l + (t / D) * pw
+    const y = s => m.t + ph - (s / 200) * ph
+    const f = n => n.toFixed(1)
+
+    // Courbe : points (flottants, donc lisses) obtenus selon le moment estimé
+    const N = 200
+    let line = ""
+    for (let i = 0; i <= N; i++) {
+        const t = D * i / N
+        line += `${i ? "L" : "M"}${f(x(t))} ${f(y(score_guess_quadratic(t, q.real_time, D)))} `
+    }
+    const area = `${line}L${f(x(D))} ${f(y(0))} L${f(x(0))} ${f(y(0))} Z`
+
+    // Position du joueur (ramenée dans la vidéo pour l'affichage)
+    const guess = Math.min(Math.max(q.guessed_time, 0), D)
+    const rawScore = score_guess_quadratic(q.guessed_time, q.real_time, D) // pour placer le point sur la courbe
+    const earned = Math.round(rawScore)                                    // ce que le joueur a réellement gagné
+    const gx = x(guess)
+    const gy = y(rawScore)
+
+    // Étiquette de points : on cherche un emplacement près du point qui ne chevauche pas la courbe.
+    // Ordre d'essai : en haut du côté où la courbe descend, en haut de l'autre côté, puis en bas,
+    // en s'éloignant progressivement du point si nécessaire.
+    const labelText = `+${earned} pts`
+    const labelW = labelText.length * 5.5 + 2
+    const labelH = 11
+    const curveY = px => y(score_guess_quadratic(((px - m.l) / pw) * D, q.real_time, D))
+    const preferred = guess < q.real_time ? -1 : 1
+    let label = null
+    search: for (const dy of [5, 16, 28, 40]) {
+        for (const vert of [-1, 1]) {
+            for (const side of [preferred, -preferred]) {
+                const x0 = side === 1 ? gx + 7 : gx - 7 - labelW
+                const y0 = vert === -1 ? gy - dy - labelH : gy + dy
+                if (x0 < m.l || x0 + labelW > W || y0 < 2 || y0 + labelH > m.t + ph - 1) continue // sort du graphique
+                let clear = true
+                for (let k = 0; k <= 8 && clear; k++) {
+                    const cy = curveY(x0 + (labelW * k) / 8)
+                    if (cy > y0 - 2 && cy < y0 + labelH + 2) clear = false // touche la courbe
+                }
+                if (clear) { label = { side, x0, y0 }; break search }
+            }
+        }
+    }
+    if (!label) {
+        // Dernier recours : dans la marge du haut, au-dessus de la ligne du joueur (toujours libre,
+        // car la courbe ne dépasse jamais 200 points)
+        label = { side: 0, x0: Math.min(Math.max(gx - labelW / 2, m.l), W - labelW), y0: 3 }
+    }
+    const labelAnchor = label.side === 1 ? "start" : label.side === -1 ? "end" : "middle"
+    const labelX = label.side === 1 ? label.x0 : label.side === -1 ? label.x0 + labelW : label.x0 + labelW / 2
+    const labelY = label.y0 + 9
+
+    // Masque : efface légèrement la grille et la ligne verte derrière l'étiquette pour qu'elle reste lisible
+    const maskId = "lbl" + Math.random().toString(36).slice(2, 8)
+
+    const yGrid = [0, 100, 200].map(v => `
+        <line x1="${m.l}" x2="${W - m.r}" y1="${f(y(v))}" y2="${f(y(v))}" stroke="currentColor" stroke-opacity="0.15" />
+        <text x="${m.l - 6}" y="${f(y(v) + 3.5)}" text-anchor="end" font-size="10" fill="currentColor" fill-opacity="0.6">${v}</text>`).join("")
+
+    const xTicks = [0, 1, 2, 3, 4].map(i => {
+        const anchor = i === 4 ? "end" : "middle"
+        return `<text x="${f(m.l + (pw * i) / 4)}" y="${H - 8}" text-anchor="${anchor}" font-size="10" fill="currentColor" fill-opacity="0.6">${seconds_to_hms(D * i / 4)}</text>`
+    }).join("")
+
+    return `
+        <div class="pt-2 space-y-1">
+            <p class="text-[10px] text-base-content/60 uppercase font-semibold">Points selon le moment estimé</p>
+            <svg viewBox="0 0 ${W} ${H}" class="w-full h-auto max-w-lg mx-auto block text-base-content" role="img" aria-label="Points possibles selon le moment estimé">
+                <defs>
+                    <mask id="${maskId}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">
+                        <rect x="0" y="0" width="${W}" height="${H}" fill="white" />
+                    </mask>
+                </defs>
+                <g mask="url(#${maskId})">${yGrid}</g>
+                ${xTicks}
+                <g class="text-primary">
+                    <path d="${area}" fill="currentColor" fill-opacity="0.15" />
+                    <path d="${line}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                </g>
+                <g class="text-success" mask="url(#${maskId})">
+                    <line x1="${f(x(q.real_time))}" x2="${f(x(q.real_time))}" y1="${m.t}" y2="${m.t + ph}" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" />
+                </g>
+                <g class="text-secondary">
+                    <line x1="${f(gx)}" x2="${f(gx)}" y1="${m.t}" y2="${m.t + ph}" stroke="currentColor" stroke-width="2" />
+                    <circle cx="${f(gx)}" cy="${f(gy)}" r="4" fill="currentColor" />
+                    <text x="${f(labelX)}" y="${f(labelY)}" text-anchor="${labelAnchor}" font-size="11" font-weight="700" fill="currentColor">${labelText}</text>
+                </g>
+            </svg>
+            <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-base-content/70">
+                <span><span class="text-primary">●</span> Points possibles</span>
+                <span><span class="text-success">●</span> Moment exact : <strong>${seconds_to_hms(q.real_time)}</strong></span>
+                <span><span class="text-secondary">●</span> Votre estimation : <strong>${seconds_to_hms(q.guessed_time)}</strong></span>
+            </div>
+        </div>
+    `
 }
 
 function init_website() {
