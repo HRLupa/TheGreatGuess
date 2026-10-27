@@ -1,9 +1,7 @@
-<!-- 
 ---
 layout: default
 title: Documentation
---- 
--->
+---
 
 [![Banner](./images/banner.jpg)](https://docs.google.com/spreadsheets/d/1EDEnH4NBZ_jRTlUTTp8WNjOYX3n9T7GdECEzr0Nr1aQ/edit?usp=sharing)
 
@@ -134,7 +132,7 @@ You can choose to play 5, 15, 30, or an infinite amount of rounds. The default s
 
 #### Theme
 
-You can switch between themes (light or dark) via the settings menu. Once the menu is closed, the option remains accessible through a button that appears in its place. Be careful with your eyes when using the light theme!
+You can switch between themes (light or dark) via the settings menu. Once the menu is closed, the option remains accessible through a button that appears in its place. Careful with your eyes when using the light theme!
 
 #### Allow Empty Titles
 
