@@ -155,7 +155,7 @@ function new_question(focusInput = true) {
     }
     const phrase = indices.map(i => phrases[i][1].trim()).join(" ")
 
-    totalquestions.push({ "phrase": phrase, "real_video": null, "real_time": null, "guessed_time": null, "guessed_video": null, "time_video": null, "time_moment": null, "score": 0, "raw_guessed_video": null, "video_duration":null})
+    totalquestions.push({ "phrase": phrase, "real_video": null, "real_time": null, "guessed_time": null, "guessed_video": null, "time_video": null, "time_moment": null, "score": 0, "raw_guessed_video": null, "time_input":null, "video_duration":null})
     start_segment = Date.now()
 
     document.getElementById("phrase").innerHTML = `<span>« ${format_phrase(phrase)} »</span>`
@@ -683,6 +683,7 @@ function show_unlock_difficulty() {
 }
 
 function show_game_over() {
+    if (is_game_over) return
     is_game_over = true
     document.getElementById("quiz_content").classList.add("hidden")
 
