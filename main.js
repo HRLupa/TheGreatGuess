@@ -18,7 +18,7 @@ let transcriptsByLang = {}
 let transcripts = {}
 let rawVideos = []
 let current_round = 1
-let max_rounds = 15
+let max_rounds = parseInt(localStorage.getItem("great_guess_max_rounds") || "15")
 let correct_titles_count = 0
 let is_game_over = false
 let is_game_started = false
@@ -614,11 +614,15 @@ function update_round_display() {
     } else {
         roundEl.innerText = `${current_round} / ${max_rounds}`
     }
+    const roundSelect = document.getElementById("round_select")
+    if (roundSelect){
+        roundSelect.value = max_rounds.toString()
+    }
 }
 
 function change_max_rounds(val) {
     max_rounds = parseInt(val, 10)
-    update_highscore_display()
+    localStorage.setItem("great_guess_max_rounds", max_rounds)
     reset_game()
 }
 
@@ -1746,6 +1750,7 @@ function init_website() {
 
     init_theme()
     update_highscore_display()
+    update_round_display()
     update_difficulty_badges()
     const titleInput = document.getElementById("video_title")
     const timeInput = document.getElementById("time_input")
