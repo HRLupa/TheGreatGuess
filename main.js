@@ -13,6 +13,7 @@ const LANG_CONFIG = {
 const disabledByDefault=["Tous les boss de Dark Souls 3 d'affilée sans mourir"]
 
 
+let games_amount=0
 let transcriptsByLang = {}
 let transcripts = {}
 let rawVideos = []
@@ -234,6 +235,7 @@ async function submit_title() {
     validated = true
     if (!is_game_started) {
         is_game_started = true
+        games_amount++
         const roundSelect = document.getElementById("round_select")
         if (roundSelect) roundSelect.disabled = true
         const refreshBtn = document.getElementById("refresh_videos")
@@ -353,6 +355,7 @@ function submit_time() {
     totalquestions[totalquestions.length - 1]["time_moment"] = Date.now() - start_segment
     totalquestions[totalquestions.length - 1]["guessed_time"] = secondsGuessed
     totalquestions[totalquestions.length - 1]["video_duration"] = durationvideo
+    totalquestions[totalquestions.length - 1]["time_input"] = guess_time_str
 
     animate_points(score)
 
@@ -1296,6 +1299,15 @@ function update_difficulty_badges(difficulty = current_difficulty) {
 
 /* Sending results */
 
+function getId() {
+    let id = localStorage.getItem("game_session_id");
+    if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("game_session_id", id);
+    }
+    return id;
+}
+
 async function sendResults() {
     const payload = {
         score: totalpoints,
@@ -1720,6 +1732,7 @@ function build_score_chart(q) {
 function init_website() {
     current_lang = localStorage.getItem("great_guess_language") || document.getElementById("lang_select").value
     document.getElementById("lang_select").value = current_lang
+    getId()
 
     transition_high_scores()
     update_difficulty_options()
