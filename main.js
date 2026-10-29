@@ -1686,7 +1686,7 @@ function build_score_chart(q) {
         label = { side: 0, x0: Math.min(Math.max(gx - labelW / 2, m.l), W - labelW), y0: 3 }
     }
     const labelAnchor = label.side === 1 ? "start" : label.side === -1 ? "end" : "middle"
-    const labelX = label.side === 1 ? label.x0 : label.side === -1 ? label.x0 + labelW : label.x0 + labelW / 2
+    const labelX = label.side === 1 ? label.x0 : label.side === -1 ? label.x0 + labelW : label.x0 + labelW / 2 // label.x0+labelW*(((-label.side)+1)/2)
     const labelY = label.y0 + 9
 
     // Masque : efface légèrement la grille et la ligne verte derrière l'étiquette pour qu'elle reste lisible
