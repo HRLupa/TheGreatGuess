@@ -23,6 +23,23 @@ Ce projet est un quiz pour tester les connaissances du texte prononcé dans cert
 
 Sur la barre verticale à gauche de l'écran (ou en haut sur mobile), avant de commencer la partie, vous pouvez sélectionner les vidéos sur lesquelles vous voulez voir des extraits ou pas, afin d'éviter les spoils potentiels, avec le bouton en forme de croix. Vous pouvez réintégrer ces vidéos en allant tout en bas de la barre verticale, où les vidéos non sélectionnées sont grisées, et où vous pouvez les réintégrer aux vidéos possiblement tirées en appuyant sur le bouton en forme de +.
 
+### Vidéo
+
+Une phrase s'affichera à l'écran : il s'agira d'un extrait vidéo, ou d'une traduction de cet extrait. Dans les deux cas, votre objectif sera de retrouver le titre de la vidéo d'origine. Si le titre ne vous vient pas à l'esprit, essayez d'entrer des mots-clés thématiques de la vidéo, il est probable qu'elle vous soit suggérée. Si vous trouvez la bonne vidéo, vous recevrez 200 points et aurez l'occasion de *guess* à quel moment de la vidéo la phrase affichée a été prononcée.
+
+### Bonne réponse
+
+Si vous avez trouvé la bonne vidéo, vous obtiendrez un peu plus de contexte et serez invité à *guess* à quel moment de la vidéo l'extrait a été prononcé.
+Vous pouvez saisir l'heure sous les formats `XX:XX:XX` ou `XXhXXmXXs`. Par défaut, la saisie correspond aux minutes, puis aux heures, et aux secondes (par exemple, `1:2` correspond à 1 heure 02 minutes, `25` correspond à 25 minutes). La casse (majuscules/minuscules), les espaces, et les accents ne sont pas pris en compte.
+
+Après avoir fait votre *guess*, un score vous sera attribué en fonction de votre proximité au temps exact. Vous pourrez gagner jusqu'à 200 points en trouvant le moment précis. À titre indicatif, il est possible de marquer des points sur environ 50 % de la durée totale de la vidéo (la durée vous sera indiquée), et le calcul suit une augmentation quadratique (un écart d'une minute entraîne une variation de points plus importante lorsque vous êtes proche de la cible).
+
+![Évaluation des scores de devinettes](./images/scores_fr.png)
+
+### Mauvaise réponse
+
+Si vous avez *guess* la mauvaise vidéo, la séquence vidéo qui était à trouver vous sera présentée à partir du moment correspondant au texte affiché, afin que vous puissiez vous souvenir de la scène.
+
 ### Paramètres
 
 Avant de commencer une partie (à la première manche avant de valider un titre), vous avez accès aux paramètres, qui vous permettent de changer : 
@@ -43,7 +60,7 @@ Avant de commencer une partie (à la première manche avant de valider un titre)
 
 #### Langue
 
-Les langues disponibles sont le français et l'anglais, et changent la langue des extraits pouvant être sélectionnés. En anglais, seules certaines vidéos disposent de transcripts (qui ont tous été rédigés manuellement), les autres vidéos sont donc indisponibles dans cette langue. En français, toutes les vidéos sont disponibles, mais [la majorité](#transcripts-français) de leurs transcripts ont été générés automatiquement par YouTube, et sont donc de qualité questionnable. Du travail est en cours pour rédiger des transcripts adaptés dans les vidéos manquantes.
+Les langues disponibles sont le français et l'anglais, et changent la langue des extraits pouvant être sélectionnés. En anglais, seules certaines vidéos disposent de transcripts (qui ont tous été rédigés manuellement), les autres vidéos sont donc indisponibles dans cette langue. En français, toutes les vidéos sont disponibles, mais **[la majorité](#transcripts-français)** de leurs transcripts ont été générés automatiquement par YouTube, et sont donc de qualité questionnable. Du travail est en cours pour rédiger des transcripts adaptés dans les vidéos manquantes.
 
 #### Manches
 
@@ -69,26 +86,13 @@ Un paramètre permettant d'activer ou de désactiver l'aperçu du temps interpr�
 
 Il est possible de changer de difficulté, ce qui revient à modifier les aides disponibles : Le mode normal, par défaut, permet d'utiliser les raccourcis (ow2= le DLC d'Outer Wilds) et une souplesse pour taper le titre, d'avoir accès à la barre latérale, à des extraits complets, et aux suggestions. Il existe aussi le mode difficile, qui interdit les raccourcis et désactive la barre latérale, et le mode hardcore, qui désactive également les suggestions. Peut-être qu'il serait intéressant d'avoir un mode désactivant les extraits étendus, qui sait ?
 
-### Vidéo
-
-Une phrase s'affichera à l'écran : il s'agira d'un extrait vidéo, ou d'une traduction de cet extrait. Dans les deux cas, votre objectif sera de retrouver le titre de la vidéo d'origine. Si le titre ne vous vient pas à l'esprit, essayez d'entrer des mots-clés thématiques de la vidéo, il est probable qu'elle vous soit suggérée. Si vous trouvez la bonne vidéo, vous recevrez 200 points et aurez l'occasion de *guess* à quel moment de la vidéo la phrase affichée a été prononcée.
-
-### Bonne réponse
-
-Si vous avez trouvé la bonne vidéo, vous obtiendrez un peu plus de contexte et serez invité à *guess* à quel moment de la vidéo l'extrait a été prononcé.
-Vous pouvez saisir l'heure sous les formats `XX:XX:XX` ou `XXhXXmXXs`. Par défaut, la saisie correspond aux minutes, puis aux heures, et aux secondes (par exemple, `1:2` correspond à 1 heure 02 minutes, `25` correspond à 25 minutes). La casse (majuscules/minuscules), les espaces, et les accents ne sont pas pris en compte.
-
-Après avoir fait votre *guess*, un score vous sera attribué en fonction de votre proximité au temps exact. Vous pourrez gagner jusqu'à 200 points en trouvant le moment précis. À titre indicatif, il est possible de marquer des points sur environ 50 % de la durée totale de la vidéo (la durée vous sera indiquée), et le calcul suit une augmentation quadratique (un écart d'une minute entraîne une variation de points plus importante lorsque vous êtes proche de la cible).
-
-![Évaluation des scores de devinettes](./images/scores_fr.png)
-
-### Mauvaise réponse
-
-Si vous avez *guess* la mauvaise vidéo, la séquence vidéo qui était à trouver vous sera présentée à partir du moment correspondant au texte affiché, afin que vous puissiez vous souvenir de la scène.
-
 ### Résumé
 
 À la fin de la partie, un résumé s'affiche vous permettant de reprendre vos erreurs, de les comprendre, et de ré-évaluer votre partie. Ce résumé comprend vos entrées ainsi que les entrées attendues. Si c'est votre première partie, le score que vous avez obtenu sera enregistré comme votre record dans ce mode. 
+
+## Avancement des transcripts
+
+Certaines transcriptions proviennent de retranscriptions manuelles des vidéos, et sont donc de très bonne qualité, tandis que d'autres viennent du système de transcription automatique de YouTube, et ne sont pas complètement adaptées au site, car elles incluent de nombreuses fautes. Je ne toucherai pas aux transcriptions en anglais, par respect pour TheGreatReview, qui a exprimé vouloir des gens parlant l'anglais nativement pour traduire ses textes, pour qu'iels soient capables de reproduire fidèlement le ton qu'il emploie, ce qui est un critère auquel je ne réponds pas. Je travaille cependant sur des sous-titres en français, afin d'offrir une expérience de jeu de meilleure qualité tout en garantissant une grande précision, puisqu'il ne s'agit pas ici de traduire quoi que ce soit. Voici l'[état actuel](#transcripts-français) des sous-titres (rédigés manuellement et automatiquement).
 
 ### Avancé
 
@@ -103,6 +107,23 @@ This project is a quiz to test knowledge on the structure of chosen videos. The 
 ### Selecting Videos
 
 On the vertical sidebar on the left side of the screen (or at the top on mobile), before starting a game, you can choose which videos you would like to include or exclude, helping you avoid potential spoilers, by using the "X" button. You can add previously excluded videos back into the pool by scrolling to the bottom of the sidebar, where deselected videos appear in gray; then, click the "+" button to include them again.
+
+### Video
+
+A phrase will appear on the screen: this will be either a transcription of a clip of a video, or a translation of that clip. In either case, your goal is to identify the title of the original video. If the title doesn't come to mind, try entering keywords related to the video's theme : the video's title will likely be suggested to you. If you find the correct video, you will receive 200 points and get the chance to guess at what point in the video the displayed phrase was spoken.
+
+### Correct Answer
+
+If you find the correct video, you will get a bit more context and be asked to *guess* at what point in the video the clip was spoken.
+You can enter the time in formats such as `XX:XX:XX` or `XXhXXmXXs`. By default, the input corresponds to minutes, then hours, and then seconds (for example, `1:2` corresponds to 1 hour and 2 minutes, and `25` corresponds to 25 minutes). The input is insensitive to case, spaces, and accents.
+
+After making your guess, you will be awarded a score based on how close you were to the exact time. You can earn up to 200 points by finding the exact time. As a guide, you can score points within a range covering about 50% of the video's total duration (the duration will be displayed), and the calculation follows a quadratic curve (a one-minute difference results in a larger point variation when you're close to the target).
+
+![Guessing scores evaluation](./images/scores_en.png)
+
+### Incorrect Guess
+
+If you guess an incorrect video, a clip showing the target video will be shown to you starting at the moment corresponding to the displayed text, helping you recall the scene for the next time.
 
 ### Settings
 
@@ -122,13 +143,15 @@ Before starting a game (during the first round, before confirming a title), you 
 
 - [Difficulty](#difficulty)
 
+All of them are stored locally, so that you can close your session and come back in the same environment you were in previously. 
+
 #### Language
 
-You can choose between French and English, which determines the language of the video extracts that the game will choose from. In English, only certain videos have transcripts (all of which were written manually), as YouTube does not automatically provide translated subtitles in English; therefore, videos without such transcripts are unavailable in this language. In French, all videos are available, though [most](#french-transcripts) of the transcripts were automatically generated by YouTube and may be of questionable quality. Work is currently underway to create proper, accurate transcripts for the videos that are currently lacking them.
+You can choose between French and English, which determines the language of the video extracts that the game will choose from. In English, only certain videos have transcripts (all of which were written manually), as YouTube does not automatically provide translated subtitles in English; therefore, videos without such transcripts are unavailable in this language. In French, all videos are available, though **[most](#french-transcripts)** of the transcripts were automatically generated by YouTube and may be of questionable quality. Work is currently underway to create proper, accurate transcripts for the videos that are currently lacking them.
 
 #### Rounds
 
-You can choose to play 5, 15, 30, or an infinite amount of rounds. The default setting is 15 rounds, which constitutes a standard-length game. Choosing an infinite number of rounds can be useful for practice—essentially a "training mode"—where you don't have to worry about your score. The other three options allow you to play games of varying lengths, depending on your preference. Records set for a specific number of rounds do not carry over to games with a different number of rounds.
+You can choose to play 5, 15, 30, or an infinite amount of rounds. The default setting is 15 rounds, which constitutes a standard-length game. Choosing an infinite number of rounds can be useful for practice (a training mode of some sort) where you don't have to worry about your score. The other three options allow you to play games of varying lengths, depending on your preference. Records set for a specific number of rounds do not carry over to games with a different number of rounds.
 
 #### Theme
 
@@ -136,7 +159,7 @@ You can switch between themes (light or dark) via the settings menu. Once the me
 
 #### Allow Empty Titles
 
-This setting, which persists between games, determines whether an error is triggered if you attempt to submit a video title without having entered anything (which counts as an incorrect answer). You might want to enable this if you prefer the ability to easily "give up" on a question; conversely, if you are persistent, you might want to disable it to avoid accidentally submitting an empty title.
+This setting determines whether an error is triggered if you attempt to submit a video title without having entered anything (which counts as an incorrect answer). You might want to enable this if you prefer the ability to easily "give up" on a question; conversely, if you are persistent, you might want to disable it to avoid accidentally submitting an empty title.
 
 #### Allow Automatic Transcripts
 
@@ -144,39 +167,23 @@ This setting filters the pool of available videos, restricting it to those with 
 
 #### Input Timing Preview
 
-This feature displays how the site interprets the time you enter when typing. It helps prevent simple mistakes, but you can disable it if you find it distracting—especially once you’ve become familiar with the site. You can also dismiss the preview by clicking the "X" button that appears next to it. 
+This feature displays how the game interprets the time you enter when typing. It helps prevent simple mistakes, but you can disable it if you find it distracting (usually once you’ve become familiar with the game). You can also disable the preview by clicking the "X" button that appears on its right.  
 
 #### Difficulty
 
-You can change the difficulty level, which essentially adjusts the available aids: Normal mode—the default—allows for the use of shortcuts (e.g., "ow2" for the *Outer Wilds* DLC), offers some flexibility when typing titles, and provides access to a sidebar, full excerpts, and suggestions. There is also Hard mode, which prohibits shortcuts and disables the sidebar, as well as Hardcore mode, which additionally disables suggestions. Perhaps it would be interesting to have a mode that disables extended excerpts—who knows?
+You can change the difficulty level, which essentially changes the available tools to help you: Normal mode (the default), allows for the use of shortcuts (e.g., "ow2" for the *Outer Wilds* DLC), offers some flexibility when typing titles, and provides access to a sidebar, full excerpts, and suggestions. There is also the Hard mode, which disables shortcuts and the sidebar, as well as the Hardcore mode, which also disables suggestions. Perhaps it would be interesting to have a mode that disables extended extracts, who knows?
 
-### Video
+### Summary
 
-A phrase will appear on the screen: this will be either a transcription of a clip of a video, or a translation of that clip. In either case, your goal is to identify the title of the original video. If the title doesn't come to mind, try entering keywords related to the video's theme : the video's title will likely be suggested to you. If you find the correct video, you will receive 200 points and get the chance to guess at what point in the video the displayed phrase was spoken.
-
-### Correct Answer
-
-If you find the correct video, you will get a bit more context and be asked to *guess* at what point in the video the clip was spoken.
-You can enter the time in formats such as `XX:XX:XX` or `XXhXXmXXs`. By default, the input corresponds to minutes, then hours, and then seconds (for example, `1:2` corresponds to 1 hour and 2 minutes, and `25` corresponds to 25 minutes). The input is insensitive to case, spaces, and accents.
-
-After making your guess, you will be awarded a score based on how close you were to the exact time. You can earn up to 200 points by finding the exact time. As a guide, you can score points within a range covering about 50% of the video's total duration (the duration will be displayed), and the calculation follows a quadratic curve (a one-minute difference results in a larger point variation when you're close to the target).
-
-![Guessing scores evaluation](./images/scores_en.png)
-
-### Incorrect Guess
-
-If you guess an incorrect video, a clip showing the target video will be shown to you starting at the moment corresponding to the displayed text, helping you recall the scene for the next time.
+At the end of the game, a summary is displayed, allowing you to review your mistakes, understand them, and evaluate your performance. This summary includes both your inputs and the expected inputs. If this is your first game, or if you've scored higher than ever in these settings, the score you achieved will be saved as your record for this mode.
 
 ### State of transcriptions
 
-Some transcriptions come from manual transcripts from the video, which are great and of quality, while some others come from the automatic YouTube retranscription, and are not adaptated to the website. I am working on adding more manual transcripts on French language, but will leave the English ones untouched, out of respect towards TheGreatReview who wanted translators who were speaking English natively so that they could replicate his tone in a good way, which I am not capable of. However, I am working on French subtitles, to provide a gameplay of better quality, while still being accurate, as I don't have to translate anything. Here's the current state of the manual/automatic subtitles
+Some transcriptions come from manual transcripts from the video, which are great and of good quality, while some others come from the automatic YouTube transcription, and are not adaptated to the website. I will leave the English transcripts untouched, out of respect towards TheGreatReview who wanted translators who speak English natively, so that they could replicate his tone in an accurate way, which I am not capable of doing. However, I am working on writing French subtitles, to provide a gameplay of better quality, while still being accurate, as I don't have to translate anything. Here's the [current state](#english-transcripts) of the manual/automatic subtitles.
 
 ### Advanced
 
 If you have ideas for improvement or notice any unexpected behavior on the site, please contact me on [Discord](https://discord.com/users/545300661302984714) or open an [issue](https://github.com/HRLupa/TheGreatGuess/issues) to let me know so I can make updates.
-
-## Avancement des transcripts
-
 
 ### Transcripts français
 
