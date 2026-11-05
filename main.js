@@ -40,6 +40,7 @@ const difficulties = {
         sidebar: true,
         extend_context: true,
         suggestions: true,
+        floor_points: 0,
         description: "Suggestions actives, extrait rallongé après réponse et liste des vidéos disponible."
     },
     hard: {
@@ -47,6 +48,7 @@ const difficulties = {
         sidebar: false,
         extend_context: true,
         suggestions: true,
+        floor_points: 0,
         description: "Plus de liste de vidéos et plus de possibilité d'utiliser des raccourcis pour les vidéos. "
     },
     hardcore: {
@@ -54,6 +56,7 @@ const difficulties = {
         sidebar: false,
         extend_context: true,
         suggestions: false,
+        floor_points: 0,
         description: "Le titre est demandé (plus de possibilité d'utiliser des raccourcis). Aucune aide visuelle. "
     },
     perfect: {
@@ -61,6 +64,7 @@ const difficulties = {
         sidebar: false,
         extend_context: false,
         suggestions: false,
+        floor_points:100,
         description: "C'est le moment d'être parfaits : aucune aide, et le titre doit être correct au caractère près"
     }
 }
@@ -128,7 +132,7 @@ function score_guess_quadratic(guessTime, startTime, videoDuration) {
     if (error >= maxError) return 0
     let errorRatio = error / maxError
     let score = 200 * Math.pow(1.02 - errorRatio, 1.4)
-    return Math.min(score, 200)
+    return Math.min(score, 200)>=difficulties[current_difficulty].floor_points?Math.min(score,200) : 0
 }
 
 function format_phrase(text) {
