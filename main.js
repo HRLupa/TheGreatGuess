@@ -212,7 +212,7 @@ function hardcore_difficulty(rawInput, expectedTitle) {
     return (overnormalyze(rawInput) === overnormalyze(anglais_francais[expectedTitle]))
 }
 function perfect_difficulty(rawInput, expected_title) {
-    return (rawInput === anglais_francais[expected_title])
+    return (rawInput.trim() === anglais_francais[expected_title])
 }
 function overnormalyze(title) {
     return (title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, ""))
